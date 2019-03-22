@@ -49,10 +49,13 @@ public class APIUserController extends APIController {
     private static final String ROLE_LABTECH = "ROLE_LABTECH";
 
     /** constant for lab role */
-    private static final String ROLE_OD = "ROLE_OD";
+    private static final String ROLE_OD      = "ROLE_OD";
 
     /** constant for lab role */
-    private static final String ROLE_OPH = "ROLE_OPH";
+    private static final String ROLE_OPH     = "ROLE_OPH";
+
+    /** constant for OB/GYN HCP lab role */
+    private static final String ROLE_OBGYN   = "ROLE_OB/GYN";
 
     /**
      * Retrieves and returns a list of all Users in the system, regardless of
@@ -205,6 +208,9 @@ public class APIUserController extends APIController {
         }
         else if ( hasRole( ROLE_OPH ) ) {
             return new ResponseEntity( successResponse( ROLE_OPH ), HttpStatus.OK );
+        }
+        else if ( hasRole( ROLE_OBGYN ) ) {
+            return new ResponseEntity( successResponse( ROLE_OBGYN ), HttpStatus.OK );
         }
         else {
             return new ResponseEntity( errorResponse( "UNAUTHORIZED" ), HttpStatus.UNAUTHORIZED );
