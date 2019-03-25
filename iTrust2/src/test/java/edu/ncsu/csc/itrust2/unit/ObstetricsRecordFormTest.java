@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 
 /**
  * Tests the ObstetricRecordForm Class
@@ -32,7 +33,9 @@ public class ObstetricsRecordFormTest {
         form.setLmp( lmp );
         form.setTwins( false );
         form.setWeeksPreg( 36 );
-        final ObstetricsRecordForm test = new ObstetricsRecordForm( form.getLmp(), form.getConception(),
+        final DeliveryMethod type = DeliveryMethod.Vaginal;
+        form.setType( type );
+        final ObstetricsRecordForm test = new ObstetricsRecordForm( form.getType(), form.getLmp(), form.getConception(),
                 form.getWeeksPreg(), form.getHoursInLabor(), form.isTwins(), form.isCurrentRecord(), form.getId() );
         assertEquals( form.getConception(), test.getConception() );
         assertEquals( form.isCurrentRecord(), test.isCurrentRecord() );
@@ -41,6 +44,7 @@ public class ObstetricsRecordFormTest {
         assertEquals( form.getLmp(), test.getLmp() );
         assertEquals( form.isTwins(), test.isTwins() );
         assertEquals( form.getWeeksPreg(), test.getWeeksPreg() );
+        assertEquals( form.getType(), test.getType() );
 
     }
 

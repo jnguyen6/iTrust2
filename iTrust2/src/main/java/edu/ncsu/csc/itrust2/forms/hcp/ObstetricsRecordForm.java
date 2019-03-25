@@ -1,5 +1,7 @@
 package edu.ncsu.csc.itrust2.forms.hcp;
 
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
+
 /**
  * Class represents the Obstetric Record form, Used by HCP to create an
  * ObstetricRecord Object
@@ -10,29 +12,32 @@ package edu.ncsu.csc.itrust2.forms.hcp;
  */
 public class ObstetricsRecordForm {
 
+    /** DeliveryMethod type for this record */
+    private DeliveryMethod type;
+
     /** Long represents the date of the last menstrual cycle */
-    private Long    lmp;
+    private Long           lmp;
 
     /** Integer represents the year of conception */
-    private int     conception;
+    private int            conception;
 
     /** Integer represents the number of weeks the patient is pregnant */
-    private int     weeksPreg;
+    private int            weeksPreg;
 
     /** Intger represents the number of hours the patient was in labor */
-    private int     hoursInLabor;
+    private int            hoursInLabor;
 
     /** Boolean represents whether or not the pregnancy resulted in twins */
-    private boolean twins;
+    private boolean        twins;
 
     /**
      * Boolean represents whether or not the ObstetricRecord form is current or
      * previous pregnancy
      */
-    private boolean currentRecord;
+    private boolean        currentRecord;
 
     /** Long represents the id of this obstetric record form */
-    private Long    id;
+    private Long           id;
 
     /**
      * Empty default constructor
@@ -59,8 +64,9 @@ public class ObstetricsRecordForm {
      * @param id
      *            the id of the obsettrics record form
      */
-    public ObstetricsRecordForm ( final Long lmp, final int conception, final int weeksPreg, final int hoursInLabor,
-            final boolean twins, final boolean currentRecord, final long id ) {
+    public ObstetricsRecordForm ( final DeliveryMethod type, final Long lmp, final int conception, final int weeksPreg,
+            final int hoursInLabor, final boolean twins, final boolean currentRecord, final long id ) {
+        this.setType( type );
         this.setConception( conception );
         this.setCurrentRecord( currentRecord );
         this.setHoursInLabor( hoursInLabor );
@@ -68,6 +74,25 @@ public class ObstetricsRecordForm {
         this.setLmp( lmp );
         this.setTwins( twins );
         this.setWeeksPreg( weeksPreg );
+    }
+
+    /**
+     * Returns the delivery method type
+     *
+     * @return type the delivery method
+     */
+    public DeliveryMethod getType () {
+        return type;
+    }
+
+    /**
+     * Sets the delivery method type
+     *
+     * @param type
+     *            the delivery method type
+     */
+    public void setType ( final DeliveryMethod type ) {
+        this.type = type;
     }
 
     /**
