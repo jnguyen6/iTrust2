@@ -98,61 +98,61 @@ public enum TransactionType {
     /**
      * Upcoming appointment viewed by Patient or HCP
      */
-    VIEW_SCHEDULED_APPOINTMENT( 611, "Upcoming general checkup viewed", true ),
+    VIEW_SCHEDULED_APPOINTMENT ( 611, "Upcoming general checkup viewed", true ),
     /**
      * AppointmentRequest submitted by patient
      */
-    APPOINTMENT_REQUEST_SUBMITTED( 640, "General checkup requested by patient", true ),
+    APPOINTMENT_REQUEST_SUBMITTED ( 640, "General checkup requested by patient", true ),
     /**
      * AppointmentRequest viewed
      */
-    APPOINTMENT_REQUEST_VIEWED( 641, "Appointment request(s) viewed", true ),
+    APPOINTMENT_REQUEST_VIEWED ( 641, "Appointment request(s) viewed", true ),
     /**
      * AppointmentRequest canceled/deleted by patient
      */
-    APPOINTMENT_REQUEST_DELETED( 642, "General checkup request deleted by patient", true ),
+    APPOINTMENT_REQUEST_DELETED ( 642, "General checkup request deleted by patient", true ),
     /**
      * AppointmentRequest approved by HCP
      */
-    APPOINTMENT_REQUEST_APPROVED( 650, "General checkup request approved by HCP", true ),
+    APPOINTMENT_REQUEST_APPROVED ( 650, "General checkup request approved by HCP", true ),
     /**
      * AppointmentRequest denied by HCP
      */
-    APPOINTMENT_REQUEST_DENIED( 651, "General checkup request denied by HCP", true ),
+    APPOINTMENT_REQUEST_DENIED ( 651, "General checkup request denied by HCP", true ),
     /**
      * AppointmentRequest otherwise updated
      */
-    APPOINTMENT_REQUEST_UPDATED( 652, "General checkup request was updated", true ),
+    APPOINTMENT_REQUEST_UPDATED ( 652, "General checkup request was updated", true ),
 
     /**
      * Create basic health metrics
      */
-    GENERAL_CHECKUP_CREATE( 800, "Create office visit for patient", true ),
+    GENERAL_CHECKUP_CREATE ( 800, "Create office visit for patient", true ),
     /**
      * HCP views basic health metrics
      */
-    GENERAL_CHECKUP_HCP_VIEW( 801, "View office visit by HCP", true ),
+    GENERAL_CHECKUP_HCP_VIEW ( 801, "View office visit by HCP", true ),
     /**
      * HCP edits basic health metrics
      */
-    GENERAL_CHECKUP_EDIT( 802, "HCP edits basic health metrics", true ),
+    GENERAL_CHECKUP_EDIT ( 802, "HCP edits basic health metrics", true ),
     /**
      * Patient views basic health metrics for an office visit
      */
-    GENERAL_CHECKUP_PATIENT_VIEW( 810, "View office visit by Patient", true ),
+    GENERAL_CHECKUP_PATIENT_VIEW ( 810, "View office visit by Patient", true ),
     /**
      * Patient deleted all office visits
      */
-    DELETE_ALL_OFFICE_VISITS( 899, "Patient deleted all office visits", false),
+    DELETE_ALL_OFFICE_VISITS ( 899, "Patient deleted all office visits", false ),
     /**
      * Patient view all office visits
      */
-    VIEW_ALL_OFFICE_VISITS( 898, "Patient viewed all office visits", false),
+    VIEW_ALL_OFFICE_VISITS ( 898, "Patient viewed all office visits", false ),
 
     /**
      * Office visit is deleted
      */
-    GENERAL_CHECKUP_DELETE( 811, "Office visit deleted", true ),
+    GENERAL_CHECKUP_DELETE ( 811, "Office visit deleted", true ),
 
     /**
      * Admin adds an ICD-10 code
@@ -350,104 +350,124 @@ public enum TransactionType {
     /**
      * Food Diary Entry is created
      */
-    CREATE_FOOD_DIARY_ENTRY (1901, "Create a Food Diary Entry", true),
+    CREATE_FOOD_DIARY_ENTRY ( 1901, "Create a Food Diary Entry", true ),
     /**
      * Patient views a food diary entry
      */
-    PATIENT_VIEW_FOOD_DIARY_ENTRY (1902, "Patient Views Food Diary Entry", true),
+    PATIENT_VIEW_FOOD_DIARY_ENTRY ( 1902, "Patient Views Food Diary Entry", true ),
     /**
      * HCP views a food diary entry
      */
-    HCP_VIEW_FOOD_DIARY_ENTRY (1903, "HCP Views Food Diary Entry", true),
+    HCP_VIEW_FOOD_DIARY_ENTRY ( 1903, "HCP Views Food Diary Entry", true ),
     /**
      * OPH viewed upcoming appointment
      */
-    OPH_VIEW_UPCOMING_APPOINTMENT(2001, "OPH viewed upcoming appointment", true),
+    OPH_VIEW_UPCOMING_APPOINTMENT ( 2001, "OPH viewed upcoming appointment", true ),
     /**
      * Patient requests ophthalmology appointment
      */
-    PATIENT_REQ_OPH_APPT(2010, "Patient requests ophthalmology appointment", false),
+    PATIENT_REQ_OPH_APPT ( 2010, "Patient requests ophthalmology appointment", false ),
     /**
      * OPH viewed upcoming appointment
      */
-    OPH_VIEWS_APPT_REQ(2011, "OPH viewed upcoming appointment", true),
+    OPH_VIEWS_APPT_REQ ( 2011, "OPH viewed upcoming appointment", true ),
     /**
      * Patient deletes ophthalmology appointment request
      */
-    PATIENT_DELETES_OPH_APPT_REQUEST(2012, "Patient deletes ophthalmology appointment request", false),
+    PATIENT_DELETES_OPH_APPT_REQUEST ( 2012, "Patient deletes ophthalmology appointment request", false ),
     /**
      * Patient requests ophthalmology appointment
      */
-    PATIENT_REQ_OPH_SURG(2013, "Patient requests ophthalmology surgery", false),
+    PATIENT_REQ_OPH_SURG ( 2013, "Patient requests ophthalmology surgery", false ),
     /**
      * Patient deletes ophthalmology surgery
      */
-    PATIENT_DELETES_OPH_SURG(2013, "Patient deletes ophthalmology surgery", false),
+    PATIENT_DELETES_OPH_SURG ( 2013, "Patient deletes ophthalmology surgery", false ),
     /**
      * OPH approves appointment request
      */
-    OPH_APPT_REQ_APPROVED(2020, "OPH approves appointment request", true),
+    OPH_APPT_REQ_APPROVED ( 2020, "OPH approves appointment request", true ),
     /**
      * OPH denies appointment request
      */
-    OPH_APPT_REQ_DENIED(2021, "OPH denies appointment request", true),
+    OPH_APPT_REQ_DENIED ( 2021, "OPH denies appointment request", true ),
     /**
      * OPH approves surgery request
      */
-    OPH_SURG_REQ_APPROVED(2020, "OPH approves surgery request", true),
+    OPH_SURG_REQ_APPROVED ( 2020, "OPH approves surgery request", true ),
     /**
      * OPH denies surgery request
      */
-    OPH_SURG_REQ_DENIED(2020, "OPH denies surgery request", true),
+    OPH_SURG_REQ_DENIED ( 2020, "OPH denies surgery request", true ),
     /**
      * OPH updates appointment request
      */
-    OPH_APPT_REQ_UPDATED(2025, "OPH updates appointment request", true),
+    OPH_APPT_REQ_UPDATED ( 2025, "OPH updates appointment request", true ),
 
     /**
      * Create basic health metrics
      */
-    GENERAL_OPHTHALMOLOGY_CREATE( 2100, "Create general ophthalmology visit for patient", true ),
+    GENERAL_OPHTHALMOLOGY_CREATE ( 2100, "Create general ophthalmology visit for patient", true ),
     /**
      * HCP views basic health metrics
      */
-    GENERAL_OPHTHALMOLOGY_HCP_VIEW( 2101, "View general ophthalmology visit by HCP", true ),
+    GENERAL_OPHTHALMOLOGY_HCP_VIEW ( 2101, "View general ophthalmology visit by HCP", true ),
     /**
      * HCP edits basic health metrics
      */
-    GENERAL_OPHTHALMOLOGY_EDIT( 2102, "HCP edits basic health metrics", true ),
+    GENERAL_OPHTHALMOLOGY_EDIT ( 2102, "HCP edits basic health metrics", true ),
     /**
      * Patient views basic health metrics for an general ophthalmology visit
      */
-    GENERAL_OPHTHALMOLOGY_PATIENT_VIEW( 2110, "View general ophthalmology visit by Patient", true ),
+    GENERAL_OPHTHALMOLOGY_PATIENT_VIEW ( 2110, "View general ophthalmology visit by Patient", true ),
 
     /**
      * general ophthalmology visit is deleted
      */
-    GENERAL_OPHTHALMOLOGY_DELETE( 2111, "general ophthalmology visit deleted", true ),
+    GENERAL_OPHTHALMOLOGY_DELETE ( 2111, "general ophthalmology visit deleted", true ),
 
     /**
      * Create basic health metrics
      */
-    OPHTHALMOLOGY_SURGERY_CREATE( 2200, "Create ophthalmology surgery for patient", true ),
+    OPHTHALMOLOGY_SURGERY_CREATE ( 2200, "Create ophthalmology surgery for patient", true ),
     /**
      * HCP views basic health metrics
      */
-    OPHTHALMOLOGY_SURGERY_HCP_VIEW( 2201, "View ophthalmology surgery by HCP", true ),
+    OPHTHALMOLOGY_SURGERY_HCP_VIEW ( 2201, "View ophthalmology surgery by HCP", true ),
     /**
      * HCP edits basic health metrics
      */
-    OPHTHALMOLOGY_SURGERY_EDIT( 2202, "HCP edits basic health metrics", true ),
+    OPHTHALMOLOGY_SURGERY_EDIT ( 2202, "HCP edits basic health metrics", true ),
     /**
      * Patient views basic health metrics for an ophthalmology surgery
      */
-    OPHTHALMOLOGY_SURGERY_PATIENT_VIEW( 2210, "View ophthalmology surgery by Patient", true ),
+    OPHTHALMOLOGY_SURGERY_PATIENT_VIEW ( 2210, "View ophthalmology surgery by Patient", true ),
 
     /**
      * ophthalmology surgery is deleted
      */
-    OPHTHALMOLOGY_SURGERY_DELETE( 2211, "ophthalmology surgery deleted", true );
-    
+    OPHTHALMOLOGY_SURGERY_DELETE ( 2211, "ophthalmology surgery deleted", true ),
+
+    /**
+     * HCP views obstetrics record
+     */
+    HCP_VIEW_OBSTETRICS_RECORD ( 2401, "HCP views obstetrics record", true ),
+
+    /**
+     * Create new obstetrics record
+     */
+    CREATE_NEW_OBSTETRICS_RECORD ( 2402, "OB/GYN HCP creates a new obstetrics record", true ),
+
+    /**
+     * Edit obstetrics record
+     */
+    EDIT_OBSTETRICS_RECORD ( 2403, "OB/GYN HCP edits an obstetrics record", true ),
+
+    /**
+     * Patient views obstetrics record
+     */
+    PATIENT_VIEW_OBSTETRICS_RECORD ( 2404, "Obstetrics Patient views obstetrics record", true );
+
     /**
      * Creates a TransactionType for logging events
      *
