@@ -1,45 +1,84 @@
 package edu.ncsu.csc.itrust2.models.persistent;
 
+import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Vector;
 
-import org.hibernate.criterion.Criterion;
+import javax.persistence.Basic;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+import org.hibernate.criterion.Criterion;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters.LocalDateConverter;
+
+import com.google.gson.annotations.JsonAdapter;
+
+import edu.ncsu.csc.itrust2.adapters.LocalDateAdapter;
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 
 /**
  * Class representing the Obstetric Record for a patient
  *
  * @author Shukri Qubain (scqubain@ncsu.edu)
+ * @author Jimmy Nguyen (jnguyen6)
  *
  */
-public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
+@Entity
+@Table ( name = "ObstetricsRecord" )
+public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements Serializable {
 
     /** randomly generated long value */
-    private final Long serialVersionUID = -4051404539990169870L;
-
-    /** long representing the date for the last menstrual period */
-    private Long       lmp;
-
-    /** integer representing the year of conception */
-    private int        conception;
-
-    /** integer representing the number of weeks pregnant */
-    private int        weeksPreg;
-
-    /** integer representing the number of hours in labor */
-    private int        hoursInLabor;
-
-    /** whether or not the pregnancy for this record resulted in twins */
-    private boolean    twins;
+    private static final long serialVersionUID = -4051404539990169870L;
 
     /**
-     * whether or not this obstetric record is a current or previous pregnancy
+     * The date as milliseconds since epoch of this DiaryEntry
      */
-    private boolean    currentRecord;
+    @Basic
+    // Allows the field to show up nicely in the database
+    @Convert ( converter = LocalDateConverter.class )
+    @JsonAdapter ( LocalDateAdapter.class )
+    private LocalDate         lmp;
+    // private Long lmp;
 
-    /** long representing the Obstetrics Record id */
-    private Long       id;
+    /** integer representing the year of conception */
+    private int               conception;
+
+    /** integer representing the number of weeks pregnant */
+    private int               weeksPreg;
+
+    /** integer representing the number of hours in labor */
+    private int               hoursInLabor;
+
+    @Enumerated ( EnumType.STRING )
+    private DeliveryMethod    type;
+
+    /** Whether or not the pregnancy for this record resulted in twins */
+    private boolean           twins;
+
+    /**
+     * Whether or not this obstetrics record is a current or previous pregnancy
+     */
+    private boolean           currentRecord;
+
+    /**
+     * The username of the patient for this ObstetricsRecord
+     */
+    @Length ( max = 20 )
+    private String            patient;
+
+    /** The id of this obstetrics record */
+    @Id
+    @GeneratedValue ( strategy = GenerationType.AUTO )
+    private Long              id;
 
     /**
      * Unused public constructor
@@ -55,13 +94,25 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
      *            the obstetrics record form
      */
     public ObstetricsRecord ( final ObstetricsRecordForm form ) {
-        this.setConception( form.getConception() );
+        this.setLmp( LocalDate.parse( form.getLmp() ) );
         this.setCurrentRecord( form.isCurrentRecord() );
-        this.setHoursInLabor( form.getHoursInLabor() );
-        this.setId( form.getId() );
-        this.setLmp( form.getLmp() );
-        this.setTwins( form.isTwins() );
-        this.setWeeksPreg( form.getWeeksPreg() );
+        // If the record is a current record, initialize the rest
+        // of the fields to default values
+        if ( isCurrentRecord() ) {
+            this.setConception( 2000 );
+            this.setWeeksPreg( 0 );
+            this.setHoursInLabor( 0 );
+            this.setDeliveryMethod( DeliveryMethod.Miscarriage );
+            this.setTwins( false );
+        }
+        else {
+            this.setConception( form.getConception() );
+            this.setWeeksPreg( form.getWeeksPreg() );
+            this.setHoursInLabor( form.getHoursInLabor() );
+            this.setDeliveryMethod( form.getType() );
+            this.setTwins( form.isTwins() );
+        }
+        // this.setLmp( form.getLmp() );
     }
 
     /**
@@ -101,7 +152,7 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
      *
      * @return lmp the last menstrual period
      */
-    public Long getLmp () {
+    public LocalDate getLmp () {
         return lmp;
     }
 
@@ -110,8 +161,13 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
      *
      * @param lmp
      *            the last menstrual period
+     * @throws IllegalArgumentException
+     *             if the given lmp is after the current date
      */
-    public void setLmp ( final Long lmp ) {
+    public void setLmp ( final LocalDate lmp ) {
+        if ( lmp.isAfter( LocalDate.now() ) ) {
+            throw new IllegalArgumentException( "The LMP must be before the current date" );
+        }
         this.lmp = lmp;
     }
 
@@ -129,8 +185,17 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
      *
      * @param conception
      *            the year of conception
+     * @throws IllegalArgumentException
+     *             if the year of conception is being set for current obstetrics
+     *             record or the year of conception is not a four-digit integer
      */
     public void setConception ( final int conception ) {
+        if ( conception < 0 ) {
+            throw new IllegalArgumentException( "The year of conception must be a nonnegative integer" );
+        }
+        if ( String.valueOf( conception ).length() != 4 ) {
+            throw new IllegalArgumentException( "The year of conception must be four digits" );
+        }
         this.conception = conception;
     }
 
@@ -148,8 +213,13 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
      *
      * @param weeksPreg
      *            the number of weeks pregnant
+     * @throws IllegalArgumentException
+     *             if the number of weeks pregnant is a negative integer
      */
     public void setWeeksPreg ( final int weeksPreg ) {
+        if ( weeksPreg < 0 ) {
+            throw new IllegalArgumentException( "The number of weeks pregnant must be a nonnegative integer" );
+        }
         this.weeksPreg = weeksPreg;
     }
 
@@ -167,9 +237,38 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
      *
      * @param hoursInLabor
      *            the number of hours in labor
+     * @throws IllegalArgumentException
+     *             if the number of hours in labor is a negative integer
      */
     public void setHoursInLabor ( final int hoursInLabor ) {
+        if ( hoursInLabor < 0 ) {
+            throw new IllegalArgumentException( "The number of hours in labor must be a nonnegative integer" );
+        }
         this.hoursInLabor = hoursInLabor;
+    }
+
+    /**
+     * Returns the delivery method
+     *
+     * @return the delivery method
+     */
+    public DeliveryMethod getDeliveryMethod () {
+        return type;
+    }
+
+    /**
+     * Sets the delivery method
+     *
+     * @param type
+     *            the delivery method to set
+     * @throws NullPointerException
+     *             if the given delivery method is null
+     */
+    public void setDeliveryMethod ( final DeliveryMethod type ) {
+        if ( type == null ) {
+            throw new IllegalArgumentException( "The delivery method cannot be null" );
+        }
+        this.type = type;
     }
 
     /**
@@ -212,9 +311,28 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
     }
 
     /**
-     * Returns the id
+     * Returns the patient for this ObstetricsRecord
      *
-     * @return id the id of the record
+     * @return the patient for this obstetrics record
+     */
+    public String getPatient () {
+        return patient;
+    }
+
+    /**
+     * Initializes the patient for this ObstetricsRecord
+     *
+     * @param patient
+     *            the patient to set for this obstetrics record
+     */
+    public void setPatient ( final String patient ) {
+        this.patient = patient;
+    }
+
+    /**
+     * Returns the id of the obstetrics record
+     *
+     * @return id the id of the obstetrics record
      */
     @Override
     public Long getId () {
@@ -222,10 +340,10 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> {
     }
 
     /**
-     * Sets the id of the record
+     * Sets the id of the obstetrics record
      *
      * @param id
-     *            the id of the record
+     *            the id of the obstetrics record
      */
     public void setId ( final Long id ) {
         this.id = id;

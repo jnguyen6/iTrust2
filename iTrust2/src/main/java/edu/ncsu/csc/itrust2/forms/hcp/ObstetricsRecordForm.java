@@ -3,11 +3,12 @@ package edu.ncsu.csc.itrust2.forms.hcp;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 
 /**
- * Class represents the Obstetric Record form, Used by HCP to create an
+ * Class represents the Obstetrics Record form, Used by HCP to create an
  * ObstetricRecord Object
  *
  *
  * @author Shukri Qubain (scqubain@ncsu.edu)
+ * @author Jimmy Nguyen (jnguyen6)
  *
  */
 public class ObstetricsRecordForm {
@@ -16,7 +17,7 @@ public class ObstetricsRecordForm {
     private DeliveryMethod type;
 
     /** Long represents the date of the last menstrual cycle */
-    private Long           lmp;
+    private String         lmp;
 
     /** Integer represents the year of conception */
     private int            conception;
@@ -31,13 +32,10 @@ public class ObstetricsRecordForm {
     private boolean        twins;
 
     /**
-     * Boolean represents whether or not the ObstetricRecord form is current or
-     * previous pregnancy
+     * Boolean represents whether or not the ObstetricRecord is a current record
+     * or a previous pregnancy record
      */
     private boolean        currentRecord;
-
-    /** Long represents the id of this obstetric record form */
-    private Long           id;
 
     /**
      * Empty default constructor
@@ -61,16 +59,16 @@ public class ObstetricsRecordForm {
      *            whether or not pregnancy resulted in twins
      * @param currentRecord
      *            whether or not this is a current record
-     * @param id
-     *            the id of the obsettrics record form
+     *
+     * @param type
+     *            the delivery method type
      */
-    public ObstetricsRecordForm ( final DeliveryMethod type, final Long lmp, final int conception, final int weeksPreg,
-            final int hoursInLabor, final boolean twins, final boolean currentRecord, final long id ) {
+    public ObstetricsRecordForm ( final DeliveryMethod type, final String lmp, final int conception,
+            final int weeksPreg, final int hoursInLabor, final boolean twins, final boolean currentRecord ) {
         this.setType( type );
         this.setConception( conception );
         this.setCurrentRecord( currentRecord );
         this.setHoursInLabor( hoursInLabor );
-        this.setId( id );
         this.setLmp( lmp );
         this.setTwins( twins );
         this.setWeeksPreg( weeksPreg );
@@ -100,7 +98,7 @@ public class ObstetricsRecordForm {
      *
      * @return lmp the date of the last menstrual period
      */
-    public Long getLmp () {
+    public String getLmp () {
         return lmp;
     }
 
@@ -110,7 +108,7 @@ public class ObstetricsRecordForm {
      * @param lmp
      *            the date of the last menstrual period
      */
-    public void setLmp ( final Long lmp ) {
+    public void setLmp ( final String lmp ) {
         this.lmp = lmp;
     }
 
@@ -193,7 +191,7 @@ public class ObstetricsRecordForm {
     /**
      * Returns currentRecord
      *
-     * @return currentRecord whether this obstetric record form is current or
+     * @return currentRecord whether this obstetrics record form is current or
      *         previous
      */
     public boolean isCurrentRecord () {
@@ -204,29 +202,10 @@ public class ObstetricsRecordForm {
      * Sets the currentRecord
      *
      * @param currentRecord
-     *            whether this obstetric record form is current or previous
+     *            whether this obstetrics record form is current or previous
      */
     public void setCurrentRecord ( final boolean currentRecord ) {
         this.currentRecord = currentRecord;
-    }
-
-    /**
-     * Returns the id
-     *
-     * @return id the id of the obstetrics record
-     */
-    public Long getId () {
-        return id;
-    }
-
-    /**
-     * Sets the id
-     *
-     * @param id
-     *            the id of the obsttrics record
-     */
-    public void setId ( final Long id ) {
-        this.id = id;
     }
 
 }
