@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
@@ -26,6 +27,8 @@ import edu.ncsu.csc.itrust2.utils.LoggerUtil;
  * @author Shukri Qubain (scqubain@ncsu.edu)
  *
  */
+@SuppressWarnings ( { "rawtypes", "unchecked" } )
+@RestController
 public class APIObstetricsRecordController extends APIController {
 
     /**
@@ -35,17 +38,17 @@ public class APIObstetricsRecordController extends APIController {
      *            the form being used to create a ObstetricRecord object
      * @return a response containing results of creating a new entry
      */
-    @SuppressWarnings ( { "unchecked", "rawtypes" } )
-    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
-    @PostMapping ( BASE_PATH + "/obstetricsRecord" )
-    public ResponseEntity createRecord ( @RequestBody final ObstetricsRecordForm form ) {
+    @PreAuthorize ( "hasRole('ROLE_OB/GYN')" )
+    @PostMapping ( BASE_PATH + "obstetricsRecord/{patient}" )
+    public ResponseEntity createRecord ( @PathVariable final String patient,
+            @RequestBody final ObstetricsRecordForm form ) {
         try {
 
-            final ObstetricsRecord dEntry = new ObstetricsRecord( form );
-            dEntry.setPatient( LoggerUtil.currentUser() );
-            dEntry.save();
+            final ObstetricsRecord obsRecord = new ObstetricsRecord( form );
+            obsRecord.setPatient( patient );
+            obsRecord.save();
 
-            final Patient person = Patient.getByName( LoggerUtil.currentUser() );
+            final Patient person = Patient.getByName( patient );
             // check if the patient is female
             if ( person.getGender().toString().equals( "Male" ) ) {
                 LoggerUtil.log( TransactionType.CREATE_NEW_OBSTETRICS_RECORD, LoggerUtil.currentUser(),
@@ -55,7 +58,7 @@ public class APIObstetricsRecordController extends APIController {
             }
 
             LoggerUtil.log( TransactionType.CREATE_NEW_OBSTETRICS_RECORD, LoggerUtil.currentUser() );
-            return new ResponseEntity( dEntry, HttpStatus.OK );
+            return new ResponseEntity( obsRecord, HttpStatus.OK );
         }
         catch ( final Exception e ) {
             e.printStackTrace();
