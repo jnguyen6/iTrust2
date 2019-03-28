@@ -34,6 +34,8 @@ public class APIObstetricsRecordController extends APIController {
     /**
      * Creates a new obstetrics record object and saves it to the DB
      *
+     * @param patient
+     *            the patient to create the obstetrics record for
      * @param form
      *            the form being used to create a ObstetricRecord object
      * @return a response containing results of creating a new entry
@@ -45,9 +47,6 @@ public class APIObstetricsRecordController extends APIController {
         try {
 
             final ObstetricsRecord obsRecord = new ObstetricsRecord( form );
-            obsRecord.setPatient( patient );
-            obsRecord.save();
-
             final Patient person = Patient.getByName( patient );
             // check if the patient is female
             if ( person.getGender().toString().equals( "Male" ) ) {
@@ -56,6 +55,9 @@ public class APIObstetricsRecordController extends APIController {
                 return new ResponseEntity( errorResponse( "Could not create Obstetrics Record because "
                         + person.getFirstName().toString() + " is a male patient" ), HttpStatus.BAD_REQUEST );
             }
+
+            obsRecord.setPatient( patient );
+            obsRecord.save();
 
             LoggerUtil.log( TransactionType.CREATE_NEW_OBSTETRICS_RECORD, LoggerUtil.currentUser() );
             return new ResponseEntity( obsRecord, HttpStatus.OK );
@@ -80,7 +82,6 @@ public class APIObstetricsRecordController extends APIController {
      * @return a response containing the results of editing an existing entry
      *
      */
-    @SuppressWarnings ( { "unchecked", "rawtypes" } )
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     @PutMapping ( BASE_PATH + "obstetricsRecord/{id}" )
     public ResponseEntity editRecord ( @PathVariable final long id, @RequestBody final ObstetricsRecordForm form ) {
@@ -115,7 +116,6 @@ public class APIObstetricsRecordController extends APIController {
      *
      * @return a list of patient's obstetrics records
      */
-    @SuppressWarnings ( { "unchecked", "rawtypes" } )
     @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
     @GetMapping ( BASE_PATH + "obstetricsRecord" )
     public ResponseEntity getRecordsPatient () {
@@ -132,8 +132,7 @@ public class APIObstetricsRecordController extends APIController {
      * @param patient
      *            the username of the patient for which to get records
      */
-    @SuppressWarnings ( { "rawtypes", "unchecked" } )
-    @PreAuthorize ( "hasRole('ROLE_HCP','ROLE_OBGYN' )" )
+    @PreAuthorize ( "hasRole('ROLE_HCP','ROLE_OB/GYN' )" )
     @GetMapping ( BASE_PATH + "obstetricsRecord/{patient}" )
     public ResponseEntity getRecordsHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {
