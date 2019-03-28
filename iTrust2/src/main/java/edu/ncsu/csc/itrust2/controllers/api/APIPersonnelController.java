@@ -69,7 +69,7 @@ public class APIPersonnelController extends APIController {
      * @return The personnel object for the currently authenticated user.
      */
     @GetMapping ( BASE_PATH + "/curPersonnel" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_LABTECH', 'ROLE_ER', 'ROLE_ADMIN')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_LABTECH', 'ROLE_ER', 'ROLE_ADMIN', 'ROLE_OBGYN')" )
     public ResponseEntity getCurrentPersonnel () {
         final User self = User.getByName( LoggerUtil.currentUser() );
         final Personnel personnel = Personnel.getByName( self.getUsername() );
@@ -178,6 +178,9 @@ public class APIPersonnelController extends APIController {
         }
         else if ( role.equals( Role.ROLE_OPH.toString() ) ) {
             return new ResponseEntity( User.getByRole( Role.ROLE_OPH ), HttpStatus.OK );
+        }
+        else if ( role.equals( Role.ROLE_OBGYN.toString() ) ) {
+            return new ResponseEntity( User.getByRole( Role.ROLE_OBGYN ), HttpStatus.OK );
         }
         else if ( role.equals( Role.ROLE_ER.toString() ) ) {
             final List<Personnel> allErs = new ArrayList<Personnel>();

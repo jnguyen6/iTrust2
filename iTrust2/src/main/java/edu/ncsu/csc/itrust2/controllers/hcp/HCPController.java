@@ -24,7 +24,7 @@ public class HCPController {
      * @return The page to display
      */
     @RequestMapping ( value = "hcp/index" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public String index ( final Model model ) {
         return edu.ncsu.csc.itrust2.models.enums.Role.ROLE_HCP.getLanding();
     }
@@ -35,7 +35,7 @@ public class HCPController {
      * @return The page to display
      */
     @GetMapping ( "/hcp/editPatientDemographics" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public String editPatientDemographics () {
         return "/hcp/editPatientDemographics";
     }
@@ -46,7 +46,7 @@ public class HCPController {
      * @return The page to display
      */
     @GetMapping ( "/hcp/editPrescriptions" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public String editPrescriptions () {
         return "/hcp/editPrescriptions";
     }
@@ -57,7 +57,7 @@ public class HCPController {
      * @return The page to display
      */
     @GetMapping ( "/hcp/personalRepresentatives" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public String personalReps () {
         return "/hcp/personalRepresentatives";
     }
@@ -70,7 +70,7 @@ public class HCPController {
      * @return role
      */
     @RequestMapping ( value = "hcp/records" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public String emergencyRecords ( final Model model ) {
         return "personnel/records";
     }
@@ -84,7 +84,7 @@ public class HCPController {
      * @return The page to display to the user
      */
     @GetMapping ( "/hcp/appointmentRequests" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public String requestAppointmentForm ( final Model model ) {
         return "hcp/appointmentRequests";
     }
@@ -95,7 +95,7 @@ public class HCPController {
      * @return The page to display
      */
     @GetMapping ( "/hcp/viewPatientFoodDiary" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public String foodDiary () {
         return "/hcp/viewPatientFoodDiary";
     }

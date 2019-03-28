@@ -181,7 +181,8 @@ public class HibernateDataGenerator {
         billyUser.save();
         billy.setSelf( billyUser );
         billy.setLastName( "Bob" );
-        billy.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years old
+        billy.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years
+                                                                  // old
         billy.save();
 
         final Patient jill = new Patient();
@@ -203,6 +204,11 @@ public class HibernateDataGenerator {
         final User robort = new User( "robortOPH", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_OPH, 1 );
         robort.save();
+
+        /** Gynecologist Tyler Outlaw. */
+        final User tyler = new User( "tylerOBGYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_OBGYN, 1 );
+        tyler.save();
     }
 
     /**
@@ -239,7 +245,8 @@ public class HibernateDataGenerator {
         aliceUser.save();
         alice.setSelf( aliceUser );
         alice.setLastName( "Smith" );
-        alice.setDateOfBirth( LocalDate.now().minusYears( 13 ) ); // 13 years old
+        alice.setDateOfBirth( LocalDate.now().minusYears( 13 ) ); // 13 years
+                                                                  // old
         alice.save();
 
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );
@@ -282,7 +289,8 @@ public class HibernateDataGenerator {
         siegward.setLastName( "Catarina" );
         siegward.setGender( Gender.Male );
         siegward.setBloodType( BloodType.OPos );
-        siegward.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years old
+        siegward.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
+                                                                     // old
         siegward.save();
 
         final Patient king1 = new Patient();
@@ -294,7 +302,8 @@ public class HibernateDataGenerator {
         king1.setLastName( "One" );
         king1.setGender( Gender.Male );
         king1.setBloodType( BloodType.OPos );
-        king1.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years old
+        king1.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
+                                                                  // old
         king1.save();
 
         final Patient king2 = new Patient();
@@ -306,7 +315,8 @@ public class HibernateDataGenerator {
         king2.setLastName( "Two" );
         king2.setGender( Gender.Male );
         king2.setBloodType( BloodType.OPos );
-        king2.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years old
+        king2.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
+                                                                  // old
         king2.save();
 
         final Patient king3 = new Patient();
@@ -318,7 +328,8 @@ public class HibernateDataGenerator {
         king3.setLastName( "Three" );
         king3.setGender( Gender.Male );
         king3.setBloodType( BloodType.OPos );
-        king3.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years old
+        king3.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
+                                                                  // old
         king3.save();
 
         final Patient king4 = new Patient();
@@ -330,7 +341,8 @@ public class HibernateDataGenerator {
         king4.setLastName( "Four" );
         king4.setGender( Gender.Male );
         king4.setBloodType( BloodType.OPos );
-        king4.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years old
+        king4.setDateOfBirth( LocalDate.now().minusYears( 30 ) ); // 30 years
+                                                                  // old
         king4.save();
 
         // First Prescription for APIEmergencyRecordFormTest
@@ -344,8 +356,11 @@ public class HibernateDataGenerator {
         estusPresc.setDosage( 1 );
         estusPresc.setDrug( estus );
         estusPresc.setRenewals( 20 );
-        estusPresc.setStartDate( LocalDate.now().minusDays( 30 ) ); // Prescribed 30 days ago
-        estusPresc.setEndDate( LocalDate.now().plusDays( 60 ) ); // Ends in 60 days
+        estusPresc.setStartDate( LocalDate.now().minusDays( 30 ) ); // Prescribed
+                                                                    // 30 days
+                                                                    // ago
+        estusPresc.setEndDate( LocalDate.now().plusDays( 60 ) ); // Ends in 60
+                                                                 // days
         estusPresc.setPatient( siegwardUser );
         estusPresc.save();
 
@@ -361,8 +376,12 @@ public class HibernateDataGenerator {
         purpMossPresc.setDrug( purpMoss );
         purpMossPresc.setRenewals( 99 );
 
-        purpMossPresc.setStartDate( LocalDate.now().minusDays( 60 ) ); // Prescribed 60 days ago
-        purpMossPresc.setEndDate( LocalDate.now().plusDays( 30 ) ); // Ends in 30 days
+        purpMossPresc.setStartDate( LocalDate.now().minusDays( 60 ) ); // Prescribed
+                                                                       // 60
+                                                                       // days
+                                                                       // ago
+        purpMossPresc.setEndDate( LocalDate.now().plusDays( 30 ) ); // Ends in
+                                                                    // 30 days
         purpMossPresc.setPatient( siegwardUser );
         purpMossPresc.save();
 
