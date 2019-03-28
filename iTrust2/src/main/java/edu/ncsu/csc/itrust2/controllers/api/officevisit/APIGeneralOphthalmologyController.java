@@ -39,7 +39,7 @@ public class APIGeneralOphthalmologyController extends APIController {
      * @return response
      */
     @GetMapping ( BASE_PATH + "/generalophthalmologies/{id}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT', 'ROLE_OBGYN')" )
     public ResponseEntity getGeneralOphthalmology ( @PathVariable ( "id" ) final Long id ) {
         final GeneralOphthalmology visit = GeneralOphthalmology.getById( id );
         if ( null == visit ) {
@@ -67,7 +67,7 @@ public class APIGeneralOphthalmologyController extends APIController {
      * @return response
      */
     @DeleteMapping ( BASE_PATH + "/generalophthalmologies/{id}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT', 'ROLE_OBGYN')" )
     public ResponseEntity deleteGeneralOphthalmology ( @PathVariable final Long id ) {
         final GeneralOphthalmology visit = GeneralOphthalmology.getById( id );
         if ( null == visit ) {
@@ -94,7 +94,7 @@ public class APIGeneralOphthalmologyController extends APIController {
      * @return response
      */
     @PostMapping ( BASE_PATH + "/generalophthalmologies" )
-    @PreAuthorize ( "hasAnyRole('ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public ResponseEntity createGeneralOphthalmology ( @RequestBody final GeneralOphthalmologyForm visitF ) {
         try {
             final GeneralOphthalmology visit = new GeneralOphthalmology( visitF );
@@ -130,7 +130,7 @@ public class APIGeneralOphthalmologyController extends APIController {
      * @return response
      */
     @PutMapping ( BASE_PATH + "/generalophthalmologies/{id}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public ResponseEntity updateGeneralOphthalmology ( @PathVariable final Long id,
             @RequestBody final GeneralOphthalmologyForm form ) {
         try {
@@ -174,7 +174,7 @@ public class APIGeneralOphthalmologyController extends APIController {
      * @return OK if the office visit is found, NOT_FOUND otherwise
      */
     @PostMapping ( BASE_PATH + "/generalophthalmologies/hcp/view/{id}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     public ResponseEntity viewGeneralOphthalmology ( @PathVariable final Long id,
             @RequestBody final GeneralOphthalmologyForm form ) {
         final GeneralOphthalmology dbVisit = GeneralOphthalmology.getById( id );

@@ -37,8 +37,11 @@ public enum Role {
     /**
      * Ophthalmologist
      */
-    ROLE_OPH ( 7, "hcp/index" );
-
+    ROLE_OPH ( 7, "hcp/index" ),
+    /**
+     * Obstetrics
+     */
+    ROLE_OBGYN ( 8, "hcp/index" );
 
     /**
      * Numeric code of the Role
