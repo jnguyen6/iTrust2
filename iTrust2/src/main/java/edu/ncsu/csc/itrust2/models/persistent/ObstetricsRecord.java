@@ -47,7 +47,6 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     @Convert ( converter = LocalDateConverter.class )
     @JsonAdapter ( LocalDateAdapter.class )
     private LocalDate         lmp;
-    // private Long lmp;
 
     /** integer representing the year of conception */
     private int               conception;
@@ -112,7 +111,6 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
             this.setDeliveryMethod( form.getType() );
             this.setTwins( form.isTwins() );
         }
-        // this.setLmp( form.getLmp() );
     }
 
     /**

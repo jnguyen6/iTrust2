@@ -42,7 +42,7 @@ public class APIObstetricsRecordController extends APIController {
      *            the form being used to create a ObstetricRecord object
      * @return a response containing results of creating a new entry
      */
-    @PreAuthorize ( "hasRole('ROLE_OB/GYN')" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     @PostMapping ( BASE_PATH + "obstetricsRecord/{patient}" )
     public ResponseEntity createRecord ( @PathVariable final String patient,
             @RequestBody final ObstetricsRecordForm form ) {
@@ -51,7 +51,7 @@ public class APIObstetricsRecordController extends APIController {
             final List<ObstetricsRecord> records = ObstetricsRecord.getByPatient( patient );
             for ( int i = 0; i < records.size(); i++ ) {
                 if ( records.get( i ).isCurrentRecord() ) {
-                    return new ResponseEntity( errorResponse( "Could not create Obstetrics Record because" + patient
+                    return new ResponseEntity( errorResponse( "Could not create Obstetrics Record because " + patient
                             + " already has a current obstetrics record." ), HttpStatus.BAD_REQUEST );
                 }
             }
@@ -90,7 +90,7 @@ public class APIObstetricsRecordController extends APIController {
      * @return a response containing the results of editing an existing entry
      *
      */
-    @PreAuthorize ( "hasRole('ROLE_OB/GYN')" )
+    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     @PutMapping ( BASE_PATH + "obstetricsRecord/{id}" )
     public ResponseEntity editRecord ( @PathVariable final long id, @RequestBody final ObstetricsRecordForm form ) {
         try {
@@ -136,7 +136,7 @@ public class APIObstetricsRecordController extends APIController {
      * @param patient
      *            the username of the patient for which to get records
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP','ROLE_OB/GYN' )" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP','ROLE_OBGYN' )" )
     @GetMapping ( BASE_PATH + "obstetricsRecord/{patient}" )
     public ResponseEntity getRecordsHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {

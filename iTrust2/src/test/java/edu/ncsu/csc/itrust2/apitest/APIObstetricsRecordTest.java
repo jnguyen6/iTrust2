@@ -96,7 +96,7 @@ public class APIObstetricsRecordTest {
      *             the exception if an error has occurred while using MVC
      */
     @Test
-    @WithMockUser ( username = "obgyn", roles = { "OB/GYN" } )
+    @WithMockUser ( username = "obgyn", roles = { "OBGYN" } )
     public void testObstetricRecordCreateInvalidRecord () throws Exception {
         // First, initialize the patient
         final UserForm patientForm = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
@@ -213,7 +213,7 @@ public class APIObstetricsRecordTest {
      *             the exception if an error has occurred while using MVC
      */
     @Test
-    @WithMockUser ( username = "obgyn", roles = { "OB/GYN", "HCP" } )
+    @WithMockUser ( username = "obgyn", roles = { "OBGYN", "HCP" } )
     public void testObstetricsRecordAPIAsOBGYN () throws Exception {
         // First, initialize the patient
         final UserForm patientForm = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
@@ -260,7 +260,6 @@ public class APIObstetricsRecordTest {
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( recordForm ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final ObstetricsRecord newRec = gson.fromJson( newRecString, ObstetricsRecord.class );
-        ;
 
         assertEquals( 1, ObstetricsRecord.getByPatient( "patient" ).size() );
         assertEquals( 2019, ObstetricsRecord.getByPatient( "patient" ).get( 0 ).getConception() );
