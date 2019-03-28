@@ -3,6 +3,8 @@
  */
 package edu.ncsu.csc.itrust2.controllers.api;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,15 +47,21 @@ public class APIObstetricsRecordController extends APIController {
     public ResponseEntity createRecord ( @PathVariable final String patient,
             @RequestBody final ObstetricsRecordForm form ) {
         try {
-
+            // Check if the patient has a current record
+            final List<ObstetricsRecord> records = ObstetricsRecord.getByPatient( patient );
+            for ( int i = 0; i < records.size(); i++ ) {
+                if ( records.get( i ).isCurrentRecord() ) {
+                    return new ResponseEntity( errorResponse( "Could not create Obstetrics Record because" + patient
+                            + " already has a current obstetrics record." ), HttpStatus.BAD_REQUEST );
+                }
+            }
             final ObstetricsRecord obsRecord = new ObstetricsRecord( form );
             final Patient person = Patient.getByName( patient );
             // check if the patient is female
             if ( person.getGender().toString().equals( "Male" ) ) {
-                LoggerUtil.log( TransactionType.CREATE_NEW_OBSTETRICS_RECORD, LoggerUtil.currentUser(),
-                        "Can't make record for a male patient" );
-                return new ResponseEntity( errorResponse( "Could not create Obstetrics Record because "
-                        + person.getFirstName().toString() + " is a male patient" ), HttpStatus.BAD_REQUEST );
+                return new ResponseEntity(
+                        errorResponse( "Could not create Obstetrics Record because " + patient + " is a male patient" ),
+                        HttpStatus.BAD_REQUEST );
             }
 
             obsRecord.setPatient( patient );
@@ -82,7 +90,7 @@ public class APIObstetricsRecordController extends APIController {
      * @return a response containing the results of editing an existing entry
      *
      */
-    @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
+    @PreAuthorize ( "hasRole('ROLE_OB/GYN')" )
     @PutMapping ( BASE_PATH + "obstetricsRecord/{id}" )
     public ResponseEntity editRecord ( @PathVariable final long id, @RequestBody final ObstetricsRecordForm form ) {
         try {
@@ -90,21 +98,17 @@ public class APIObstetricsRecordController extends APIController {
             final ObstetricsRecord saved = ObstetricsRecord.getById( id );
 
             if ( saved == null ) {
-                LoggerUtil.log( TransactionType.EDIT_OBSTETRICS_RECORD, LoggerUtil.currentUser(),
-                        "No record found with id " + id );
                 return new ResponseEntity( errorResponse( "No record found with id " + id ), HttpStatus.NOT_FOUND );
             }
 
             current.setId( id );
-            current.setPatient( LoggerUtil.currentUser() );
+            current.setPatient( saved.getPatient() );
             current.save();
             LoggerUtil.log( TransactionType.EDIT_OBSTETRICS_RECORD, current.getPatient(),
                     "Edited obstetrics record with id " + id );
             return new ResponseEntity( current, HttpStatus.OK );
         }
         catch ( final Exception e ) {
-            LoggerUtil.log( TransactionType.EDIT_OBSTETRICS_RECORD, LoggerUtil.currentUser(),
-                    "Failed to edit obstetrics record" );
             return new ResponseEntity( errorResponse( "Failed to edit obstetrics record " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
@@ -132,7 +136,7 @@ public class APIObstetricsRecordController extends APIController {
      * @param patient
      *            the username of the patient for which to get records
      */
-    @PreAuthorize ( "hasRole('ROLE_HCP','ROLE_OB/GYN' )" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP','ROLE_OB/GYN' )" )
     @GetMapping ( BASE_PATH + "obstetricsRecord/{patient}" )
     public ResponseEntity getRecordsHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {
