@@ -55,7 +55,7 @@ public class APIUserController extends APIController {
     private static final String ROLE_OPH     = "ROLE_OPH";
 
     /** constant for OB/GYN HCP lab role */
-    private static final String ROLE_OBGYN   = "ROLE_OB/GYN";
+    private static final String ROLE_OBGYN   = "ROLE_OBGYN";
 
     /**
      * Retrieves and returns a list of all Users in the system, regardless of

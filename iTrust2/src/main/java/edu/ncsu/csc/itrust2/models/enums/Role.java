@@ -39,7 +39,7 @@ public enum Role {
      */
     ROLE_OPH ( 7, "hcp/index" ),
     /**
-     * Obstetrics
+     * Obstetrics HCP
      */
     ROLE_OBGYN ( 8, "hcp/index" );
 

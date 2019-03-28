@@ -21,6 +21,8 @@
 
 		<!-- List of persistent classes -->
 		<mapping
+			class="edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord" />
+		<mapping
 			class="edu.ncsu.csc.itrust2.models.persistent.FoodDiaryEntry" />
 		<mapping
 			class="edu.ncsu.csc.itrust2.models.persistent.LogEntry" />

@@ -53,9 +53,4 @@ public enum DeliveryMethod {
         return deliveryMethodType;
     }
 
-    // todo
-
-    // getInfo
-    // parse
-
 }
