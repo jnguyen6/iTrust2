@@ -205,7 +205,7 @@ public class HibernateDataGenerator {
                 Role.ROLE_OPH, 1 );
         robort.save();
 
-        /** Gaenocologist Tyler Outlaw. */
+        /** Gynecologist Tyler Outlaw. */
         final User tyler = new User( "tylerOBGYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                 Role.ROLE_OBGYN, 1 );
         tyler.save();
