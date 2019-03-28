@@ -1,0 +1,140 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>View Obstetrics Records</title>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+  <div th:fragment="content">
+    <div class="container">
+
+      <script th:inline="javascript">
+            /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+            /*<![CDATA[*/
+            var app = angular.module("viewRecordsApp", []);
+            app.controller('viewRecordsCtrl', function ($scope, $http) {
+                $scope.Object = Object; // Allows for use of Object.keys()
+                $scope.obstetricsRecords  = {};
+                
+                $scope.loadData = function () {
+                    // Get obstetrics records
+                    $http.get('/iTrust2/api/v1/records/').then(function (response) {
+                        $scope.obstetricsRecords = response.data || {};
+                        $scope.obstetricsRecords = $scope.groupDates($scope.obstetricsRecords, 'date');
+                        $scope.message = "";
+                    },
+                    function (rejection) {
+                        $scope.message = "Could not display obstetrics records.";
+                    });
+                };
+                
+                // Split entries into groups by date
+                $scope.groupDates = function (arr, key) {
+                    var groups = {};
+
+                    for (var i = 0; l = arr.length, i < l; i++) {
+                        groups[arr[i][key]] = groups[arr[i][key]] || [];
+                        groups[arr[i][key]].push(arr[i]);
+                    }
+
+                    // Sort the groups by date in reverse chronological order
+                    const orderedGroups = {};
+                    Object.keys(groups).sort( function( a, b ) { return b.localeCompare(a) } ).forEach(function(key) {
+                        orderedGroups[key] = groups[key];
+                    });
+
+                    return orderedGroups;
+                };
+                
+                // Calculate estimated due date
+                $scope.estimatedDueDate = function (lmp) {
+                    var dueDate = "";
+
+                    
+                    return dueDate;
+                };
+
+                $scope.loadData();
+            });
+
+            /*]]>*/
+          </script>
+
+      <div ng-app="viewRecordsApp" ng-controller="viewRecordsCtrl">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-primary">
+                <div class="panel-heading">
+                  <h3>Current Pregnancy</h3>
+                </div>
+                  <div
+                      ng-if="!obstetricsRecords || Object.keys(obstetricsRecords).length == 0">
+                      There are no current obstetrics records.</div>
+                </div>
+
+                  <table class="table table-bordered"
+                    ng-repeat="(isCurrentRecord, records) in obstetricsRecords"
+                    ng-if="isCurrentRecord == true">
+                    <thead>
+                      <tr>
+                        <th>Last Menstrual Period</th>
+                        <th>Estimated Due Date</th>
+                        <th>Weeks Pregnant</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="d in entries track by $index">
+                        <td id="lmp-{{$index}}">{{d.lmp}}</td>
+                        <td id="dueDate-{{$index}}">{{$scope.estimatedDueDate(d.lmp)}}</td>
+                        <td id="weeksPreg-{{$index}}">{{d.weeksPreg}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-primary">
+                <div class="panel-heading">
+                  <h3>Previous Pregnancies</h3>
+                </div>
+                <div class="panel-body">
+                  <div style="margin-left: 10px;">
+                    <div
+                      ng-if="!obstetricsRecords || Object.keys(obstetricsRecords).length == 0">
+                      There are no previous pregnancies.</div>
+                  </div>
+                  
+                  <table class="table table-bordered"
+                    ng-repeat="(date, records) in obstetricsRecords">
+                    <thead>
+                      <tr>
+                        <th>LMP</th>
+                        <th>ConceptionYear</th>
+                        <th># Weeks Pregnant</th>
+                        <th># Hours in Labor</th>
+                        <th>Delivery Method</th>
+                        <th>Twins</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="d in entries track by $index">
+                        <td id="lmp-{{$index}}">{{d.lmp}}</td>
+                        <td id="conception-{{$index}}">{{d.conception}}</td>
+                        <td id="weeksPreg-{{$index}}">{{d.weeksPreg}}</td>
+                        <td id="hoursInLabor-{{$index}}">{{d.hoursInLabor}}</td>
+                        <td id="DeliveryMethod-{{$index}}">{{d.DeliveryMethod}}</td>
+                        <td id="twins-{{$index}}">{{d.twins}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> 
+</body>
+
+</html>
