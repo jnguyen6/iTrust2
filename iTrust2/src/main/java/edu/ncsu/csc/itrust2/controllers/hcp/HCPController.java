@@ -99,5 +99,16 @@ public class HCPController {
     public String foodDiary () {
         return "/hcp/viewPatientFoodDiary";
     }
+    
+    /**
+     * Returns the page allowing HCPs to view patient's obstetrics records
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/documentObstetricsRecords" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OBGYN')" )
+    public String documentObstetricsRecords () {
+        return "/hcp/documentObstetricsRecords";
+    }
 
 }

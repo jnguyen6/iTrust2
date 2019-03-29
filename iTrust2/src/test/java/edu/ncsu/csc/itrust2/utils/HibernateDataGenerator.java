@@ -183,6 +183,7 @@ public class HibernateDataGenerator {
         billy.setLastName( "Bob" );
         billy.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years
                                                                   // old
+        billy.setGender(Gender.Male);
         billy.save();
 
         final Patient jill = new Patient();
@@ -193,6 +194,7 @@ public class HibernateDataGenerator {
         jill.setSelf( jillUser );
         jill.setLastName( "Bob" );
         jill.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years old
+        jill.setGender(Gender.Female);
         jill.save();
 
         /** Optometrist Bobby Ibajnup. Robort's twin brother. */
@@ -225,6 +227,7 @@ public class HibernateDataGenerator {
         tim.setSelf( timUser );
         tim.setFirstName( "TimTheOneYearOld" );
         tim.setLastName( "Smith" );
+        tim.setGender(Gender.Male);
         tim.setDateOfBirth( LocalDate.now().minusYears( 1 ) ); // 1 year old
         tim.save();
 
@@ -236,6 +239,7 @@ public class HibernateDataGenerator {
         bob.setSelf( bobUser );
         bob.setLastName( "Smith" );
         bob.setDateOfBirth( LocalDate.now().minusYears( 4 ) ); // 4 years old
+        bob.setGender(Gender.Male);
         bob.save();
 
         final Patient alice = new Patient();
@@ -247,6 +251,7 @@ public class HibernateDataGenerator {
         alice.setLastName( "Smith" );
         alice.setDateOfBirth( LocalDate.now().minusYears( 13 ) ); // 13 years
                                                                   // old
+        alice.setGender(Gender.Female);
         alice.save();
 
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );

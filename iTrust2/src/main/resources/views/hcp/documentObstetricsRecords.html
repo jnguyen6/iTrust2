@@ -1,0 +1,288 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{::script})">
+<title>View Patient Obstetrics Records</title>
+<script th:src="@{/resources/js/dateTimeService.js}"
+	src="../resources/js/dateTimeService.js"></script>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<script th:inline="javascript">
+                /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+                /*<![CDATA[*/
+                var app = angular.module('myApp', ['dateTimeServices']);
+                app.controller('documentPatientObstetricsRecords', function ($scope, $http, dateTimeService) {
+                    $scope.Object = Object; // Allows for use of Object.keys()
+                    $scope.obstetricsRecords = {};
+                    $scope.currentRecord = false;
+                    const now = new Date();
+    				$scope.input= {};
+                    $scope.entry = {
+        					lmp: dateTimeService.toDateString(now),
+        					conception: '',
+        					currentRecord: true
+        					//type: "Vaginal"
+        			};
+                    $scope.current = {};
+
+                    $scope.displayName = function (p) {
+                        return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
+                    }
+
+                    // documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+                    $scope.searchFilter = "";
+                    $scope.filterPatients = function (patient) {
+                        return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
+                    }
+
+                    $http.get("/iTrust2/api/v1/patients").then(
+                        function (response) {
+                            $scope.patients = response.data;
+
+                            $scope.selectPatient = function (patient) {
+                                $scope.selectedDate = null; // Reset selected date
+
+                                $scope.loadEntries = function () {
+                                    // Get diary entries for selected patient
+                                    $http.get("/iTrust2/api/v1/obstetricsRecord/" + $scope.selectedPatient).then(
+                                        function (response) {
+                                            $scope.obstetricsRecords = response.data || {};
+                                            $scope.obstetricsRecords = $scope.groupDates($scope.obstetricsRecords, 'date');
+                                            console.log($scope.obstetricsRecords);
+                                            console.log(Object.keys($scope.obstetricsRecords).length);
+                                            $scope.currentRecord = false;
+                                            console.log("Ho " + $scope.currentRecord);
+                                            if(Object.keys($scope.obstetricsRecords).length > 0) {
+	                                            for(i = 0; i < Object.values($scope.obstetricsRecords)[0].length; i++){
+	                                            	console.log(Object.values($scope.obstetricsRecords)[0][i].currentRecord);
+	                                            	if( Object.values($scope.obstetricsRecords)[0][i].currentRecord ){
+	                                            		$scope.currentRecord = true;
+	                                            		$scope.current.lmp = Object.values($scope.obstetricsRecords)[0][i].lmp;
+	                                            		$scope.current.dueDate = Object.values($scope.obstetricsRecords)[0][i].lmp;
+	                                            		$scope.current.weeksPreg = Object.values($scope.obstetricsRecords)[0][i].weeksPreg;
+	                                            		console.log($scope.current.lmp);
+	                                            		console.log("Hwo " + $scope.currentRecord);
+	                                            	}
+	                                            }
+                                            }
+                                            console.log("Hot " + $scope.currentRecord);
+                                            $scope.message = "";
+                                        },
+                                        function (rejection) {
+                                            $scope.obstetricsRecords = [];
+                                            $scope.message = "Could not display records.";
+                                        });
+                                };
+
+                                $scope.loadEntries();
+                            };
+                        },
+                        function (rejection) {
+                            $scope.patient = null;
+                        });
+
+                    // Split entries into groups by date
+                    $scope.groupDates = function (arr, key) {
+                        var groups = {};
+
+                        for (var i = 0; l = arr.length, i < l; i++) {
+                            groups[arr[i][key]] = groups[arr[i][key]] || [];
+                            groups[arr[i][key]].push(arr[i]);
+                        }
+
+                        // Sort the groups by date in reverse chronological order
+                        const orderedGroups = {};
+                        Object.keys(groups).sort( function( a, b ) { return b.localeCompare(a) } ).forEach(function(key) {
+                            orderedGroups[key] = groups[key];
+                        });
+
+                        return orderedGroups;
+                    };                
+                $scope.failAddLMP = function () {
+					$scope.errorMsg += "Could not add Obstetrics Record."
+					$scope.message = "";
+				}
+                
+                $scope.submit = function () {
+					$scope.errorMsg = "";
+					// Validate entry date
+					var date = new Date($scope.input.date);
+					var now = new Date();
+					if (!dateTimeService.isValidDate(date) || now - date < 0) {
+						$scope.errorMsg += "Please input a valid date.\n";
+					} else {
+						$scope.entry.lmp = dateTimeService.toDateString(date);
+						$scope.entry.conception = date.getYear() + 1900;
+						$scope.entry.currentRecord = true;
+						//$scope.entry.type = "Vaginal";
+					}
+					
+					// Check to ensure a patient is authenticated and the form is correct.
+					if ($scope.errorMsg.length >= 1 ) {
+						$scope.failAddLMP();
+						return;
+					}
+					
+					// Prepare entry for submission
+					//var submitEntry = angular.copy($scope.entry);
+					//submitEntry.lmp = dateTimeService.toDateString(date);
+
+					// POST the entry to the REST API endpoint, and handle
+					// success/error
+					$http.post("/iTrust2/api/v1/obstetricsRecord/" + $scope.selectedPatient, $scope.entry).then(
+						function success(response) {
+							if (response.data.patient) {
+								$scope.message = "Your obstetrics record has been added successfully."
+								$scope.entry = {};
+								$scope.errorMsg = "";
+								document.location.href = '/iTrust2/hcp/documentObstetricsRecords';
+							} else {
+								// Redirected to login page,
+								// not actually successful
+								$scope.failAddLMP();
+							}
+						}, function failure(rejection) {
+							$scope.failAddLMP();
+						}
+					);
+				}
+                });
+
+                /*app.filter('sumByColumn', function () {
+                    return function (collection, column, serving) {
+                        var total = 0;
+
+                        collection.forEach(function (item) {
+                            total += parseInt(item[serving]) * parseInt(item[column]);
+                        });
+
+                        return total;
+                    };
+                })
+                /*]]>*/
+            </script>
+
+		<div ng-app="myApp" ng-controller="documentPatientObstetricsRecords" class="row">
+			<div class="col-md-3">
+				<h2>Patients:</h2>
+				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
+                    and https://docs.angularjs.org/api/ng/filter/filter -->
+				<h4>
+					Search: <input type="text" name="search" ng-model="searchFilter" />
+				</h4>
+				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
+				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
+				<div>
+					<div class="radio"
+						ng-repeat="patient in patients | filter:filterPatients">
+						<label> <input type="radio" id="{{patient.self.username}}"
+							ng-model="$parent.selectedPatient" name="patient"
+							value="{{patient.self.username}}"
+							ng-click='$parent.selectPatient(patient)' />
+							&nbsp;{{$parent.displayName(patient)}}
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="container">
+          		<div class="row">
+					<div class="col-md-9">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3>Current Pregnancy</h3>
+		                	</div>
+							<div class="panel-body">
+								<div style="margin-left: 10px;">
+								    <div ng-if="!selectedPatient">Please select a patient for
+										which to view Obstetrics Records.</div>
+		                  			<div ng-if="selectedPatient && !currentRecord ">
+		                      			There are no current Obstetrics records for this Patient. <br>
+		                      			Enter patient's Last Menstrual Period below to create an obstetrics record.<br><br>
+		                      			<div class="form-group">
+		                      				<label for="lmp">Enter LMP:</label> <input class="form-control"
+												id="lmp" type="date" ng-model="input.date" name="lmp"
+												required="true" />
+										</div>
+										<div class="form-group">
+											<button type="submit" class="btn btn-primary" ng-click=submit()
+												name="submit" id="submit">Create Obstetrics Record</button>
+										</div>
+										<div class="form-group">
+											<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
+											<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+										</div>
+		                   			</div>
+									<table class="table table-bordered" ng-show= currentRecord>
+			                    		<thead>
+			                      			<tr>
+			                        			<th>Last Menstrual Period</th>
+			                        			<th>Estimated Due Date</th>
+			                        			<th>Weeks Pregnant</th>
+			                      			</tr>
+			                    		</thead>
+			                    		<tbody>
+			                      			<tr>
+			                        			<td id="lmp">{{current.lmp}}</td>
+			                        			<td id="dueDate">{{current.dueDate}}</td>
+			                        			<td id="weeksPreg">{{current.weeksPreg}}</td>
+			                      			</tr>
+			                   			</tbody>
+		                  			</table>									
+								</div>
+							</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="container">
+		          <div class="row">
+		            <div class="col-md-9">
+		              <div class="panel panel-primary">
+		                <div class="panel-heading">
+		                  <h3>Previous Pregnancies</h3>
+		                </div>
+		                <div class="panel-body">
+		                  <div style="margin-left: 10px;">
+		                    <div
+		                      ng-if="!obstetricsRecords || Object.keys(obstetricsRecords).length == 0">
+		                      There are no previous pregnancies.</div>
+		                  </div>
+		                  
+		                  <table class="table table-bordered"
+		                    ng-repeat="(date, records) in obstetricsRecords">
+		                    <thead>
+		                      <tr>
+		                        <th>LMP</th>
+		                        <th>ConceptionYear</th>
+		                        <th># Weeks Pregnant</th>
+		                        <th># Hours in Labor</th>
+		                        <th>Delivery Method</th>
+		                        <th>Twins</th>
+		                      </tr>
+		                    </thead>
+		                    <tbody>
+		                      <tr ng-repeat="d in records track by $index"
+		                      		ng-if= "d.currentRecord == false">
+		                        <td id="lmp-{{$index}}">{{d.lmp}}</td>
+		                        <td id="conception-{{$index}}">{{d.conception}}</td>
+		                        <td id="weeksPreg-{{$index}}">{{d.weeksPreg}}</td>
+		                        <td id="hoursInLabor-{{$index}}">{{d.hoursInLabor}}</td>
+		                        <td id="type-{{$index}}">{{d.type}}</td>
+		                        <td id="twins-{{$index}}">{{d.twins}}</td>
+		                      </tr>
+		                    </tbody>
+		                  </table>
+		                </div>
+		              </div>
+		            </div>
+		          </div>
+		        </div> 
+				
+					</div>
+				</div>
+</body>
+
+</html>
