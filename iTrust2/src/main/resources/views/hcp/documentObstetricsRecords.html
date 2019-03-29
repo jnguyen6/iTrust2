@@ -23,9 +23,31 @@
         					lmp: dateTimeService.toDateString(now),
         					conception: '',
         					currentRecord: true
-        					//type: "Vaginal"
         			};
                     $scope.current = {};
+                    $scope.adding = {
+                    		lmp: '',
+                    		type: '',
+                    		twins: '',
+                    		currentRecord: false
+                    }
+                    $scope.birthTypes = ['Vaginal', 'Cesarean', 'Miscarriage'];
+                    $scope.yesOrNo = ['true', 'false'];
+                    $scope.newOne = false;
+                    $scope.newOneEmpty = false;
+                    $scope.addNew = function (){
+                    	$scope.newOne = true;
+                    }
+                    $scope.addEmpty = function() {
+                    	$scope.newOneEmpty = true;
+                    }
+                    $scope.resetNewOneEmpty = function() {
+                    	$scope.newOne = false;
+                    	$scope.newOneEmpty = false;
+                    	$scope.errorMsg = "";
+                    	$scope.errorMsg1 = "";
+                    	$scope.input.date = "";
+                    }
 
                     $scope.displayName = function (p) {
                         return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
@@ -35,6 +57,30 @@
                     $scope.searchFilter = "";
                     $scope.filterPatients = function (patient) {
                         return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
+                    }
+                    
+                    $scope.makeDueDate = function(){
+                    	var estimateDate = "" + $scope.current.dueDate;
+                    	var year = estimateDate.substring(0, 4);
+                    	var month = estimateDate.substring(5, 7);
+                    	var day = estimateDate.substring(8);
+                    	var estimate = new Date(year, month - 1, day);
+                    	estimate.setTime( estimate.getTime() + 280 * 86400000 );
+                    	var newString = dateTimeService.toDateString(estimate);
+                    	$scope.current.dueDate = newString;
+                    }
+                    
+                    $scope.getWeeks = function () {
+                    	var today = new Date();
+                    	var estimateDate = "" + $scope.current.lmp;
+                    	var year = estimateDate.substring(0, 4);
+                    	var month = estimateDate.substring(5, 7);
+                    	var day = estimateDate.substring(8);
+                    	var estimate = new Date(year, month - 1, day);
+                    	var difference = today.getTime() - estimate.getTime();
+                    	var daysSince = Math.round( difference / 86400000 );
+                    	var weeksSince = Math.round( daysSince / 7 );
+                    	$scope.current.weeksPreg = weeksSince;
                     }
 
                     $http.get("/iTrust2/api/v1/patients").then(
@@ -50,24 +96,18 @@
                                         function (response) {
                                             $scope.obstetricsRecords = response.data || {};
                                             $scope.obstetricsRecords = $scope.groupDates($scope.obstetricsRecords, 'date');
-                                            console.log($scope.obstetricsRecords);
-                                            console.log(Object.keys($scope.obstetricsRecords).length);
                                             $scope.currentRecord = false;
-                                            console.log("Ho " + $scope.currentRecord);
                                             if(Object.keys($scope.obstetricsRecords).length > 0) {
 	                                            for(i = 0; i < Object.values($scope.obstetricsRecords)[0].length; i++){
-	                                            	console.log(Object.values($scope.obstetricsRecords)[0][i].currentRecord);
 	                                            	if( Object.values($scope.obstetricsRecords)[0][i].currentRecord ){
 	                                            		$scope.currentRecord = true;
 	                                            		$scope.current.lmp = Object.values($scope.obstetricsRecords)[0][i].lmp;
 	                                            		$scope.current.dueDate = Object.values($scope.obstetricsRecords)[0][i].lmp;
-	                                            		$scope.current.weeksPreg = Object.values($scope.obstetricsRecords)[0][i].weeksPreg;
-	                                            		console.log($scope.current.lmp);
-	                                            		console.log("Hwo " + $scope.currentRecord);
+	                                            		$scope.makeDueDate();
+	                                            		$scope.getWeeks();
 	                                            	}
 	                                            }
                                             }
-                                            console.log("Hot " + $scope.currentRecord);
                                             $scope.message = "";
                                         },
                                         function (rejection) {
@@ -105,13 +145,18 @@
 					$scope.message = "";
 				}
                 
+                $scope.failAddLMP1 = function () {
+					$scope.errorMsg1 += "Could not add Obstetrics Record."
+					$scope.message1 = "";
+				}
+                
                 $scope.submit = function () {
-					$scope.errorMsg = "";
+					$scope.errorMsg1 = "";
 					// Validate entry date
 					var date = new Date($scope.input.date);
 					var now = new Date();
 					if (!dateTimeService.isValidDate(date) || now - date < 0) {
-						$scope.errorMsg += "Please input a valid date.\n";
+						$scope.errorMsg1 += "Please input a valid date.\n";
 					} else {
 						$scope.entry.lmp = dateTimeService.toDateString(date);
 						$scope.entry.conception = date.getYear() + 1900;
@@ -120,8 +165,8 @@
 					}
 					
 					// Check to ensure a patient is authenticated and the form is correct.
-					if ($scope.errorMsg.length >= 1 ) {
-						$scope.failAddLMP();
+					if ($scope.errorMsg1.length >= 1 ) {
+						$scope.failAddLMP1();
 						return;
 					}
 					
@@ -134,20 +179,88 @@
 					$http.post("/iTrust2/api/v1/obstetricsRecord/" + $scope.selectedPatient, $scope.entry).then(
 						function success(response) {
 							if (response.data.patient) {
-								$scope.message = "Your obstetrics record has been added successfully."
+								$scope.message1 = "Your obstetrics record has been added successfully."
 								$scope.entry = {};
-								$scope.errorMsg = "";
+								$scope.errorMsg1 = "";
 								document.location.href = '/iTrust2/hcp/documentObstetricsRecords';
 							} else {
 								// Redirected to login page,
 								// not actually successful
-								$scope.failAddLMP();
+								$scope.failAddLMP1();
 							}
 						}, function failure(rejection) {
-							$scope.failAddLMP();
+							$scope.failAddLMP1();
 						}
 					);
 				}
+                
+                $scope.add = function () {
+                	$scope.errorMsg = "";
+					// Validate entry date
+					var date = new Date($scope.input.date);
+					var now = new Date();
+					if (!dateTimeService.isValidDate(date) || now - date < 0) {
+						$scope.errorMsg += "Please input a valid date.\n";
+					} else {
+						$scope.adding.lmp = dateTimeService.toDateString(date);
+					}
+					
+					if (!$scope.adding.type) {
+						$scope.errorMsg += "A delivery type must be selected\n";
+					}
+					
+					if (!$scope.adding.twins) {
+						$scope.errorMsg += "Select if the delivery was twins\n";
+					} else {
+						if($scope.adding.twins == "true"){
+							$scope.adding.twins = true;
+						} else {
+							$scope.adding.twins = false;
+						}
+					}
+					
+					// Validate nutrition values - they are all validated the
+					// same way, so we use a for loop to check and propagate all
+					// errors.
+					var theValues = {
+						"conception": $scope.adding.conception,
+						"weeksPreg": $scope.adding.weeksPreg,
+						"hoursInLabor": $scope.adding.hoursInLabor
+					};
+					
+					for ( type in theValues ) {
+						if ( theValues[type] == null || theValues[type] < 0 ) {
+							$scope.errorMsg += `Field ${type} must be a positive whole number.\n`;
+						}
+					}
+					
+					// Check to ensure a patient is authenticated and the form is correct.
+					if ($scope.errorMsg.length >= 1 ) {
+						$scope.failAddLMP();
+						return;
+					}
+
+					// POST the entry to the REST API endpoint, and handle
+					// success/error
+					$http.post("/iTrust2/api/v1/obstetricsRecord/" + $scope.selectedPatient, $scope.adding).then(
+							function success(response) {
+								if (response.data.patient) {
+									$scope.message = "Your obstetrics record has been added successfully."
+									$scope.entry = {};
+									$scope.errorMsg = "";
+									$scope.newOne = false;
+									document.location.href = '/iTrust2/hcp/documentObstetricsRecords';
+								} else {
+									// Redirected to login page,
+									// not actually successful
+									$scope.failAddLMP();
+								}
+							}, function failure(rejection) {
+								$scope.failAddLMP();
+							}
+						);
+                }
+                
                 });
 
                 /*app.filter('sumByColumn', function () {
@@ -180,7 +293,7 @@
 						<label> <input type="radio" id="{{patient.self.username}}"
 							ng-model="$parent.selectedPatient" name="patient"
 							value="{{patient.self.username}}"
-							ng-click='$parent.selectPatient(patient)' />
+							ng-click='$parent.selectPatient(patient); resetNewOneEmpty()' />
 							&nbsp;{{$parent.displayName(patient)}}
 						</label>
 					</div>
@@ -211,8 +324,8 @@
 												name="submit" id="submit">Create Obstetrics Record</button>
 										</div>
 										<div class="form-group">
-											<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
-											<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+											<div name="success" class="text-success" style="white-space: pre;">{{message1}}</div>
+											<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg1}}</div>
 										</div>
 		                   			</div>
 									<table class="table table-bordered" ng-show= currentRecord>
@@ -239,6 +352,7 @@
 				</div>
 				<div class="container">
 		          <div class="row">
+		            <div class="col-md-3"></div>
 		            <div class="col-md-9">
 		              <div class="panel panel-primary">
 		                <div class="panel-heading">
@@ -246,9 +360,81 @@
 		                </div>
 		                <div class="panel-body">
 		                  <div style="margin-left: 10px;">
-		                    <div
-		                      ng-if="!obstetricsRecords || Object.keys(obstetricsRecords).length == 0">
-		                      There are no previous pregnancies.</div>
+		                    <div ng-if="!selectedPatient">Please select a patient for
+										which to view Obstetrics Records.</div>
+		                    <div ng-if="selectedPatient && (!obstetricsRecords || Object.keys(obstetricsRecords).length == 0)">
+		                      There are no previous pregnancies.
+		                      <button ng-hide="newOneEmpty" type="addEmpty" class="btn btn-primary" ng-click=addEmpty()
+												name="addEmpty" id="addEmpty">Add One?</button>
+		                      <table ng-show="newOneEmpty" class="table table-bordered">
+				                    <thead>
+				                      <tr>
+				                        <th>LMP</th>
+				                        <th>ConceptionYear</th>
+				                        <th># Weeks Pregnant</th>
+				                        <th># Hours in Labor</th>
+				                        <th>Delivery Method</th>
+				                        <th>Twins</th>
+				                      </tr>
+				                    </thead>
+				                    <tbody>
+				                      <tr >
+				                      	<td>
+											<div class="form-group">
+												<input class="form-group" name="lmp" type="date" ng-model="input.date" />
+											</div>
+										</td>
+										<td>
+											<div class="form-group">
+												<input class="form-group" name="conception" type="number" ng-model="adding.conception" />
+											</div>
+										</td>
+										<td>
+											<div class="form-group">
+												<input class="form-group" name="weeksPreg" type="number" ng-model="adding.weeksPreg" />
+											</div>
+										</td>
+										<td>
+											<div class="form-group">
+												<input class="form-group" name="hoursInLabor" type="number" ng-model="adding.hoursInLabor" />
+											</div>
+										</td>
+										<td>
+											<div class="form-group">
+												<select
+													class="form-control" ng-model="adding.type" id="type"
+													name="type">
+													<option ng-repeat="type in birthTypes">{{type}}</option>
+												</select>
+											</div>
+										</td>
+										<td>
+											<div class="form-group">
+												<select
+													class="form-control" ng-model="adding.twins" id="twins"
+													name="type">
+													<option ng-repeat="twins in yesOrNo">{{twins}}</option>
+												</select>
+											</div>
+										</td>
+				                      </tr>
+				                    </tbody>
+				                      <tr>
+				                      <td>
+				                    	<div class="form-group">
+											<button type="add" class="btn btn-primary" ng-click=add()
+												name="add" id="add">Add</button>
+								  		</div>
+		
+										<div class="form-group">
+											<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
+											<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+										</div>
+				                	
+				                	</td>
+				                	</tr>
+		                  </table>
+		                     </div>
 		                  </div>
 		                  
 		                  <table class="table table-bordered"
@@ -273,9 +459,65 @@
 		                        <td id="type-{{$index}}">{{d.type}}</td>
 		                        <td id="twins-{{$index}}">{{d.twins}}</td>
 		                      </tr>
+		                      <tr ng-show = "newOne" >
+		                      	<td>
+									<div class="form-group">
+										<input class="form-group" name="lmp" type="date" ng-model="input.date" />
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<input class="form-group" name="conception" type="number" ng-model="adding.conception" />
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<input class="form-group" name="weeksPreg" type="number" ng-model="adding.weeksPreg" />
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<input class="form-group" name="hoursInLabor" type="number" ng-model="adding.hoursInLabor" />
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<select
+											class="form-control" ng-model="adding.type" id="type"
+											name="type">
+											<option ng-repeat="type in birthTypes">{{type}}</option>
+										</select>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<select
+											class="form-control" ng-model="adding.twins" id="twins"
+											name="type">
+											<option ng-repeat="twins in yesOrNo">{{twins}}</option>
+										</select>
+									</div>
+								</td>
+		                      </tr>
 		                    </tbody>
+		                      <tr>
+		                      <td>
+		                    	<div class="form-group">
+									<button ng-hide="newOne" type="newOne" class="btn btn-primary" ng-click=addNew()
+										name="newOne" id="newOne">Add New Past Pregnancy</button>
+									<button ng-show="newOne" type="add" class="btn btn-primary" ng-click=add()
+										name="add" id="add">Add</button>
+						  		</div>
+
+								<div class="form-group">
+									<div name="success" class="text-success" style="white-space: pre;">{{message}}</div>
+									<div name="errorMsg" class="text-danger" style="white-space: pre;">{{errorMsg}}</div>
+								</div>
+		                	
+		                	</td>
+		                	</tr>
 		                  </table>
-		                </div>
+		                  </div>
 		              </div>
 		            </div>
 		          </div>
