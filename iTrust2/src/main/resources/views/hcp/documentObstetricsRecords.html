@@ -86,7 +86,17 @@
                     $http.get("/iTrust2/api/v1/patients").then(
                         function (response) {
                             $scope.patients = response.data;
-
+                            console.log($scope.patients);
+                            $scope.hold = [];
+                            var counter = 0;
+                            for( i = 0; i < $scope.patients.length; i++){
+                            	if($scope.patients[i].gender == "Female"){
+                            		$scope.hold[counter] = $scope.patients[i];
+                            		counter = counter + 1;
+                            	}
+                            }
+                            $scope.patients = $scope.hold;
+                            console.log($scope.patients);
                             $scope.selectPatient = function (patient) {
                                 $scope.selectedDate = null; // Reset selected date
 
