@@ -35,6 +35,7 @@
                     $scope.yesOrNo = ['true', 'false'];
                     $scope.newOne = false;
                     $scope.newOneEmpty = false;
+                    $scope.showTable = false;
                     $scope.addNew = function (){
                     	$scope.newOne = true;
                     }
@@ -47,7 +48,9 @@
                     	$scope.errorMsg = "";
                     	$scope.errorMsg1 = "";
                     	$scope.input.date = "";
+                    	$scope.showTable = false;
                     }
+                    
 
                     $scope.displayName = function (p) {
                         return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
@@ -115,8 +118,11 @@
 	                                            		$scope.current.dueDate = Object.values($scope.obstetricsRecords)[0][i].lmp;
 	                                            		$scope.makeDueDate();
 	                                            		$scope.getWeeks();
+	                                            	} else {
+	                                            		$scope.showTable = true;
 	                                            	}
 	                                            }
+	                                            console.log($scope.showTable);
                                             }
                                             $scope.message = "";
                                         },
@@ -372,7 +378,7 @@
 		                  <div style="margin-left: 10px;">
 		                    <div ng-if="!selectedPatient">Please select a patient for
 										which to view Obstetrics Records.</div>
-		                    <div ng-if="selectedPatient && (!obstetricsRecords || Object.keys(obstetricsRecords).length == 0)">
+		                    <div ng-if="selectedPatient && !showTable">
 		                      There are no previous pregnancies.
 		                      <button ng-hide="newOneEmpty" type="addEmpty" class="btn btn-primary" ng-click=addEmpty()
 												name="addEmpty" id="addEmpty">Add One?</button>
@@ -448,7 +454,8 @@
 		                  </div>
 		                  
 		                  <table class="table table-bordered"
-		                    ng-repeat="(date, records) in obstetricsRecords">
+		                    ng-repeat="(date, records) in obstetricsRecords"
+		                    ng-if= "showTable">
 		                    <thead>
 		                      <tr>
 		                        <th>LMP</th>
