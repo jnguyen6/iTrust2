@@ -1,6 +1,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:include="layout :: head(title=~{::title},links=~{})">
+<head th:include="layout :: head(title=~{::title},links=~{::script})">
 <title>View Obstetrics Records</title>
+<script th:src="@{/resources/js/dateTimeService.js}"
+  src="../resources/js/dateTimeService.js"></script>
 </head>
 
 <body th:include="layout :: body" th:with="content=~{::content}">
@@ -10,23 +12,67 @@
       <script th:inline="javascript">
             /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
             /*<![CDATA[*/
-            var app = angular.module("viewRecordsApp", []);
-            app.controller('viewRecordsCtrl', function ($scope, $http) {
+            var app = angular.module("viewRecordsApp", ['dateTimeServices']);
+            app.controller('viewRecordsCtrl', function ($scope, $http, dateTimeService) {
                 $scope.Object = Object; // Allows for use of Object.keys()
                 $scope.obstetricsRecords  = {};
+                $scope.currentRecord = false;
+                $scope.showTable = false;
+                const now = new Date();
+                $scope.current = {};
                 
-                $scope.loadData = function () {
+                $scope.makeDueDate = function(){
+                  var estimateDate = "" + $scope.current.dueDate;
+                  var year = estimateDate.substring(0, 4);
+                  var month = estimateDate.substring(5, 7);
+                  var day = estimateDate.substring(8);
+                  var estimate = new Date(year, month - 1, day);
+                  estimate.setTime( estimate.getTime() + 280 * 86400000 );
+                  var newString = dateTimeService.toDateString(estimate);
+                  $scope.current.dueDate = newString;
+                }
+        
+                $scope.getWeeks = function () {
+                  var today = new Date();
+                  var estimateDate = "" + $scope.current.lmp;
+                  var year = estimateDate.substring(0, 4);
+                  var month = estimateDate.substring(5, 7);
+                  var day = estimateDate.substring(8);
+                  var estimate = new Date(year, month - 1, day);
+                  var difference = today.getTime() - estimate.getTime();
+                  var daysSince = Math.round( difference / 86400000 );
+                  var weeksSince = Math.round( daysSince / 7 );
+                  $scope.current.weeksPreg = weeksSince;
+                }
+                
+                $scope.loadRecords = function () {
                     // Get obstetrics records
-                    $http.get('/iTrust2/api/v1/records/').then(function (response) {
+                    $http.get('/iTrust2/api/v1/obstetricsRecord/').then(function (response) {
                         $scope.obstetricsRecords = response.data || {};
                         $scope.obstetricsRecords = $scope.groupDates($scope.obstetricsRecords, 'date');
+                        $scope.currentRecord = false;
+                        $scope.showTable = false;
+                        if(Object.keys($scope.obstetricsRecords).length > 0) {
+                          for(i = 0; i < Object.values($scope.obstetricsRecords)[0].length; i++){
+                            if( Object.values($scope.obstetricsRecords)[0][i].currentRecord ){
+                              $scope.currentRecord = true;
+                              $scope.current.lmp = Object.values($scope.obstetricsRecords)[0][i].lmp;
+                              $scope.current.dueDate = Object.values($scope.obstetricsRecords)[0][i].lmp;
+                              $scope.makeDueDate();
+                              $scope.getWeeks();
+                            } else {
+                              $scope.showTable = true;
+                            }
+                          }
+                        } 
                         $scope.message = "";
                     },
                     function (rejection) {
                         $scope.message = "Could not display obstetrics records.";
                     });
                 };
-                
+             
+  
                 // Split entries into groups by date
                 $scope.groupDates = function (arr, key) {
                     var groups = {};
@@ -45,15 +91,8 @@
                     return orderedGroups;
                 };
                 
-                // Calculate estimated due date
-                $scope.estimatedDueDate = function (lmp) {
-                    var dueDate = "";
-
-                    
-                    return dueDate;
-                };
-
-                $scope.loadData();
+                $scope.loadRecords();
+                
             });
 
             /*]]>*/
@@ -67,14 +106,14 @@
                 <div class="panel-heading">
                   <h3>Current Pregnancy</h3>
                 </div>
-                  <div
-                      ng-if="!obstetricsRecords || Object.keys(obstetricsRecords).length == 0">
-                      There are no current obstetrics records.</div>
-                </div>
+                <div class="panel-body">
+                  <div style="margin-left: 10px;">
+                    <div
+                      ng-if="!currentRecord ">
+                      There are no current Obstetrics records for this Patient.</div>
+                   </div>
 
-                  <table class="table table-bordered"
-                    ng-repeat="(isCurrentRecord, records) in obstetricsRecords"
-                    ng-if="isCurrentRecord == true">
+                  <table class="table table-bordered" ng-show="currentRecord">
                     <thead>
                       <tr>
                         <th>Last Menstrual Period</th>
@@ -83,16 +122,18 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr ng-repeat="d in entries track by $index">
-                        <td id="lmp-{{$index}}">{{d.lmp}}</td>
-                        <td id="dueDate-{{$index}}">{{$scope.estimatedDueDate(d.lmp)}}</td>
-                        <td id="weeksPreg-{{$index}}">{{d.weeksPreg}}</td>
+                      <tr>
+                        <td id="lmp">{{current.lmp}}</td>
+                        <td id="dueDate">{{current.dueDate}}</td>
+                        <td id="weeksPreg">{{current.weeksPreg}}</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
         <div class="container">
           <div class="row">
             <div class="col-md-12">
@@ -103,11 +144,11 @@
                 <div class="panel-body">
                   <div style="margin-left: 10px;">
                     <div
-                      ng-if="!obstetricsRecords || Object.keys(obstetricsRecords).length == 0">
+                      ng-if="!showTable" >
                       There are no previous pregnancies.</div>
                   </div>
                   
-                  <table class="table table-bordered"
+                  <table class="table table-bordered" ng-if="showTable"
                     ng-repeat="(date, records) in obstetricsRecords">
                     <thead>
                       <tr>
@@ -120,12 +161,13 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr ng-repeat="d in entries track by $index">
+                       <tr ng-repeat="d in records track by $index"
+                        ng-if= "d.currentRecord == false">
                         <td id="lmp-{{$index}}">{{d.lmp}}</td>
                         <td id="conception-{{$index}}">{{d.conception}}</td>
                         <td id="weeksPreg-{{$index}}">{{d.weeksPreg}}</td>
                         <td id="hoursInLabor-{{$index}}">{{d.hoursInLabor}}</td>
-                        <td id="DeliveryMethod-{{$index}}">{{d.DeliveryMethod}}</td>
+                        <td id="type-{{$index}}">{{d.type}}</td>
                         <td id="twins-{{$index}}">{{d.twins}}</td>
                       </tr>
                     </tbody>
@@ -134,7 +176,8 @@
               </div>
             </div>
           </div>
-        </div> 
+        </div>
+      </div>
 </body>
 
 </html>
