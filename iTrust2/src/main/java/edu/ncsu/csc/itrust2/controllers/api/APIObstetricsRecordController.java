@@ -27,6 +27,7 @@ import edu.ncsu.csc.itrust2.utils.LoggerUtil;
  *
  *
  * @author Shukri Qubain (scqubain@ncsu.edu)
+ * @author Jimmy Nguyen (jnguyen6)
  *
  */
 @SuppressWarnings ( { "rawtypes", "unchecked" } )
@@ -50,7 +51,7 @@ public class APIObstetricsRecordController extends APIController {
             // Check if the patient has a current record
             final List<ObstetricsRecord> records = ObstetricsRecord.getByPatient( patient );
             for ( int i = 0; i < records.size(); i++ ) {
-                if ( records.get( i ).isCurrentRecord() ) {
+                if ( records.get( i ).isCurrentRecord() && form.isCurrentRecord() ) {
                     return new ResponseEntity( errorResponse( "Could not create Obstetrics Record because " + patient
                             + " already has a current obstetrics record." ), HttpStatus.BAD_REQUEST );
                 }
