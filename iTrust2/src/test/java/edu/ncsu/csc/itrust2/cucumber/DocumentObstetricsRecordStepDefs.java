@@ -121,15 +121,11 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
 
     @And ( "^I select a patient using her (.+).$" )
     public void selectPatient ( final String username ) {
-        final WebDriverWait wait = new WebDriverWait( driver, 20 );
-        wait.until( ExpectedConditions.visibilityOfElementLocated( By.id( username ) ) );
         driver.findElement( By.id( username ) ).click();
     }
 
     @And ( "^I enter (.+) for a current obstetrics record.$" )
     public void enterLMP ( final String date ) {
-        final WebDriverWait wait = new WebDriverWait( driver, 20 );
-        wait.until( ExpectedConditions.visibilityOfElementLocated( By.name( "currentlmp" ) ) );
         final WebElement dateElement = driver.findElement( By.name( "currentlmp" ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
     }
@@ -180,6 +176,11 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
     @And ( "^I click add.$" )
     public void addPreviousPregnancy () {
         driver.findElement( By.name( "add" ) ).click();
+        try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
 
     @And ( "^I enter (.+) for a current obstetrics record, where the LMP is invalid.$" )
