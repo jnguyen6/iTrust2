@@ -50,7 +50,7 @@ public class APIObstetricsRecordController extends APIController {
             // Check if the patient has a current record
             final List<ObstetricsRecord> records = ObstetricsRecord.getByPatient( patient );
             for ( int i = 0; i < records.size(); i++ ) {
-                if ( records.get( i ).isCurrentRecord() && form.isCurrentRecord() ) {
+                if ( records.get( i ).isCurrentRecord() ) {
                     return new ResponseEntity( errorResponse( "Could not create Obstetrics Record because " + patient
                             + " already has a current obstetrics record." ), HttpStatus.BAD_REQUEST );
                 }
