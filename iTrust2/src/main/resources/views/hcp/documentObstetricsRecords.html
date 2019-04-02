@@ -332,7 +332,7 @@
 		                      			Enter patient's Last Menstrual Period below to create an obstetrics record.<br><br>
 		                      			<div class="form-group">
 		                      				<label for="lmp">Enter LMP:</label> <input class="form-control"
-												id="lmp" type="date" ng-model="input.date" name="lmp"
+												id="currentlmp" type="date" ng-model="input.date" name="currentlmp"
 												required="true" />
 										</div>
 										<div class="form-group">
@@ -381,12 +381,12 @@
 		                    <div ng-if="selectedPatient && !showTable">
 		                      There are no previous pregnancies.
 		                      <button ng-hide="newOneEmpty" type="addEmpty" class="btn btn-primary" ng-click=addEmpty()
-												name="addEmpty" id="addEmpty">Add One?</button>
+												name="addPreviousPregnancy" id="addPreviousPregnancy">Add One?</button>
 		                      <table ng-show="newOneEmpty" class="table table-bordered">
 				                    <thead>
 				                      <tr>
 				                        <th>LMP</th>
-				                        <th>ConceptionYear</th>
+				                        <th>Conception Year</th>
 				                        <th># Weeks Pregnant</th>
 				                        <th># Hours in Labor</th>
 				                        <th>Delivery Method</th>
@@ -397,7 +397,7 @@
 				                      <tr >
 				                      	<td>
 											<div class="form-group">
-												<input class="form-group" name="lmp" type="date" ng-model="input.date" />
+												<input class="form-group" name="previouslmp" type="date" ng-model="input.date" />
 											</div>
 										</td>
 										<td>
@@ -479,7 +479,7 @@
 		                      <tr ng-show = "newOne" >
 		                      	<td>
 									<div class="form-group">
-										<input class="form-group" name="lmp" type="date" ng-model="input.date" />
+										<input class="form-group" name="previouslmp" type="date" ng-model="input.date" />
 									</div>
 								</td>
 								<td>
@@ -521,7 +521,7 @@
 		                      <td>
 		                    	<div class="form-group">
 									<button ng-hide="newOne" type="newOne" class="btn btn-primary" ng-click=addNew()
-										name="newOne" id="newOne">Add New Past Pregnancy</button>
+										name="addPreviousPregnancy" id="addPreviousPregnancy">Add New Past Pregnancy</button>
 									<button ng-show="newOne" type="add" class="btn btn-primary" ng-click=add()
 										name="add" id="add">Add</button>
 						  		</div>
