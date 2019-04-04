@@ -121,6 +121,7 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
 
     @And ( "^I select a patient using her (.+).$" )
     public void selectPatient ( final String username ) {
+        waitForAngular();
         driver.findElement( By.id( username ) ).click();
     }
 
