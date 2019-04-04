@@ -5,6 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -31,10 +35,6 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
     private final String patientString = "JillBob";
     private final String obgynString   = "tylerOBGYN";
 
-    @Before
-    public void setUp () {
-        DomainObject.deleteAll( ObstetricsRecord.class );
-    }
 
     /**
      * Asserts that the text is on the page
@@ -130,7 +130,7 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
 
     @And ( "^I enter (.+) for a current obstetrics record for the patient.$" )
     public void enterLMP ( final String date ) {
-        final WebElement dateElement = driver.findElement( By.name( "currentlmp" ) );
+    	final WebElement dateElement = driver.findElement( By.name( "currentlmp" ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
     }
 
@@ -190,6 +190,8 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('viewObstetricsRecords').click();" );
 
         assertEquals( "iTrust2: View Obstetrics Records", driver.getTitle() );
+        assertTextPresent( "Current Pregnancy" );
+        assertTextPresent( "Previous Pregnancies" );
 
     }
 
@@ -200,32 +202,36 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
     }
 
     @Then ( "^I can view the obstetrics record (.+), (.+), (\\d+).$" )
-    public void viewEntryPatient ( final String date, final String dueDate, final int weeksPreg ) {
-        assertEquals( date, driver.findElement( By.id( "lmp" ) ).getText() );
-        assertEquals( dueDate, driver.findElement( By.id( "dueDate" ) ).getText() );
-        assertEquals( weeksPreg, Integer.parseInt( driver.findElement( By.id( "weeksPreg" ) ).getText() ) );
+    public void viewEntryPatient ( final String lmp, final String dueDate, final int weeksPreg ) {
+    	// Convert date from format 'MM/dd/yyyy' to LocalDate object
+        final DateTimeFormatter lmpToIso = DateTimeFormatter.ofPattern( "MM/dd/yyyy" );
+
+        final LocalDate now = LocalDate.now();
+        final LocalDate convertedLmp = LocalDate.parse( lmp, lmpToIso );
+
+        // Check for correct lmp on page
+        assertTextPresent( "Last Menstrual Period" );
+        assertEquals( convertedLmp.toString(), driver.findElement( By.id( "lmp" ) ).getText() );
+
+         assertEquals( dueDate, Integer.parseInt( driver.findElement( By.id( "dueDate" ) ).getText() ) );
+         assertEquals( weeksPreg, driver.findElement( By.id( "weeksPreg" ) ).getText() );
     }
 
-    @Then ( "^I can view the previous obstetrics record (\\d+), (\\d+), (\\d+), (\\d+), (.+), (.+).$" )
-    public void viewPreviousEntryPatient ( final int lmp, final int year, final int weeksPreg, final int labor,
+    @Then ( "^I can view the previous obstetrics record (.+), (\\d+), (\\d+), (\\d+), (.+), (.+).$" )
+    public void viewPreviousEntryPatient ( final String lmp, final int year, final int weeksPreg, final int labor,
             final String method, final String twins ) {
-        assertEquals( lmp, Integer.parseInt( driver.findElement( By.id( "lmp-0" ) ).getText() ) );
+    	// Convert date from format 'MM/dd/yyyy' to LocalDate object
+        final DateTimeFormatter lmpToIso = DateTimeFormatter.ofPattern( "MM/dd/yyyy" );
+
+        final LocalDate now = LocalDate.now();
+        final LocalDate convertedLmp = LocalDate.parse( lmp, lmpToIso );
+
+        // Check for correct lmp on page
+        assertTextPresent( "Last Menstrual Period" );
+        assertEquals( convertedLmp.toString(), driver.findElement( By.id( "lmp-0" ) ).getText() );
+    	
         assertEquals( year, Integer.parseInt( driver.findElement( By.id( "conception-0" ) ).getText() ) );
         assertEquals( weeksPreg, Integer.parseInt( driver.findElement( By.id( "weeksPreg-0" ) ).getText() ) );
-        assertEquals( labor, Integer.parseInt( driver.findElement( By.id( "hoursInLabor-0" ) ).getText() ) );
-        assertEquals( method, driver.findElement( By.id( "type-0" ) ).getText() );
-        assertEquals( twins, driver.findElement( By.id( "twins-0" ) ).getText() );
-    }
-
-    @Then ( "^I can view both previous and current obstetrics records (\\d+), (.+), (\\d+), (\\d+), (\\d+), (\\d+), (\\d+), (.+).$" )
-    public void viewPreviousEntryPatient ( final int lmp, final String dueDate, final int weeksPreg, final int p_lmp,
-            final int year, final int weeks, final int labor, final String method, final String twins ) {
-        assertEquals( lmp, driver.findElement( By.id( "lmp" ) ).getText() );
-        assertEquals( dueDate, Integer.parseInt( driver.findElement( By.id( "dueDate" ) ).getText() ) );
-        assertEquals( weeksPreg, driver.findElement( By.id( "weeksPreg" ) ).getText() );
-        assertEquals( p_lmp, driver.findElement( By.id( "lmp-0" ) ).getText() );
-        assertEquals( year, Integer.parseInt( driver.findElement( By.id( "conception-0" ) ).getText() ) );
-        assertEquals( weeks, Integer.parseInt( driver.findElement( By.id( "weeksPreg-0" ) ).getText() ) );
         assertEquals( labor, Integer.parseInt( driver.findElement( By.id( "hoursInLabor-0" ) ).getText() ) );
         assertEquals( method, driver.findElement( By.id( "type-0" ) ).getText() );
         assertEquals( twins, driver.findElement( By.id( "twins-0" ) ).getText() );
