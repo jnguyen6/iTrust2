@@ -135,4 +135,17 @@ public class PatientController {
     public String viewFoodDiaryEntriesForm ( final Model model ) {
         return "/patient/foodDiary/viewFoodDiaryEntries";
     }
+    
+    /**
+     * Retrieves the page for the Patient to view their obstetrics records.
+     *
+     * @param model
+     *            Data for the front end
+     * @return The page the patient to view their obstetrics records.
+     */
+    @GetMapping ( "/patient/obstetricsRecords/viewObstetricsRecords" )
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    public String viewObstetricsRecordsForm ( final Model model ) {
+        return "/patient/obstetricsRecords/viewObstetricsRecords";
+    }
 }
