@@ -66,7 +66,7 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
     }
 
     @Given ( "^There exists a patient in the system who can have an obstetrics record.$" )
-    public void pateintExistsInSystem () {
+    public void patientExistsInSystem () {
         attemptLogout();
         driver.get( baseUrl );
         final WebElement username = driver.findElement( By.id( "username" ) );
@@ -176,11 +176,6 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
     @And ( "^I click add.$" )
     public void addPreviousPregnancy () {
         driver.findElement( By.name( "add" ) ).click();
-        try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
     }
 
     @And ( "^I enter (.+) for a current obstetrics record, where the LMP is invalid.$" )

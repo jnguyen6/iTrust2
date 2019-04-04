@@ -68,7 +68,7 @@
                     	var month = estimateDate.substring(5, 7);
                     	var day = estimateDate.substring(8);
                     	var estimate = new Date(year, month - 1, day);
-                    	estimate.setTime( estimate.getTime() + 280 * 86400000 );
+                    	estimate.setTime( estimate.getTime() + 280 * 86400000 + Math.abs( estimate.getTimezoneOffset()*60000 ) );
                     	var newString = dateTimeService.toDateString(estimate);
                     	$scope.current.dueDate = newString;
                     }
@@ -81,8 +81,8 @@
                     	var day = estimateDate.substring(8);
                     	var estimate = new Date(year, month - 1, day);
                     	var difference = today.getTime() - estimate.getTime();
-                    	var daysSince = Math.round( difference / 86400000 );
-                    	var weeksSince = Math.round( daysSince / 7 );
+                    	var daysSince = Math.floor( difference / 86400000 );
+                    	var weeksSince = Math.floor( daysSince / 7 );
                     	$scope.current.weeksPreg = weeksSince;
                     }
 
@@ -459,7 +459,7 @@
 		                    <thead>
 		                      <tr>
 		                        <th>LMP</th>
-		                        <th>ConceptionYear</th>
+		                        <th>Conception Year</th>
 		                        <th># Weeks Pregnant</th>
 		                        <th># Hours in Labor</th>
 		                        <th>Delivery Method</th>
