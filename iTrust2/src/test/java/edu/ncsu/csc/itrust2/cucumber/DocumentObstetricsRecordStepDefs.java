@@ -176,6 +176,12 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
     @And ( "^I click add.$" )
     public void addPreviousPregnancy () {
         driver.findElement( By.name( "add" ) ).click();
+        try {
+            Thread.sleep( 5000 );
+        }
+        catch ( final InterruptedException e ) {
+            e.printStackTrace();
+        }
     }
 
     @And ( "^I enter (.+) for a current obstetrics record, where the LMP is invalid.$" )
