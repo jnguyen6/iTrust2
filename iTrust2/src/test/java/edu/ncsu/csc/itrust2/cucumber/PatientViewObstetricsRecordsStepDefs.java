@@ -239,9 +239,6 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
     public void viewPreviousEntryPatient ( final int year, final int weeksPreg, final int labor, final String method,
             final String twins ) {
 
-        // Check for correct lmp on page
-        assertTextPresent( "Last Menstrual Period" );
-
         assertEquals( year, Integer.parseInt( driver.findElement( By.id( "conception-0" ) ).getText() ) );
         assertEquals( weeksPreg, Integer.parseInt( driver.findElement( By.id( "weeksPreg-0" ) ).getText() ) );
         assertEquals( labor, Integer.parseInt( driver.findElement( By.id( "hoursInLabor-0" ) ).getText() ) );
