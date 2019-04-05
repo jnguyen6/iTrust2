@@ -78,7 +78,16 @@
 	          $http.get("/iTrust2/api/v1/obstetricsRecord/" + $scope.selectedPatient).then(
 	            function (response) {
 	              $scope.obstetricsRecords = response.data || {};
-	              $scope.obstetricsRecords = $scope.groupDates($scope.obstetricsRecords, 'date');
+	              $scope.obstetricsRecords = $scope.groupDates($scope.obstetricsRecords, 'conception');
+	              var hold = [];
+                  var count = 0;
+                  for(j = Object.keys($scope.obstetricsRecords).length - 1; j >= 0; j--){
+                  	for(k = 0; k < Object.values($scope.obstetricsRecords)[j].length; k++){
+                  		hold[count] = Object.values($scope.obstetricsRecords)[j][k];
+                  		count++;
+                  	}
+                  }
+                  $scope.obstetricsRecords = $scope.groupDates(hold, 'date');
 	              $scope.currentRecord = false;
 	  	          $scope.showTable = false;
 	              if(Object.keys($scope.obstetricsRecords).length > 0) {
@@ -208,7 +217,6 @@
                     ng-repeat="(date, records) in obstetricsRecords">
                     <thead>
                       <tr>
-                        <th>LMP</th>
                         <th>Conception Year</th>
                         <th># Weeks Pregnant</th>
                         <th># Hours in Labor</th>
@@ -219,7 +227,6 @@
                     <tbody>
                       <tr ng-repeat="d in records track by $index"
 		                  ng-if= "d.currentRecord == false">
-                        <td id="lmp-{{$index}}">{{d.lmp}}</td>
                         <td id="conception-{{$index}}">{{d.conception}}</td>
                         <td id="weeksPreg-{{$index}}">{{d.weeksPreg}}</td>
                         <td id="hoursInLabor-{{$index}}">{{d.hoursInLabor}}</td>

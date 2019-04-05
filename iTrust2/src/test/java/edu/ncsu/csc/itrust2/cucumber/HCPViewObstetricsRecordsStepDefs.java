@@ -2,7 +2,6 @@ package edu.ncsu.csc.itrust2.cucumber;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -22,9 +21,11 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -94,27 +95,36 @@ public class HCPViewObstetricsRecordsStepDefs extends CucumberTest {
     @Given ( "^A female patient exists in the system.$" )
     public void femalePatientExistsInSystem () {
         attemptLogout();
-        driver.get( baseUrl );
-        final WebElement username = driver.findElement( By.id( "username" ) );
-        username.clear();
-        username.sendKeys( "tylerOBGYN" );
-        final WebElement password = driver.findElement( By.id( "password" ) );
-        password.clear();
-        password.sendKeys( "123456" );
-        final WebElement submit = driver.findElement( By.className( "btn" ) );
-        submit.click();
 
-        final WebDriverWait wait = new WebDriverWait( driver, 20 );
-        wait.until( ExpectedConditions.titleContains( "iTrust2: HCP Home" ) );
+        // Create the test User
+        final User user1 = new User( "AliceThirteen", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        user1.save();
 
-        ( (JavascriptExecutor) driver )
-                .executeScript( "document.getElementById('OBGYNHCPDocumentObstetricsRecord').click();" );
-        final WebDriverWait wait2 = new WebDriverWait( driver, 20 );
-        wait2.until( ExpectedConditions.titleContains( "iTrust2: View Patient Obstetrics Records" ) );
-        waitForAngular();
-        assertNotNull( driver.findElement( By.name( "patient" ) ) );
+        // The User must also be created as a Patient
+        // to show up in the list of Patients
+        final Patient patient1 = new Patient( user1.getUsername() );
+        patient1.setGender( Gender.Female );
+        patient1.save();
 
-        driver.findElement( By.id( "logout" ) ).click();
+        // All tests can safely assume the existence of the 'hcp', 'admin', and
+        // 'patient' users
+
+        attemptLogout();
+
+        // Create the test User
+        final User user = new User( "JillBob", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        user.save();
+
+        // The User must also be created as a Patient
+        // to show up in the list of Patients
+        final Patient patient = new Patient( user.getUsername() );
+        patient.setGender( Gender.Female );
+        patient.save();
+
+        // All tests can safely assume the existence of the 'hcp', 'admin', and
+        // 'patient' users
     }
 
     /**
@@ -266,9 +276,9 @@ public class HCPViewObstetricsRecordsStepDefs extends CucumberTest {
     /**
      * Add previous record for given user
      */
-    @When ( "^As an OB/GYN HCP I add a previous obstetrics record for (.+) with LMP (.+), conception year (\\d+), (\\d+) weeks pregnant, (\\d+) hours in labor, (.+), twins: (.+) for a previous obstetrics record.$" )
-    public void previousRecordData ( final String user, final String lmp, final int conception, final int weeks,
-            final int hours, final String delivery, final String twins ) {
+    @When ( "^As an OB/GYN HCP I add a previous obstetrics record for (.+) with conception year (\\d+), (\\d+) weeks pregnant, (\\d+) hours in labor, (.+), twins: (.+) for a previous obstetrics record.$" )
+    public void previousRecordData ( final String user, final int conception, final int weeks, final int hours,
+            final String delivery, final String twins ) {
 
         // Login as OBGYN
         obgynLogin();
@@ -279,8 +289,6 @@ public class HCPViewObstetricsRecordsStepDefs extends CucumberTest {
         // Add record
         waitForAngular();
         driver.findElement( By.name( "addPreviousPregnancy" ) ).click();
-        final WebElement dateElement = driver.findElement( By.name( "previouslmp" ) );
-        dateElement.sendKeys( lmp.replace( "/", "" ) );
 
         final WebElement conception_year = driver.findElement( By.name( "conception" ) );
         conception_year.clear();
@@ -308,18 +316,10 @@ public class HCPViewObstetricsRecordsStepDefs extends CucumberTest {
     /**
      * Check that previous record can be viewed
      */
-    @Then ( "^The patient's correct LMP (.+), conception year (\\d+), (\\d+) weeks pregnant, (\\d+) hours in labor, (.+), twins: (.+) for a previous obstetrics record are displayed for record (\\d+).$" )
-    public void checkPreviousRecordData ( final String lmp, final int conception, final int weeks, final int hours,
-            final String delivery, final String twins, final int recordNo ) {
+    @Then ( "^The patient's conception year (\\d+), (\\d+) weeks pregnant, (\\d+) hours in labor, (.+), twins: (.+) for a previous obstetrics record are displayed for record (\\d+).$" )
+    public void checkPreviousRecordData ( final int conception, final int weeks, final int hours, final String delivery,
+            final String twins, final int recordNo ) {
         waitForAngular();
-
-        // Convert date from format 'MM/dd/yyyy' to 'yyyy-MM-dd'
-        final DateTimeFormatter lmpToIso = DateTimeFormatter.ofPattern( "MM/dd/yyyy" );
-
-        // Check for correct lmp on page
-        assertTextPresent( "LMP" );
-        assertEquals( LocalDate.parse( lmp, lmpToIso ).toString(),
-                driver.findElement( By.id( "lmp-" + recordNo ) ).getText() );
 
         // Check for correct conception year
         assertTextPresent( "Conception Year" );

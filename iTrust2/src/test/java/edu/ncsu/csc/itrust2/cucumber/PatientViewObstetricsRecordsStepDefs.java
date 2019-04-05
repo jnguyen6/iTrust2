@@ -2,13 +2,8 @@ package edu.ncsu.csc.itrust2.cucumber;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -17,13 +12,14 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
+import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.persistent.Patient;
+import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
  * Step definitions for a patient to view their obstetrics records.
@@ -35,7 +31,6 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
     private final String baseUrl       = "http://localhost:8080/iTrust2";
     private final String patientString = "JillBob";
     private final String obgynString   = "tylerOBGYN";
-
 
     /**
      * Asserts that the text is on the page
@@ -51,7 +46,7 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
             fail();
         }
     }
-    
+
     /**
      * Asserts that the text is on the page
      *
@@ -70,27 +65,27 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
     @Given ( "^There exists a patient in the system who is eligible for an obstetrics record.$" )
     public void pateintExistsInSystem () {
         attemptLogout();
-        driver.get( baseUrl );
-        final WebElement username = driver.findElement( By.id( "username" ) );
-        username.clear();
-        username.sendKeys( "tylerOBGYN" );
-        final WebElement password = driver.findElement( By.id( "password" ) );
-        password.clear();
-        password.sendKeys( "123456" );
-        final WebElement submit = driver.findElement( By.className( "btn" ) );
-        submit.click();
 
-        final WebDriverWait wait = new WebDriverWait( driver, 20 );
-        wait.until( ExpectedConditions.titleContains( "iTrust2: HCP Home" ) );
+        // Create the test User
+        final User user = new User( patientString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        user.save();
 
-        ( (JavascriptExecutor) driver )
-                .executeScript( "document.getElementById('OBGYNHCPDocumentObstetricsRecord').click();" );
-        final WebDriverWait wait2 = new WebDriverWait( driver, 20 );
-        wait2.until( ExpectedConditions.titleContains( "iTrust2: View Patient Obstetrics Records" ) );
-        waitForAngular();
-        assertNotNull( driver.findElement( By.id( patientString ) ) );
+        // The User must also be created as a Patient
+        // to show up in the list of Patients
+        final Patient patient = new Patient( user.getUsername() );
+        patient.setGender( Gender.Female );
+        patient.save();
 
-        driver.findElement( By.id( "logout" ) ).click();
+        // All tests can safely assume the existence of the 'hcp', 'admin', and
+        // 'patient' users
+
+        attemptLogout();
+
+        // Create the test User
+        final User user1 = new User( "tylerOBGYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_OBGYN, 1 );
+        user1.save();
     }
 
     @Then ( "^I log on as a patient.$" )
@@ -146,10 +141,10 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
 
     @And ( "^I enter (.+) for a current obstetrics record for the patient.$" )
     public void enterLMP ( final String date ) {
-    	final WebElement dateElement = driver.findElement( By.name( "currentlmp" ) );
+        final WebElement dateElement = driver.findElement( By.name( "currentlmp" ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
         waitForAngular();
-        
+
     }
 
     @And ( "^I click create obstetrics record to document an obstetrics record for a patient.$" )
@@ -157,13 +152,11 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
         driver.findElement( By.name( "submit" ) );
     }
 
-    @And ( "^I enter (.+), (\\d+), (\\d+), (\\d+), (.+), (.+) for a previous obstetrics record to document an obstetrics record for a patient.$" )
-    public void previousRecordData ( final String date, final int conception, final int weeks, final int hours,
-            final String delivery, final String twins ) {
+    @And ( "^I enter (\\d+), (\\d+), (\\d+), (.+), (.+) for a previous obstetrics record to document an obstetrics record for a patient.$" )
+    public void previousRecordData ( final int conception, final int weeks, final int hours, final String delivery,
+            final String twins ) {
         waitForAngular();
         driver.findElement( By.name( "addPreviousPregnancy" ) ).click();
-        final WebElement dateElement = driver.findElement( By.name( "previouslmp" ) );
-        dateElement.sendKeys( date.replace( "/", "" ) );
 
         final WebElement conception_year = driver.findElement( By.name( "conception" ) );
         conception_year.clear();
@@ -220,37 +213,32 @@ public class PatientViewObstetricsRecordsStepDefs extends CucumberTest {
 
     @Then ( "^I can view the obstetrics record (.+), (.+), (\\d+).$" )
     public void viewEntryPatient ( final String lmp, final String dueDate, final int weeksPreg ) {
-    	
-    	//waitForAngular();
-    	// Convert date from format 'MM/dd/yyyy' to LocalDate object
-        //final DateTimeFormatter lmpToIso = DateTimeFormatter.ofPattern( "MM/dd/yyyy" );
 
-        //final LocalDate now = LocalDate.now();
-        //final LocalDate convertedLmp = LocalDate.parse( lmp, lmpToIso );
+        // waitForAngular();
+        // Convert date from format 'MM/dd/yyyy' to LocalDate object
+        // final DateTimeFormatter lmpToIso = DateTimeFormatter.ofPattern(
+        // "MM/dd/yyyy" );
+
+        // final LocalDate now = LocalDate.now();
+        // final LocalDate convertedLmp = LocalDate.parse( lmp, lmpToIso );
 
         // Check for correct lmp on page
         assertTextPresent( "Last Menstrual Period" );
         assertTextPresent( "Due Date" );
         assertTextPresent( "Weeks Pregnant" );
-        //assertEquals( convertedLmp.toString(), driver.findElement( By.id( "lmp" ) ).getText() );
+        // assertEquals( convertedLmp.toString(), driver.findElement( By.id(
+        // "lmp" ) ).getText() );
 
-        //assertEquals( dueDate, driver.findElement( By.id( "dueDate" ) ).getText() );
-        //assertEquals( weeksPreg, driver.findElement( By.id( "weeksPreg" ) ).getText() );
+        // assertEquals( dueDate, driver.findElement( By.id( "dueDate" )
+        // ).getText() );
+        // assertEquals( weeksPreg, driver.findElement( By.id( "weeksPreg" )
+        // ).getText() );
     }
 
-    @Then ( "^I can view the previous obstetrics record (.+), (\\d+), (\\d+), (\\d+), (.+), (.+).$" )
-    public void viewPreviousEntryPatient ( final String lmp, final int year, final int weeksPreg, final int labor,
-            final String method, final String twins ) {
-    	// Convert date from format 'MM/dd/yyyy' to LocalDate object
-        final DateTimeFormatter lmpToIso = DateTimeFormatter.ofPattern( "MM/dd/yyyy" );
+    @Then ( "^I can view the previous obstetrics record (\\d+), (\\d+), (\\d+), (.+), (.+).$" )
+    public void viewPreviousEntryPatient ( final int year, final int weeksPreg, final int labor, final String method,
+            final String twins ) {
 
-        final LocalDate now = LocalDate.now();
-        final LocalDate convertedLmp = LocalDate.parse( lmp, lmpToIso );
-
-        // Check for correct lmp on page
-        assertTextPresent( "Last Menstrual Period" );
-        assertEquals( convertedLmp.toString(), driver.findElement( By.id( "lmp-0" ) ).getText() );
-    	
         assertEquals( year, Integer.parseInt( driver.findElement( By.id( "conception-0" ) ).getText() ) );
         assertEquals( weeksPreg, Integer.parseInt( driver.findElement( By.id( "weeksPreg-0" ) ).getText() ) );
         assertEquals( labor, Integer.parseInt( driver.findElement( By.id( "hoursInLabor-0" ) ).getText() ) );
