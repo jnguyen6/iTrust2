@@ -1,7 +1,6 @@
 package edu.ncsu.csc.itrust2.cucumber;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -17,8 +16,12 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
+import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.persistent.Patient;
+import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
  * Step definitions for DocumentObstetricsRecord feature.
@@ -68,27 +71,24 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
     @Given ( "^There exists a patient in the system who can have an obstetrics record.$" )
     public void patientExistsInSystem () {
         attemptLogout();
-        driver.get( baseUrl );
-        final WebElement username = driver.findElement( By.id( "username" ) );
-        username.clear();
-        username.sendKeys( "tylerOBGYN" );
-        final WebElement password = driver.findElement( By.id( "password" ) );
-        password.clear();
-        password.sendKeys( "123456" );
-        final WebElement submit = driver.findElement( By.className( "btn" ) );
-        submit.click();
 
-        final WebDriverWait wait = new WebDriverWait( driver, 20 );
-        wait.until( ExpectedConditions.titleContains( "iTrust2: HCP Home" ) );
+        // Create the test User
+        final User user = new User( "AliceThirteen", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        user.save();
 
-        ( (JavascriptExecutor) driver )
-                .executeScript( "document.getElementById('OBGYNHCPDocumentObstetricsRecord').click();" );
-        final WebDriverWait wait2 = new WebDriverWait( driver, 20 );
-        wait2.until( ExpectedConditions.titleContains( "iTrust2: View Patient Obstetrics Records" ) );
-        waitForAngular();
-        assertNotNull( driver.findElement( By.name( "patient" ) ) );
+        // The User must also be created as a Patient
+        // to show up in the list of Patients
+        final Patient patient = new Patient( user.getUsername() );
+        patient.setGender( Gender.Female );
+        patient.save();
 
-        driver.findElement( By.id( "logout" ) ).click();
+        attemptLogout();
+
+        // Create the test User
+        final User user1 = new User( "tylerOBGYN", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_OBGYN, 1 );
+        user1.save();
     }
 
     @Then ( "^I log in as an OB/GYN HCP.$" )
@@ -139,21 +139,16 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
 
     @Then ( "^the patient with this (.+) has her current pregnancy is updated.$" )
     public void everythingPresent ( final String username ) {
-        final WebDriverWait wait2 = new WebDriverWait( driver, 20 );
-        wait2.until( ExpectedConditions.titleContains( "iTrust2: View Patient Obstetrics Records" ) );
-        driver.findElement( By.id( username ) ).click();
         assertTextPresent( "Last Menstrual Period" );
         assertTextPresent( "Estimated Due Date" );
         assertTextPresent( "Weeks Pregnant" );
     }
 
-    @And ( "^I enter (.+), (\\d+), (\\d+), (\\d+), (.+), (.+) for a previous obstetrics record.$" )
-    public void previousRecordData ( final String date, final int conception, final int weeks, final int hours,
-            final String delivery, final String twins ) {
+    @And ( "^I enter (\\d+), (\\d+), (\\d+), (.+), (.+) for a previous obstetrics record.$" )
+    public void previousRecordData ( final int conception, final int weeks, final int hours, final String delivery,
+            final String twins ) {
         waitForAngular();
         driver.findElement( By.name( "addPreviousPregnancy" ) ).click();
-        final WebElement dateElement = driver.findElement( By.name( "previouslmp" ) );
-        dateElement.sendKeys( date.replace( "/", "" ) );
 
         final WebElement conception_year = driver.findElement( By.name( "conception" ) );
         conception_year.clear();
@@ -196,13 +191,11 @@ public class DocumentObstetricsRecordStepDefs extends CucumberTest {
         assertTextPresent( "Could not add Obstetrics Record." );
     }
 
-    @And ( "^I enter (.+), (.+), (.+), (.+), (.+) and (.+) for a previous obstetrics record, where one input is incorrect.$" )
-    public void invalidPreviousPregnancyData ( final String date, final String conception, final String weeks,
-            final String hours, final String delivery, final String twins ) {
+    @And ( "^I enter (.+), (.+), (.+), (.+) and (.+) for a previous obstetrics record, where one input is incorrect.$" )
+    public void invalidPreviousPregnancyData ( final String conception, final String weeks, final String hours,
+            final String delivery, final String twins ) {
         waitForAngular();
         driver.findElement( By.name( "addPreviousPregnancy" ) ).click();
-        final WebElement dateElement = driver.findElement( By.name( "previouslmp" ) );
-        dateElement.sendKeys( date.replace( "/", "" ) );
 
         final WebElement conception_year = driver.findElement( By.name( "conception" ) );
         conception_year.clear();
