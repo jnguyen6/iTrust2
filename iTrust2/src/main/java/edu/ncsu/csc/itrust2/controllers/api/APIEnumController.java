@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.BloodType;
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
 import edu.ncsu.csc.itrust2.models.enums.EyeSurgeryType;
 import edu.ncsu.csc.itrust2.models.enums.Gender;
@@ -129,6 +130,18 @@ public class APIEnumController extends APIController {
     public List<PatientSmokingStatus> getPatientSmokingStatuses () {
         final List<PatientSmokingStatus> ret = Arrays.asList( PatientSmokingStatus.values() ).subList( 1,
                 PatientSmokingStatus.values().length );
+        return ret;
+    }
+
+    /**
+     * Get delivery methods
+     *
+     * @return delivery methods
+     */
+    @GetMapping ( BASE_PATH + "/deliverymethods" )
+    public List<DeliveryMethod> getDeliveryMethods () {
+        final List<DeliveryMethod> ret = Arrays.asList( DeliveryMethod.values() ).subList( 1,
+                DeliveryMethod.values().length );
         return ret;
     }
 

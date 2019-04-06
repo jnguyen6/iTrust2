@@ -11,6 +11,7 @@ import io.github.bonigarcia.wdm.ChromeDriverManager;
 public abstract class CucumberTest {
 
     static {
+        ChromeDriverManager.getInstance().version( "72.0.3626.69" );
         ChromeDriverManager.getInstance().setup();
     }
 
