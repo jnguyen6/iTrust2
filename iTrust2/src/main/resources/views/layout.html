@@ -102,6 +102,7 @@ a {
 					var admindropdown = document.getElementById('admin-dropdown');
 					var patientdropdown = document.getElementById('patient-dropdown');
 					var hcpdropdown = document.getElementById('hcp-dropdown');
+					var obgyndropdown = document.getElementById('obgyn-dropdown');
 					var erdropdown = document.getElementById('er-dropdown');
 					var ltdropdown = document.getElementById('labtech-dropdown');
 					if (!role.includes('PATIENT')) {
@@ -112,6 +113,9 @@ a {
 					}
 					if (!(role.includes('HCP') || role.includes('OD') || role.includes('OPH'))) {
 						navbarparent.removeChild(hcpdropdown);
+					}
+					if (!(role.includes('OBGYN'))) {
+						navbarparent.removeChild(obgyndropdown);
 					}
 					if (!role.includes('ER')) {
 						navbarparent.removeChild(erdropdown);
@@ -180,6 +184,43 @@ a {
 								id="HCPFoodDiary">View Patient Food Diary</a></li>
 							<li><a href="/iTrust2/hcp/viewPatientOfficeVisits.html"
 								id="HCPOfficeVisits">View Patient Office Visits</a></li>
+							<li><a href="/iTrust2/hcp/viewObstetricsRecords.html"
+								id="HCPViewObstetricsRecords">View Obstetrics Records</a></li>
+						</ul></li>
+					<li class="dropdown"><a class="dropdown-toggle"
+						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/iTrust2/personnel/editDemographics"
+								id="editdemographics">Edit Demographics</a></li>
+							<li><a href="/iTrust2/hcp/editOfficeVisit"
+								id="editOfficeVisit">Edit Office Visit</a></li>
+							<li><a href="/iTrust2/hcp/editPrescriptions"
+								id="editPrescriptions-personnel">Edit Prescriptions</a></li>
+						</ul></li>
+				</ul>
+				<!-- OBGYN/HCP navbar -->
+				<ul id="obgyn-dropdown" class="nav navbar-nav">
+					<li class="dropdown"><a class="dropdown-toggle"
+						data-toggle="dropdown" href="#">Patient<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/iTrust2/hcp/appointmentRequests"
+								id="viewrequests">View Appointment Requests and Upcoming
+									Appointments</a></li>
+							<li><a href="/iTrust2/hcp/editPatientDemographics"
+								id="editPatientDemographics">Edit Patient</a></li>
+							<li><a href="#">Add Patient -- Not Implemented</a></li>
+							<li><a href="/iTrust2/hcp/documentOfficeVisit.html"
+								id="documentOfficeVisit">Document Office Visit</a></li>
+							<li><a href="/iTrust2/hcp/personalRepresentatives.html"
+								id="OBGYNHCPpersonalreps">Personal Representatives</a></li>
+							<li><a href="/iTrust2/hcp/records.html" id="HCPrecords">Emergency
+									Records</a></li>
+							<li><a href="/iTrust2/hcp/viewPatientFoodDiary.html"
+								id="OBGYNHCPFoodDiary">View Patient Food Diary</a></li>
+							<li><a href="/iTrust2/hcp/viewPatientOfficeVisits.html"
+								id="OBGYNHCPOfficeVisits">View Patient Office Visits</a></li>
+							<li><a href="/iTrust2/hcp/documentObstetricsRecords.html"
+								id="OBGYNHCPDocumentObstetricsRecord">Document Obstetrics Records</a></li>
 						</ul></li>
 					<li class="dropdown"><a class="dropdown-toggle"
 						data-toggle="dropdown" href="#">Edit<span class="caret"></span></a>
@@ -242,6 +283,8 @@ a {
 								id="viewFoodDiaryEntries">View Food Diary Entries</a></li>
 							<li><a href="/iTrust2/patient/foodDiary/addFoodDiaryEntry"
 								id="addFoodDiaryEntry">Add Food Diary Entry</a></li>
+							<li><a href="/iTrust2/patient/obstetricsRecords/viewObstetricsRecords"
+								id="viewObstetricsRecords">View Obstetrics Records</a></li>
 						</ul></li>
 					<li class="dropdown"><a class="dropdown-toggle"
 						data-toggle="dropdown" id="appointments" href="#">Appointments<span
