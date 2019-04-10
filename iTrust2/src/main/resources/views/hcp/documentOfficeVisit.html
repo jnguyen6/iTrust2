@@ -93,33 +93,24 @@
                     	var difference = today.getTime() - estimate.getTime();
                     	var daysSince = Math.floor( difference / 86400000 );
                     	var weeksSince = Math.floor( daysSince / 7 );
-                    	console.log('weeks prego: ' + weeksSince);
                     	return weeksSince;
                     }
                     
                     $scope.checkObstetricsPatient = function (patient) {
+                    	// set default to male (non obstetrics)
+                    	$scope.types = $scope.maleTypes;
                      	// Get the obstetrics records for this patient
                         $http.get("/iTrust2/api/v1/obstetricsRecord/" + patient.self.username).then(
                             function (response) {
                                 var obstetricsRecords = response.data || {};
                                 
-                                console.log(obstetricsRecords);
                                 var currentRecords = obstetricsRecords.filter(value => value.currentRecord);
                                 if (currentRecords.length > 0) {
                                     var currentRecord = currentRecords[0];
                                     if ($scope.getWeeksPregnant(currentRecord.lmp) < 49) {
-                                        return true;
-                                    } else {
-                                        return false;
+                                        $scope.types = $scope.femaleTypes;
                                     }
-                                    
-                                } else {
-                                    return false;
                                 }
-                            },
-                            function (rejection) {
-                                // Couldn't get records, return false
-                                return false;
                             });
                     }
 
@@ -132,13 +123,7 @@
                         }
                         
                      	// Check if this is a valid obstetrics patient (female, LMP less than 49 wks prior)
-                        if ($scope.checkObstetricsPatient(patient)) {
-                            console.log('valid obstetrics');
-                            $scope.types = $scope.femaleTypes;
-                        } else {
-                            console.log('not valid obstetrics');
-                            $scope.types = $scope.maleTypes;
-                        }
+                        $scope.checkObstetricsPatient(patient);
 
                         if (!$scope.visit.actualPatient && patient) {
                             $scope.visit.actualPatient = patient;
