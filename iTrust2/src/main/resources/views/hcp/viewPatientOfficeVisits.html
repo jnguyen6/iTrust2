@@ -74,7 +74,7 @@
               $scope.prescriptions = [];
               $scope.diagnoses = [];
               $scope.procedures = [];
-              //$scope.obstetrics = [];
+              $scope.obstetrics = [];
               $scope.showBHM = true;
 
               for (var i = 0; i < $scope.visits.length; i++) {
@@ -128,7 +128,7 @@
                       });
                     
                     // Obstetric Office Visits
-                    if ($scope.selectedVisit.type == 'OBSTETRICS_OFFICE_VISIT') {
+                    if ($scope.selectedVisit.type == 'GENERAL_OBSTETRICS') {
                       $http.get("/iTrust2/api/v1/obstetricsOfficeVisit/" + $scope.selectedVisitID).then(
                         function (response) {
                           $scope.obstetricsResponse = response.data;
@@ -142,6 +142,7 @@
                             });
                           }
                         });
+                    }
 
                     // Prescriptions
                     let prescriptions = $scope.visits[i].prescriptions;
@@ -430,7 +431,7 @@
 
 												<!-- Obstetric Office Visit  -->
 												<div class="col-md-4"
-													ng-show="selectedVisit.type === 'OBSTETRICS_OFFICE_VISIT' && obstetrics.length">
+													ng-show="selectedVisit.type === 'GENERAL_OBSTETRICS' && obstetrics.length">
 													<div class="panel panel-info">
 														<div class="panel-heading">
 															<h4>Obstetrics Office Visit</h4>
@@ -498,7 +499,7 @@
 															</ul>
 														</div>
 													</div>
-												</div>
+												
 
 												<!-- Ophthalmology Surgery Panel  -->
 												<div class="col-md-4"
