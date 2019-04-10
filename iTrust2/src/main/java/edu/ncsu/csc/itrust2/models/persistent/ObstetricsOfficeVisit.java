@@ -194,5 +194,16 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
         }
         this.mothersHealthMetric = mothersHealthMetric;
     }
+    
+    /**
+     * Get a specific office visit by the database ID
+     *
+     * @param id
+     *            the database ID
+     * @return the specific office visit with the desired ID
+     */
+    public static ObstetricsOfficeVisit getById ( final Long id ) {
+        return (ObstetricsOfficeVisit) OfficeVisit.getById( id );
+    }
 
 }
