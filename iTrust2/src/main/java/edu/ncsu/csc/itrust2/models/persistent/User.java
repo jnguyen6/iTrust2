@@ -18,9 +18,6 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import edu.ncsu.csc.itrust2.forms.admin.UserForm;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 
@@ -193,7 +190,6 @@ public class User extends DomainObject<User> implements Serializable {
     /**
      * The password of the user
      */
-    @JsonIgnore
     private String  password;
 
     /**
@@ -233,7 +229,6 @@ public class User extends DomainObject<User> implements Serializable {
      *
      * @return the password of this user
      */
-    @JsonIgnore
     public String getPassword () {
         return password;
     }
@@ -244,7 +239,6 @@ public class User extends DomainObject<User> implements Serializable {
      * @param password
      *            the password to set this user to
      */
-    @JsonProperty
     public void setPassword ( final String password ) {
         this.password = password;
     }
@@ -355,7 +349,6 @@ public class User extends DomainObject<User> implements Serializable {
      * Get the id of this user (aka, the username)
      */
     @Override
-    @JsonIgnore
     public String getId () {
         return getUsername();
     }
