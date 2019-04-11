@@ -87,19 +87,7 @@ public class APIGeneralObstetricsTest {
     @Test
     @WithMockUser ( username = "tylerOBYGN", roles = { "OBGYN" } )
     public void testGetNonExistentOfficeVisit () throws Exception {
-        mvc.perform( get( "/api/v1/getObstetricsOfficeVisits/-1" ) ).andExpect( status().isNotFound() );
-    }
-
-    /**
-     * Tests deleting a non existent office visit and ensures that the correct
-     * status is returned.
-     *
-     * @throws Exception
-     */
-    @Test
-    @WithMockUser ( username = "tylerOBGYN", roles = { "OBGYN" } )
-    public void testDeleteNonExistentOfficeVisit () throws Exception {
-        mvc.perform( delete( "/api/v1/deleteObstetricsOfficeVisits/-1" ) ).andExpect( status().isNotFound() );
+        mvc.perform( get( "/api/v1/generalobstetrics/-1" ) ).andExpect( status().isNotFound() );
     }
 
     /**
@@ -138,7 +126,7 @@ public class APIGeneralObstetricsTest {
         visit.setHospital( "iTrust Test Hospital 2" );
 
         /* Create the Office Visit */
-        mvc.perform( post( "/api/v1/createObstetricsOfficeVisits" ).contentType( MediaType.APPLICATION_JSON )
+        mvc.perform( post( "/api/v1/generalobstetrics" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() );
 
         mvc.perform( get( "/api/v1/officevisits" ) ).andExpect( status().isOk() )
@@ -362,33 +350,30 @@ public class APIGeneralObstetricsTest {
         visit.setId( id.toString() );
 
         // Second post should fail with a conflict since it already exists
-        mvc.perform( post( "/api/v1/createObstetricsOfficeVisits" ).contentType( MediaType.APPLICATION_JSON )
+        mvc.perform( post( "/api/v1/generalobstetrics" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isConflict() );
 
-        mvc.perform( get( "/api/v1/getObstetricsOfficeVisits/" + id ) ).andExpect( status().isOk() )
+        mvc.perform( get( "/api/v1/generalobstetrics/" + id ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
         visit.setDate( "2048-04-16T09:45:00.000-04:00" ); // 4/16/2048 9:45 AM
 
-        mvc.perform( put( "/api/v1/updateObstetricsOfficeVisits/" + id ).contentType( MediaType.APPLICATION_JSON )
+        mvc.perform( put( "/api/v1/generalobstetrics/" + id ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
         // PUT with the non-matching IDs should fail
-        mvc.perform( put( "/api/v1/updateObstetricsOfficeVisits/" + 1 ).contentType( MediaType.APPLICATION_JSON )
+        mvc.perform( put( "/api/v1/generalobstetrics/" + 1 ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isConflict() );
 
         // PUT with ID not in database should fail
         final long tempId = 101;
         visit.setId( "101" );
-        mvc.perform( put( "/api/v1/updateObstetricsOfficeVisits/" + tempId ).contentType( MediaType.APPLICATION_JSON )
+        mvc.perform( put( "/api/v1/generalobstetrics/" + tempId ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isNotFound() );
 
         // Reset ID to old id
         visit.setId( id.toString() );
-
-        mvc.perform( delete( "/api/v1/deleteObstetricsOfficeVisits/" + id ) ).andExpect( status().isOk() );
-
         mvc.perform( delete( "/api/v1/officevisits" ) );
 
     }

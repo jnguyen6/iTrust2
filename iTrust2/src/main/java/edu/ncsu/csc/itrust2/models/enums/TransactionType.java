@@ -471,27 +471,22 @@ public enum TransactionType {
     /**
      * Patient views obstetrics office visit
      */
-    PATIENT_VIEWS_OBGYN_OFFICEVISIT ( 2501, "Patient Views an OB/GYN Office Visit", true ),
+    GENERAL_OBSTETRICS_PATIENT_VIEW ( 2501, "Patient Views an OB/GYN Office Visit", true ),
 
     /**
      * HCP views obstetrics office visit
      */
-    HCP_VIEWS_OBGYN_OFFICEVISIT ( 2502, "HCP views an OB/GYN Office Visit", true ),
+    GENERAL_OBSTETRICS_HCP_VIEW ( 2502, "HCP views an OB/GYN Office Visit", true ),
 
     /**
      * Create new obstetrics office visit
      */
-    CREATE_OBGYN_OFFICEVISIT ( 2503, "Create OB/GYN Office Visit", true ),
+    GENERAL_OBSTETRICS_CREATE ( 2503, "Create OB/GYN Office Visit", true ),
 
     /**
      * Edit obstetrics office visit
      */
-    EDIT_OBGYN_OFFICEVISIT ( 2504, "Editing OB/GYN Office Visit", true ),
-
-    /**
-     * general obstetrics visit is deleted
-     */
-    GENERAL_OBSTETRICS_DELETE ( 2111, "general ophthalmology visit deleted", true );
+    GENERAL_OBSTETRICS_EDIT ( 2504, "Editing OB/GYN Office Visit", true );
 
     /**
      * Creates a TransactionType for logging events
