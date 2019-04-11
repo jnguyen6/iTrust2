@@ -28,7 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import edu.ncsu.csc.itrust2.config.RootConfiguration;
 import edu.ncsu.csc.itrust2.forms.admin.UserForm;
-import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
+import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsOfficeVisitForm;
 import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.BloodType;
@@ -40,8 +40,8 @@ import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.State;
 import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
-import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -57,7 +57,7 @@ import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
 @RunWith ( SpringJUnit4ClassRunner.class )
 @ContextConfiguration ( classes = { RootConfiguration.class, WebMvcConfiguration.class } )
 @WebAppConfiguration
-public class APIGeneralObstetricsTest {
+public class APIObstetricsOfficeVisitTest {
 
     private MockMvc               mvc;
 
@@ -97,7 +97,7 @@ public class APIGeneralObstetricsTest {
      */
     @Test
     @WithMockUser ( username = "patient", roles = { "PATIENT", "OBGYN", "ADMIN" } )
-    public void testGeneralObstetricsAPI () throws Exception {
+    public void testObstetricsOfficeVisitAPI () throws Exception {
 
         /*
          * Create a HCP and a Patient to use. If they already exist, this will
@@ -117,7 +117,7 @@ public class APIGeneralObstetricsTest {
                 .content( TestUtils.asJsonString( hospital ) ) );
 
         mvc.perform( delete( "/api/v1/officevisits" ) );
-        final GeneralObstetricsForm visit = new GeneralObstetricsForm();
+        final ObstetricsOfficeVisitForm visit = new ObstetricsOfficeVisitForm();
         visit.setDate( "2048-04-16T09:50:00.000-04:00" ); // 4/16/2048 9:50 AM
         visit.setHcp( "hcp" );
         visit.setPatient( "patient" );
@@ -133,7 +133,7 @@ public class APIGeneralObstetricsTest {
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
 
         /* Test getForHCP and getForHCPAndPatient */
-        OfficeVisit v = new GeneralObstetrics( visit );
+        OfficeVisit v = new ObstetricsOfficeVisit( visit );
         List<OfficeVisit> vList = OfficeVisit.getForHCP( v.getHcp().getUsername() );
         assertEquals( vList.get( 0 ).getHcp(), v.getHcp() );
         vList = OfficeVisit.getForHCPAndPatient( v.getHcp().getUsername(), v.getPatient().getUsername() );
@@ -192,7 +192,7 @@ public class APIGeneralObstetricsTest {
         visit.setSystolic( 102 );
         visit.setTri( 150 );
         visit.setWeight( 175.2f );
-        v = new GeneralObstetrics( visit );
+        v = new ObstetricsOfficeVisit( visit );
 
         /* Test that all fields have been filled successfully */
         assertNotNull( v );
@@ -328,7 +328,7 @@ public class APIGeneralObstetricsTest {
         mvc.perform( post( "/api/v1/patients" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patient2 ) ) );
         visit.setPatient( patient2.getSelf() );
-        v = new GeneralObstetrics( visit );
+        v = new ObstetricsOfficeVisit( visit );
         assertNotNull( v );
 
         /* Create appointment with patient younger than 3 years old */
@@ -338,7 +338,7 @@ public class APIGeneralObstetricsTest {
                 .content( TestUtils.asJsonString( patient3 ) ) );
         visit.setHeadCircumference( 20.0f );
         visit.setPatient( patient3.getSelf() );
-        v = new GeneralObstetrics( visit );
+        v = new ObstetricsOfficeVisit( visit );
         assertNotNull( v );
 
         /*

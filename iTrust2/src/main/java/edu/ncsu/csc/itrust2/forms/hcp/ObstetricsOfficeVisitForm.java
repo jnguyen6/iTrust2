@@ -9,7 +9,7 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
  *
  * @author Sanchit Razdan
  */
-public abstract class ObstetricsOfficeVisitForm extends OfficeVisitForm {
+public class ObstetricsOfficeVisitForm extends OfficeVisitForm {
 
     @Min ( 0 )
     private Integer weeksPregnant;

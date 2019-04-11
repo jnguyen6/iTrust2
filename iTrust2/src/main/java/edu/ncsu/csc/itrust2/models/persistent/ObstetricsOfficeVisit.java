@@ -4,7 +4,8 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Vector;
 
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
 import org.hibernate.criterion.Criterion;
@@ -16,8 +17,9 @@ import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsOfficeVisitForm;
  *
  * @author Sanchit Razdan
  */
-@MappedSuperclass
-public abstract class ObstetricsOfficeVisit extends OfficeVisit {
+@Entity
+@Table ( name = "ObstetricsOfficeVisit" )
+public class ObstetricsOfficeVisit extends OfficeVisit {
 
     @Min ( 0 )
     private Integer weeksPregnant;

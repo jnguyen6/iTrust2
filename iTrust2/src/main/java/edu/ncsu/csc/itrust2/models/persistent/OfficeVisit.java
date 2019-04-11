@@ -117,7 +117,7 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
         // append new appointment types
         visits.addAll( (List<OfficeVisit>) getAll( GeneralOphthalmology.class ) );
         visits.addAll( (List<OfficeVisit>) getAll( OphthalmologySurgery.class ) );
-        visits.addAll( (List<OfficeVisit>) getAll( GeneralObstetrics.class ) );
+        visits.addAll( (List<OfficeVisit>) getAll( ObstetricsOfficeVisit.class ) );
         visits.sort( ( x1, x2 ) -> x1.getDate().compareTo( x2.getDate() ) );
         return visits;
     }
@@ -139,7 +139,7 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
         final List<OfficeVisit> visits = (List<OfficeVisit>) getWhere( GeneralCheckup.class, where );
         visits.addAll( (List<OfficeVisit>) getWhere( GeneralOphthalmology.class, where ) );
         visits.addAll( (List<OfficeVisit>) getWhere( OphthalmologySurgery.class, where ) );
-        visits.addAll( (List<OfficeVisit>) getWhere( GeneralObstetrics.class, where ) );
+        visits.addAll( (List<OfficeVisit>) getWhere( ObstetricsOfficeVisit.class, where ) );
         return visits;
     }
 
