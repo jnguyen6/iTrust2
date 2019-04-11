@@ -122,4 +122,27 @@ public class HCPController {
         return "/hcp/documentObstetricsRecords";
     }
 
+    /**
+     * Returns the page allowing HCPs to view patient's labor and delivery
+     * reports
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/viewLaborAndDeliveryReports" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
+    public String viewLaborAndDeliveryReports () {
+        return "/hcp/viewObstetricsRecords";
+    }
+
+    /**
+     * Returns the page allowing OBGYNs to document patient's labor and delivery
+     * reports
+     *
+     * @return The page to display
+     */
+    @GetMapping ( "/hcp/documentLaborAndDeliveryReports" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OBGYN')" )
+    public String documentLaborAndDeliveryReports () {
+        return "/hcp/documentObstetricsRecords";
+    }
 }

@@ -135,7 +135,7 @@ public class PatientController {
     public String viewFoodDiaryEntriesForm ( final Model model ) {
         return "/patient/foodDiary/viewFoodDiaryEntries";
     }
-    
+
     /**
      * Retrieves the page for the Patient to view their obstetrics records.
      *
@@ -147,5 +147,19 @@ public class PatientController {
     @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
     public String viewObstetricsRecordsForm ( final Model model ) {
         return "/patient/obstetricsRecords/viewObstetricsRecords";
+    }
+
+    /**
+     * Retrieves the page for the Patient to view their labor and delivery
+     * reports.
+     *
+     * @param model
+     *            Data for the front end
+     * @return The page the patient to view their labor and delivery reports.
+     */
+    @GetMapping ( "/patient/laborAndDeliveryReports/viewLaborAndDeliveryReports" )
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    public String viewLaborAndDeliveryReportsForm ( final Model model ) {
+        return "/patient/laborAndDeliveryReports/viewLaborAndDeliveryReports";
     }
 }
