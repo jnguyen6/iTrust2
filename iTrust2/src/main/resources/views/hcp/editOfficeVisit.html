@@ -129,6 +129,8 @@
                                 $scope.prescriptions = [];
                                 $scope.procedures = [];
                                 $scope.diagnoses = [];
+                               
+                                
                                 var visitsLength = $scope.visits.length;
                                 $scope.noVisitSelected = false;
                                 for (var i = 0; i < visitsLength; i++) {
@@ -164,6 +166,12 @@
                                         $scope.selectedVisit.axisOS = $scope.visits[i].axisOS;
                                         $scope.selectedVisit.axisOD = $scope.visits[i].axisOD;
                                         $scope.selectedVisit.surgeryType = $scope.visits[i].surgeryType;
+                                        //added code for setting obstetric office visit parameters
+                                        $scope.selectedVisit.weeksPregnant = $scope.visits[i].weeksPregnant;
+                                        $scope.selectedVisit.fetalHeartRate = $scope.visits[i].fetalHeartRate;
+                                        $scope.selectedVisit.fundalHeight = $scope.visits[i].fundalHeight;
+                                        $scope.selectedVisit.twins = $scope.visits[i].twins;
+                                        $scope.selectedVisit.lowLyingPlacenta = $scope.visits[i].lowLyingPlacenta;
 
                                         var type = $scope.visits[i].type;
                                         var logVisit = angular.copy($scope.selectedVisit);
@@ -180,10 +188,16 @@
                                                 url: '/iTrust2/api/v1/generalophthalmologies/hcp/view/' + $scope.selectedVisitID,
                                                 data: logVisit
                                             });
-                                        } else {
+                                        } else if ( type === "OPHTHALMOLOGY_SURGERY"){
                                             $http({
                                                 method: 'POST',
                                                 url: '/iTrust2/api/v1/ophthalmologysurgeries/hcp/view/' + $scope.selectedVisitID,
+                                                data: logVisit
+                                            });
+                                        } else if ( type === "GENERAL_OBSTETRICS") {
+                                            $http({
+                                                method: 'POST',
+                                                url: '/iTrust2/api/v1/obstetricsOfficeVisits/hcp/view/' + $scope.selectedVisitID,
                                                 data: logVisit
                                             });
                                         }
@@ -243,6 +257,7 @@
                                         $scope.three = false;
                                         $scope.threeAndUp = false;
                                         $scope.twelveAndUp = false;
+                                        $scope.yesOrNo = ['true', 'false'];
                                         
                                         if ($scope.visits[i].actualPatient && $scope.visits[i].actualPatient.dateOfBirth) {
                                             const age = dateTimeService.getAge(
@@ -362,6 +377,46 @@
                                     $scope.errorMsg += "Please select one of the listed surgery types\n";
                                 }
                             }
+                            
+                            /* 
+                             * Checks validity of obstetrics metrics
+                             * 
+                             * weeksPregnant, fetalHeartRate must be ints greater than or equal to 0
+                             * fundalHeight must be a decimal value (up to 2 decimal digits)
+                             * isTwins, isLowLyingPlacenta must be selected (non-null)
+                             */
+                            function checkObstetricsMetrics() {
+                                // weeksPregnant
+                                if (/^[0-9]{1,3}?$/.test(String($scope.visit.weeksPregnant).replace(/^0+/, '')) == false) {
+                                    $scope.errorMsg += "Weeks Pregnant must be an integer value greater than 0\n"
+                                } else if (parseInt($scope.visit.weeksPregnant) < 1) {
+                                    $scope.errorMsg += "Weeks Pregnant must be an integer value greater than 0\n"
+                                }
+                                // fetalHeartRate
+                                if (/^[0-9]{1,3}?$/.test(String($scope.visit.fetalHeartRate).replace(/^0+/, '')) == false) {
+                                    $scope.errorMsg += "Fetal Heart Rate must be an integer value greater than 0\n"
+                                } else if (parseInt($scope.visit.fetalHeartRate) < 1) {
+                                    $scope.errorMsg += "Fetal Heart Rate must be an integer value greater than 0\n"
+                                }
+                                
+                                // fundalHeight
+                                if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.visit.fundalHeight)) == false) {
+                                    $scope.errorMsg += "Fundal Height must be a floating point number up to two digits greater than 0\n"
+                                } else if (parseFloat($scope.visit.fundalHeight) <= 0) {
+                                    $scope.errorMsg += "Fundal Height must be a floating point number up to two digits greater than 0\n"
+                                }
+                                
+        						// isTwins
+                                if ($scope.visit.isTwins == undefined) {
+                                    $scope.errorMsg += "Please select if the patient has twins\n";
+                                }
+                                // isLowLyingPlacenta
+                                if ($scope.visit.isLowLyingPlacenta == undefined) {
+                                    $scope.errorMsg += "Please select if the patient has a low lying placenta\n";
+                                }
+
+                                
+                            }
 
                             /**
                             * Checks if any BHM have been entered for OPH visit.
@@ -464,7 +519,7 @@
                                             $scope.message = "Error occurred editing office visit";
                                         })
                                     }
-                                } else {
+                                } else if ($scope.selectedVisit.type === "OPHTHALMOLOGY_SURGERY" ) {
                                     if (validateBasicHealthMetrics())
                                         checkBasicHealthMetrics();
                                     checkEyeHealthMetrics();
@@ -479,6 +534,23 @@
                                             $scope.message = "Office visit edited successfully";
                                         }, function (rejection) {
                                             $scope.message = "Error occurred editing office visit";
+                                        })
+                                    }
+                                } else if ($scope.selectedVisit.type === "GENERAL_OBSTETRICS") {
+                                    if (validateBasicHealthMetrics())
+                                        checkBasicHealthMetrics();
+                                    checkObstetricsMetrics();
+                                    if ($scope.errorMsg == "") {
+                                    	var visit = angular.copy($scope.selectedVisit);
+                                    	visit.date = visit.date.toISOString();
+                                        $http({
+                                            method: 'PUT',
+                                            url: '/iTrust2/api/v1/obstetricsOfficeVisits/' + $scope.selectedVisitID,
+                                            data: visit
+                                        }).then(function (response) {
+                                            $scope.message = "Obstetrics Office visit edited successfully";
+                                        }, function (rejection) {
+                                            $scope.message = "Error occurred editing obstetrics office visit";
                                         })
                                     }
                                 }
@@ -1022,6 +1094,86 @@
 												</div>
 											</div>
 
+											<!-- Obstetrics Panel -->
+									<div ng-show="visit.type == 'GENERAL_OBSTETRICS'"
+										class="col-md-4">
+										<div class="panel panel-info">
+											<div class="panel-heading">
+												<h4>Obstetrics Health Metrics</h4>
+											</div>
+											<div class="panel-body">
+
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Weeks Pregnant:</label>
+													</div>
+													<div class="col-xs-6">
+														<input class="form-control" name="weeksPregnant"
+															ng-model="selectedVisit.weeksPregnant" required="true"
+															type="number" min="0">
+													</div>
+												</div>
+												
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Fetal Heart Rate:</label>
+													</div>
+													<div class="col-xs-4">
+														<input class="form-control" name="fetalHeartRate"
+															ng-model="selectedVisit.fetalHeartRate" required="true"
+															type="number" min="0">
+													</div>
+													<div class="col-xs-2">
+														<span id="helpBlock" class="help-block">BPM</span>
+													</div>
+												</div>
+
+
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Fundal Height of Uterus:</label>
+													</div>
+													<div class="col-xs-4">
+														<input class="form-control" name="fundalHeight"
+															ng-model="selectedVisit.fundalHeight" required="true"
+															type="text">
+													</div>
+													<div class="col-xs-2">
+														<span id="helpBlock" class="help-block">cm</span>
+													</div>
+												</div>
+												
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Twins:</label>
+													</div>
+													<div class="col-xs-6">
+														<select class="form-control" name="isTwins"
+															ng-model="selectedVisit.isTwins" required="true">
+															<option ng-repeat="isTwins in yesOrNo">{{isTwins}}</option>
+														</select>
+													</div>
+												</div>
+
+
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Low Lying Placenta:</label>
+													</div>
+													<div class="col-xs-6">
+														<select class="form-control" name="isLowLyingPlacenta"
+															ng-model="selectedVisit.isLowLyingPlacenta" required="true">
+															<option ng-repeat="isLowLyingPlacenta in yesOrNo">{{isLowLyingPlacenta}}</option>
+														</select>
+													</div>
+												</div>
+												
+											</div>
+
+										</div>
+									</div>
+											
+											
 											<!-- Ophthalmology Surgery Panel  -->
 											<div ng-show="selectedVisit.type == 'OPHTHALMOLOGY_SURGERY'"
 												class="col-md-4">
