@@ -10,7 +10,7 @@ import javax.validation.constraints.Min;
 
 import org.hibernate.criterion.Criterion;
 
-import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsOfficeVisitForm;
+import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
 
 /**
  * Abstracts any type of obstetrics appointment
@@ -19,7 +19,7 @@ import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsOfficeVisitForm;
  */
 @Entity
 @Table ( name = "ObstetricsOfficeVisit" )
-public class ObstetricsOfficeVisit extends OfficeVisit {
+public class GeneralObstetrics extends OfficeVisit {
 
     @Min ( 0 )
     private Integer weeksPregnant;
@@ -35,7 +35,7 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
     /**
      * For Hibernate/Thymeleaf
      */
-    public ObstetricsOfficeVisit () {
+    public GeneralObstetrics () {
     }
 
     /**
@@ -44,7 +44,7 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
      * @param ov
      *            Visit form to create the appointment from
      */
-    public ObstetricsOfficeVisit ( final ObstetricsOfficeVisitForm ov ) throws ParseException {
+    public GeneralObstetrics ( final GeneralObstetricsForm ov ) throws ParseException {
         super( ov );
         setWeeksPregnant( ov.getWeeksPregnant() );
         setFetalHeartRate( ov.getFetalHeartRate() );
@@ -62,11 +62,11 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
      * @return a list of Obstetric Office Visits for the given patient
      */
     @SuppressWarnings ( "unchecked" )
-    public static List<ObstetricsOfficeVisit> getByPatient ( final String patient ) {
+    public static List<GeneralObstetrics> getByPatient ( final String patient ) {
         final Vector<Criterion> criteria = new Vector<Criterion>();
         criteria.add( eq( "patient", patient ) );
 
-        return (List<ObstetricsOfficeVisit>) getWhere( ObstetricsOfficeVisit.class, criteria );
+        return (List<GeneralObstetrics>) getWhere( GeneralObstetrics.class, criteria );
     }
 
     /**
@@ -171,8 +171,8 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
      *            the database ID
      * @return the specific office visit with the desired ID
      */
-    public static ObstetricsOfficeVisit getById ( final Long id ) {
-        return (ObstetricsOfficeVisit) OfficeVisit.getById( id );
+    public static GeneralObstetrics getById ( final Long id ) {
+        return (GeneralObstetrics) OfficeVisit.getById( id );
     }
 
 }

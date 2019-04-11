@@ -7,14 +7,14 @@ import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsOfficeVisitForm;
+import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
 import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
+import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -23,7 +23,7 @@ import edu.ncsu.csc.itrust2.models.persistent.User;
  * @author srazdan
  *
  */
-public class ObstetricsOfficeVisitTest {
+public class GeneralObstetricsTest {
 
     /**
      * Tests the GeneralObstetrics office visit class fields.
@@ -34,12 +34,12 @@ public class ObstetricsOfficeVisitTest {
      */
     @Test
     public void testGeneralObstetrics () throws ParseException {
-        DomainObject.deleteAll( ObstetricsOfficeVisit.class );
+        DomainObject.deleteAll( GeneralObstetrics.class );
 
         final Hospital hosp = new Hospital( "Dr. Jenkins' Insane Asylum", "123 Main St", "12345", "NC" );
         hosp.save();
 
-        final ObstetricsOfficeVisit visit = new ObstetricsOfficeVisit();
+        final GeneralObstetrics visit = new GeneralObstetrics();
 
         final BasicHealthMetrics bhm = new BasicHealthMetrics();
 
@@ -71,7 +71,7 @@ public class ObstetricsOfficeVisitTest {
         visit.save();
 
         // Test the visit's persistence
-        final ObstetricsOfficeVisit copy = ObstetricsOfficeVisit.getById( visit.getId() );
+        final GeneralObstetrics copy = GeneralObstetrics.getById( visit.getId() );
         assertEquals( visit.getId(), copy.getId() );
         assertEquals( visit.getAppointment(), copy.getAppointment() );
         assertEquals( visit.getBasicHealthMetrics(), copy.getBasicHealthMetrics() );
@@ -85,14 +85,14 @@ public class ObstetricsOfficeVisitTest {
         assertEquals( visit.getIsLowLyingPlacenta(), copy.getIsLowLyingPlacenta() );
 
         // Test the form object
-        final ObstetricsOfficeVisitForm form = new ObstetricsOfficeVisitForm( visit );
+        final GeneralObstetricsForm form = new GeneralObstetricsForm( visit );
         form.setPreScheduled( null );
         assertEquals( visit.getId().toString(), form.getId() );
         assertEquals( visit.getHcp().getUsername(), form.getHcp() );
         assertEquals( visit.getHospital().getName(), form.getHospital() );
         assertEquals( visit.getPatient().getUsername(), form.getPatient() );
 
-        final ObstetricsOfficeVisit clone = new ObstetricsOfficeVisit( form );
+        final GeneralObstetrics clone = new GeneralObstetrics( form );
         assertEquals( visit.getId(), clone.getId() );
         assertEquals( visit.getAppointment(), clone.getAppointment() );
         assertEquals( visit.getBasicHealthMetrics().getDiastolic(), clone.getBasicHealthMetrics().getDiastolic() );
@@ -117,7 +117,7 @@ public class ObstetricsOfficeVisitTest {
      */
     @Test
     public void testGeneralObstetricsForm () throws NumberFormatException, ParseException {
-        final ObstetricsOfficeVisitForm visit = new ObstetricsOfficeVisitForm();
+        final GeneralObstetricsForm visit = new GeneralObstetricsForm();
 
         visit.setDate( "2048-04-16T09:50:00.000-04:00" ); // 4/16/2048 9:50 AM
         visit.setHcp( "hcp" );
@@ -141,7 +141,7 @@ public class ObstetricsOfficeVisitTest {
         visit.setIsLowLyingPlacenta( false );
         visit.setId( visit.getId() );
 
-        final ObstetricsOfficeVisit ov = new ObstetricsOfficeVisit( visit );
+        final GeneralObstetrics ov = new GeneralObstetrics( visit );
 
         assertEquals( visit.getHcp(), ov.getHcp().getUsername() );
         assertEquals( visit.getPatient(), ov.getPatient().getUsername() );
@@ -152,12 +152,12 @@ public class ObstetricsOfficeVisitTest {
      */
     @Test
     public void testMissingBHM () {
-        DomainObject.deleteAll( ObstetricsOfficeVisit.class );
+        DomainObject.deleteAll( GeneralObstetrics.class );
 
         final Hospital hosp = new Hospital( "Dr. Jenkins' Insane Asylum", "123 Main St", "12345", "NC" );
         hosp.save();
 
-        final ObstetricsOfficeVisit visit = new ObstetricsOfficeVisit();
+        final GeneralObstetrics visit = new GeneralObstetrics();
 
         final BasicHealthMetrics bhm = new BasicHealthMetrics();
 
@@ -184,7 +184,7 @@ public class ObstetricsOfficeVisitTest {
         visit.save();
 
         // Test the visit's persistence
-        final ObstetricsOfficeVisit copy = ObstetricsOfficeVisit.getById( visit.getId() );
+        final GeneralObstetrics copy = GeneralObstetrics.getById( visit.getId() );
         assertEquals( visit.getId(), copy.getId() );
         assertEquals( visit.getAppointment(), copy.getAppointment() );
         assertEquals( visit.getBasicHealthMetrics(), copy.getBasicHealthMetrics() );

@@ -2,14 +2,14 @@ package edu.ncsu.csc.itrust2.forms.hcp;
 
 import javax.validation.constraints.Min;
 
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
+import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
 
 /**
  * The abstraction of the form a doctor fills out for any obstetrics appointment
  *
  * @author Sanchit Razdan
  */
-public class ObstetricsOfficeVisitForm extends OfficeVisitForm {
+public class GeneralObstetricsForm extends OfficeVisitForm {
 
     @Min ( 0 )
     private Integer weeksPregnant;
@@ -23,7 +23,7 @@ public class ObstetricsOfficeVisitForm extends OfficeVisitForm {
     private Boolean isLowLyingPlacenta;
 
     /** For Hibernate */
-    public ObstetricsOfficeVisitForm () {
+    public GeneralObstetricsForm () {
     }
 
     /**
@@ -32,7 +32,7 @@ public class ObstetricsOfficeVisitForm extends OfficeVisitForm {
      * @param ov
      *            office visit to create form from
      */
-    public ObstetricsOfficeVisitForm ( final ObstetricsOfficeVisit ov ) {
+    public GeneralObstetricsForm ( final GeneralObstetrics ov ) {
         super( ov );
         setWeeksPregnant( ov.getWeeksPregnant() );
         setFetalHeartRate( ov.getFetalHeartRate() );
