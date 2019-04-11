@@ -486,7 +486,12 @@ public enum TransactionType {
     /**
      * Edit obstetrics office visit
      */
-    EDIT_OBGYN_OFFICEVISIT ( 2504, "Editing OB/GYN Office Visit", true );
+    EDIT_OBGYN_OFFICEVISIT ( 2504, "Editing OB/GYN Office Visit", true ),
+
+    /**
+     * general obstetrics visit is deleted
+     */
+    GENERAL_OBSTETRICS_DELETE ( 2111, "general ophthalmology visit deleted", true );
 
     /**
      * Creates a TransactionType for logging events

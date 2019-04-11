@@ -1,7 +1,5 @@
 package edu.ncsu.csc.itrust2.controllers.api.officevisit;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,42 +12,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ncsu.csc.itrust2.controllers.api.APIController;
-import edu.ncsu.csc.itrust2.forms.hcp.GeneralCheckupForm;
-import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsOfficeVisitForm;
-import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
-import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
-import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
-import edu.ncsu.csc.itrust2.models.persistent.GeneralOphthalmology;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
-import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
+import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 
 /**
- * Class that provides REST API endpoints for the ObstetricsOfficeVisit model. In
- * all requests made to this controller, the {id} provided is a Long that is the
- * primary key id of the office visit requested.
+ * Class that provides REST API endpoints for the ObstetricsOfficeVisit model.
+ * In all requests made to this controller, the {id} provided is a Long that is
+ * the primary key id of the office visit requested.
  *
  * @author Madhura Waghmare
  *
  */
 @RestController
 @SuppressWarnings ( { "unchecked", "rawtypes" } )
-public class APIObstetricsOfficeVisitController extends APIController {
+public class APIGeneralObstetricsController extends APIController {
 
-	/**
+    /**
      * Retrieves the Obstetrics Office Visit specified by the id provided.
      *
      * @param id
      *            The (numeric) ID of the OfficeVisit desired
      * @return response
      */
-    @GetMapping ( BASE_PATH + "/obstetricsOfficeVisit/{id}" )
+    @GetMapping ( BASE_PATH + "/getObstetricsOfficeVisits/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT', 'ROLE_OBGYN')" )
     public ResponseEntity getObstetricsOfficeVisit ( @PathVariable ( "id" ) final Long id ) {
-        final ObstetricsOfficeVisit visit = ObstetricsOfficeVisit.getById(id);
+        final GeneralObstetrics visit = GeneralObstetrics.getById( id );
         if ( null == visit ) {
             return new ResponseEntity( errorResponse( "No office visit found for id " + id ), HttpStatus.NOT_FOUND );
         }
@@ -65,22 +56,23 @@ public class APIObstetricsOfficeVisitController extends APIController {
             return new ResponseEntity( visit, HttpStatus.OK );
         }
     }
-    
+
     /**
-     * Creates and saves a new Obstetrics Office Visit from the RequestBody provided.
+     * Creates and saves a new Obstetrics Office Visit from the RequestBody
+     * provided.
      *
      * @param visitForm
      *            The office visit to be validated and saved
      * @return response
      */
 
-    @PostMapping ( BASE_PATH + "/obstetricsOfficeVisits" )
+    @PostMapping ( BASE_PATH + "/createObstetricsOfficeVisits" )
     @PreAuthorize ( "hasAnyRole('ROLE_OBGYN')" )
-    public ResponseEntity createObstetricsOfficeVisits ( @RequestBody final ObstetricsOfficeVisitForm visitForm ) {
+    public ResponseEntity createObstetricsOfficeVisits ( @RequestBody final GeneralObstetricsForm visitForm ) {
         try {
-            final ObstetricsOfficeVisit visit = new ObstetricsOfficeVisit( visitForm );
+            final GeneralObstetrics visit = new GeneralObstetrics( visitForm );
 
-            if ( null != ObstetricsOfficeVisit.getById( visit.getId() ) ) {
+            if ( null != GeneralObstetrics.getById( visit.getId() ) ) {
                 return new ResponseEntity(
                         errorResponse( "Office visit with the id " + visit.getId() + " already exists" ),
                         HttpStatus.CONFLICT );
@@ -98,7 +90,7 @@ public class APIObstetricsOfficeVisitController extends APIController {
                     HttpStatus.BAD_REQUEST );
         }
     }
-    
+
     /**
      * Updates the OfficeVisit with the id provided by overwriting it with the
      * new OfficeVisit that is provided. If the ID provided does not match the
@@ -110,17 +102,18 @@ public class APIObstetricsOfficeVisitController extends APIController {
      *            The updated OfficeVisit to save
      * @return response
      */
-    @PutMapping ( BASE_PATH + "/obstetricsOfficeVisits/{id}" )
+    @PutMapping ( BASE_PATH + "/updateObstetricsOfficeVisits/{id}" )
     @PreAuthorize ( "hasAnyRole('ROLE_OBGYN')" )
     public ResponseEntity editObstetricsOfficeVisits ( @PathVariable final Long id,
-            @RequestBody final ObstetricsOfficeVisitForm form ) {
-        try {final ObstetricsOfficeVisit visit = new ObstetricsOfficeVisit( form );
+            @RequestBody final GeneralObstetricsForm form ) {
+        try {
+            final GeneralObstetrics visit = new GeneralObstetrics( form );
             if ( null != visit.getId() && !id.equals( visit.getId() ) ) {
                 return new ResponseEntity(
                         errorResponse( "The ID provided does not match the ID of the OfficeVisit provided" ),
                         HttpStatus.CONFLICT );
             }
-            final ObstetricsOfficeVisit oVisit = ObstetricsOfficeVisit.getById( id );
+            final GeneralObstetrics oVisit = GeneralObstetrics.getById( id );
             if ( null == oVisit ) {
                 return new ResponseEntity( errorResponse( "No visit found for name " + id ), HttpStatus.NOT_FOUND );
             }
@@ -141,7 +134,7 @@ public class APIObstetricsOfficeVisitController extends APIController {
                     HttpStatus.BAD_REQUEST );
         }
     }
-    
+
     /**
      * This is used as a marker for the system to know that the HCP has viewed
      * the visit
@@ -151,43 +144,70 @@ public class APIObstetricsOfficeVisitController extends APIController {
      * @param form
      *            The office visit being viewed
      * @return OK if the office visit is found, NOT_FOUND otherwise
-     */
-    @PostMapping ( BASE_PATH + "/obstetricsOfficeVisits/hcp/view/{id}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
-    public ResponseEntity viewObstetricsOfficeVisit ( @PathVariable final Long id,
-            @RequestBody final ObstetricsOfficeVisitForm form ) {
-        final ObstetricsOfficeVisit oVisit = ObstetricsOfficeVisit.getById( id );
-        if ( null == oVisit ) {
-            return new ResponseEntity( errorResponse( "No visit found for name " + id ), HttpStatus.NOT_FOUND );
-        }
-        LoggerUtil.log( TransactionType.HCP_VIEW_OBSTETRICS_RECORD, form.getHcp(), form.getPatient(),
-                form.getHcp() + " viewed basic health metrics for " + form.getPatient() + " from " + form.getDate() );
-        return new ResponseEntity( HttpStatus.OK );
-    }
-
-    /**
-     * This is used as a marker for the system to know that the patient has
-     * viewed the visit
+     * 
+     * @PostMapping ( BASE_PATH + "/obstetricsOfficeVisits/hcp/view/{id}" )
+     * @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH',
+     *               'ROLE_OBGYN')" ) public ResponseEntity
+     *               viewObstetricsOfficeVisit ( @PathVariable final Long id,
+     * @RequestBody final GeneralObstetricsForm form ) { final GeneralObstetrics
+     *              oVisit = GeneralObstetrics.getById( id ); if ( null ==
+     *              oVisit ) { return new ResponseEntity( errorResponse( "No
+     *              visit found for name " + id ), HttpStatus.NOT_FOUND ); }
+     *              LoggerUtil.log( TransactionType.HCP_VIEW_OBSTETRICS_RECORD,
+     *              form.getHcp(), form.getPatient(), form.getHcp() + " viewed
+     *              basic health metrics for " + form.getPatient() + " from " +
+     *              form.getDate() ); return new ResponseEntity( HttpStatus.OK
+     *              ); }
+     * 
+     *              /** This is used as a marker for the system to know that the
+     *              patient has viewed the visit
      *
      * @param id
      *            The id of the office visit being viewed
      * @param form
      *            The office visit being viewed
      * @return OK if the office visit is found, NOT_FOUND otherwise
+     * 
+     * @PostMapping ( BASE_PATH + "/obstetricsOfficeVisits/patient/view/{id}" )
+     * @PreAuthorize ( "hasRole('ROLE_PATIENT')" ) public ResponseEntity
+     *               viewObstetricsOfficeVisitPatient ( @PathVariable final Long
+     *               id,
+     * @RequestBody final GeneralObstetricsForm form ) { final GeneralObstetrics
+     *              oVisit = GeneralObstetrics.getById( id ); if ( null ==
+     *              oVisit ) { return new ResponseEntity( errorResponse( "No
+     *              visit found for name " + id ), HttpStatus.NOT_FOUND ); }
+     *              LoggerUtil.log(
+     *              TransactionType.PATIENT_VIEW_OBSTETRICS_RECORD,
+     *              form.getHcp(), form.getPatient(), form.getPatient() + "
+     *              viewed their basic health metrics from " + form.getDate() );
+     *              return new ResponseEntity( HttpStatus.OK ); }
      */
-    @PostMapping ( BASE_PATH + "/obstetricsOfficeVisits/patient/view/{id}" )
-    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
-    public ResponseEntity viewObstetricsOfficeVisitPatient ( @PathVariable final Long id,
-            @RequestBody final ObstetricsOfficeVisitForm form ) {
-        final ObstetricsOfficeVisit oVisit = ObstetricsOfficeVisit.getById( id );
-        if ( null == oVisit ) {
-            return new ResponseEntity( errorResponse( "No visit found for name " + id ), HttpStatus.NOT_FOUND );
+
+    /**
+     * Deletes the GeneralOphthalmology with the id provided. This will remove
+     * all traces from the system and cannot be reversed.
+     *
+     * @param id
+     *            The id of the OfficeVisit to delete
+     * @return response
+     */
+    @DeleteMapping ( BASE_PATH + "/deleteObstetricsOfficeVisits/{id}" )
+    @PreAuthorize ( "hasAnyRole('ROLE_OBGYN', 'ROLE_PATIENT')" )
+    public ResponseEntity deleteGeneralOphthalmology ( @PathVariable final Long id ) {
+        final GeneralObstetrics visit = GeneralObstetrics.getById( id );
+        if ( null == visit ) {
+            return new ResponseEntity( errorResponse( "No office visit found for " + id ), HttpStatus.NOT_FOUND );
         }
-        LoggerUtil.log( TransactionType.PATIENT_VIEW_OBSTETRICS_RECORD, form.getHcp(), form.getPatient(),
-                form.getPatient() + " viewed their basic health metrics from " + form.getDate() );
-        return new ResponseEntity( HttpStatus.OK );
+        try {
+            visit.delete();
+            LoggerUtil.log( TransactionType.GENERAL_OBSTETRICS_DELETE, LoggerUtil.currentUser() );
+            return new ResponseEntity( id, HttpStatus.OK );
+        }
+        catch ( final Exception e ) {
+            e.printStackTrace();
+            return new ResponseEntity( errorResponse( "Could not delete " + id + " because of " + e.getMessage() ),
+                    HttpStatus.BAD_REQUEST );
+        }
     }
-    
-    
-	
+
 }

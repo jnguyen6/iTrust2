@@ -17,19 +17,18 @@ import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsOfficeVisitForm;
  * @author Sanchit Razdan
  */
 @MappedSuperclass
-public class ObstetricsOfficeVisit extends OfficeVisit {
+public abstract class ObstetricsOfficeVisit extends OfficeVisit {
 
     @Min ( 0 )
-    private Integer            weeksPregnant;
+    private Integer weeksPregnant;
 
     @Min ( 0 )
-    private Integer            fetalHeartRate;
+    private Integer fetalHeartRate;
 
     @Min ( 0 )
-    private Double             fundalHeight;
-    private Boolean            isTwins;
-    private Boolean            isLowLyingPlacenta;
-    private BasicHealthMetrics mothersHealthMetric;
+    private Double  fundalHeight;
+    private Boolean isTwins;
+    private Boolean isLowLyingPlacenta;
 
     /**
      * For Hibernate/Thymeleaf
@@ -50,7 +49,6 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
         setFundalHeight( ov.getFundalHeight() );
         setIsTwins( ov.getIsTwins() );
         setIsLowLyingPlacenta( ov.getIsLowLyingPlacenta() );
-        setMothersHealthMetric( ov.getMothersHealthMetric() );
     }
 
     /**
@@ -85,9 +83,6 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
      *            weeks pregnant for the patient
      */
     public void setWeeksPregnant ( final Integer weeksPregnant ) {
-        if ( weeksPregnant < 0 ) {
-            throw new IllegalArgumentException( "The number of weeks pregnant must be a nonnegative integer" );
-        }
         this.weeksPregnant = weeksPregnant;
     }
 
@@ -107,9 +102,6 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
      *            fetal heart rate of the patient
      */
     public void setFetalHeartRate ( final Integer fetalHeartRate ) {
-        if ( fetalHeartRate < 0 ) {
-            throw new IllegalArgumentException( "The fetal heart rate must be a nonnegative integer" );
-        }
         this.fetalHeartRate = fetalHeartRate;
     }
 
@@ -129,9 +121,6 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
      *            fundal height of the patient
      */
     public void setFundalHeight ( final Double fundalHeight ) {
-        if ( fundalHeight < 0 ) {
-            throw new IllegalArgumentException( "The fundal height must be a nonnegative number" );
-        }
         this.fundalHeight = fundalHeight;
     }
 
@@ -173,28 +162,6 @@ public class ObstetricsOfficeVisit extends OfficeVisit {
         this.isLowLyingPlacenta = isLowLyingPlacenta;
     }
 
-    /**
-     * Gets the basic health metrics of the patient
-     *
-     * @return basic health metrics of the patient
-     */
-    public BasicHealthMetrics getMothersHealthMetric () {
-        return mothersHealthMetric;
-    }
-
-    /**
-     * Sets the basic health metric of the patient
-     *
-     * @param mothersHealthMetric
-     *            basic health metric of the patient
-     */
-    public void setMothersHealthMetric ( final BasicHealthMetrics mothersHealthMetric ) {
-        if ( mothersHealthMetric == null ) {
-            throw new IllegalArgumentException( "The basic " );
-        }
-        this.mothersHealthMetric = mothersHealthMetric;
-    }
-    
     /**
      * Get a specific office visit by the database ID
      *

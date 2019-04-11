@@ -2,27 +2,25 @@ package edu.ncsu.csc.itrust2.forms.hcp;
 
 import javax.validation.constraints.Min;
 
-import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsOfficeVisit;
 
 /**
  * The abstraction of the form a doctor fills out for any obstetrics appointment
  *
- * @author Jack MacDonald
+ * @author Sanchit Razdan
  */
-public class ObstetricsOfficeVisitForm extends OfficeVisitForm {
+public abstract class ObstetricsOfficeVisitForm extends OfficeVisitForm {
 
     @Min ( 0 )
-    private Integer            weeksPregnant;
+    private Integer weeksPregnant;
 
     @Min ( 0 )
-    private Integer            fetalHeartRate;
+    private Integer fetalHeartRate;
 
     @Min ( 0 )
-    private Double             fundalHeight;
-    private Boolean            isTwins;
-    private Boolean            isLowLyingPlacenta;
-    private BasicHealthMetrics mothersHealthMetric;
+    private Double  fundalHeight;
+    private Boolean isTwins;
+    private Boolean isLowLyingPlacenta;
 
     /** For Hibernate */
     public ObstetricsOfficeVisitForm () {
@@ -41,8 +39,6 @@ public class ObstetricsOfficeVisitForm extends OfficeVisitForm {
         setFundalHeight( ov.getFundalHeight() );
         setIsTwins( ov.getIsTwins() );
         setIsLowLyingPlacenta( ov.getIsLowLyingPlacenta() );
-        setMothersHealthMetric( ov.getMothersHealthMetric() );
-
     }
 
     /**
@@ -138,24 +134,5 @@ public class ObstetricsOfficeVisitForm extends OfficeVisitForm {
      */
     public void setIsLowLyingPlacenta ( final Boolean isLowLyingPlacenta ) {
         this.isLowLyingPlacenta = isLowLyingPlacenta;
-    }
-
-    /**
-     * Gets the basic health metrics of the patient
-     *
-     * @return basic health metrics of the patient
-     */
-    public BasicHealthMetrics getMothersHealthMetric () {
-        return mothersHealthMetric;
-    }
-
-    /**
-     * Sets the basic health metric of the patient
-     *
-     * @param mothersHealthMetric
-     *            basic health metric of the patient
-     */
-    public void setMothersHealthMetric ( final BasicHealthMetrics mothersHealthMetric ) {
-        this.mothersHealthMetric = mothersHealthMetric;
     }
 }

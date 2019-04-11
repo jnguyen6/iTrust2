@@ -60,6 +60,8 @@
 		<mapping
 			class="edu.ncsu.csc.itrust2.models.persistent.GeneralOphthalmology" />
 		<mapping
+			class="edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics" />
+		<mapping
 			class="edu.ncsu.csc.itrust2.models.persistent.OphthalmologySurgery" />
 
 	</session-factory>
