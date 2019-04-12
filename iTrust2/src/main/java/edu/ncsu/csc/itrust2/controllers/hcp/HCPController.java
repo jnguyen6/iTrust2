@@ -131,7 +131,7 @@ public class HCPController {
     @GetMapping ( "/hcp/viewLaborAndDeliveryReports" )
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH')" )
     public String viewLaborAndDeliveryReports () {
-        return "/hcp/viewObstetricsRecords";
+        return "/hcp/viewLaborAndDeliveryReports";
     }
 
     /**
@@ -143,6 +143,6 @@ public class HCPController {
     @GetMapping ( "/hcp/documentLaborAndDeliveryReports" )
     @PreAuthorize ( "hasAnyRole('ROLE_OBGYN')" )
     public String documentLaborAndDeliveryReports () {
-        return "/hcp/documentObstetricsRecords";
+        return "/hcp/documentLaborAndDeliveryReports";
     }
 }
