@@ -23,6 +23,11 @@ public enum AppointmentType {
      */
     OPHTHALMOLOGY_SURGERY ( 3 ),
 
+    /**
+     * General Obstetrics Appointment
+     */
+    GENERAL_OBSTETRICS ( 4 ),
+
     ;
 
     /**
