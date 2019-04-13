@@ -113,6 +113,18 @@
                   if($scope.visits[i].diagnosis !== undefined && $scope.visits[i].diagnosis !== "")
                   	$scope.selectedVisit.eyeDiagnoses = $scope.visits[i].diagnosis.split(",");
                   $scope.selectedVisit.surgeryType = $scope.visits[i].surgeryType;
+                  
+                  if ($scope.selectedVisit.type == 'GENERAL_OBSTETRICS') {
+                	  $http.get("/iTrust2/api/v1/generalobstetrics/" + $scope.selectedVisitID).then(
+                		function (response) {
+                            $scope.selectedVisit.weeksPregnant = response.data.weeksPregnant;
+                            $scope.selectedVisit.fetalHeartRate = response.data.fetalHeartRate;
+                            $scope.selectedVisit.fundalHeight = response.data.fundalHeight;
+                            $scope.selectedVisit.isLowLyingPlacenta = response.data.isLowLyingPlacenta;
+                            $scope.selectedVisit.isTwins = response.data.isTwins;                   
+                        }
+                      );
+                  }
 
                   // Diagnoses
                   if ($scope.selectedVisit.type == 'GENERAL_CHECKUP') {
@@ -438,21 +450,21 @@
 																<div class="col-xs-6">
 																	<label>Fundal Height of Uterus (cm):</label>
 																</div>
-																<div name='sphereOS' class="col-xs-6">
+																<div name='fundalHeight' class="col-xs-6">
 																	{{selectedVisit.fundalHeight}}</div>
 															</div>
 															<div class="form-group row">
 																<div class="col-xs-6">
 																	<label>Twins:</label>
 																</div>
-																<div name='sphereOD' class="col-xs-6">
+																<div name='isTwins' class="col-xs-6">
 																	{{selectedVisit.isTwins}}</div>
 															</div>
 															<div class="form-group row">
 																<div class="col-xs-6">
 																	<label>Low Lying Placenta:</label>
 																</div>
-																<div name='cylinderOS' class="col-xs-6">
+																<div name='isLowLyingPlacenta' class="col-xs-6">
 																	{{selectedVisit.isLowLyingPlacenta}}</div>
 															</div>
 														</div>
