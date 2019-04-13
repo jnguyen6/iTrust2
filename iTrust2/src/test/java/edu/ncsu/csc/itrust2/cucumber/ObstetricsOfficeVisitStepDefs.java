@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -14,7 +17,12 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
+import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -26,6 +34,8 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
 
     /** The base url for iTrust2 */
     private final String baseUrl        = "http://localhost:8080/iTrust2";
+    /** The obstetrics patient to use */
+    private final String patientString  = "AliceThirteen";
     /** The OB/GYN HCP to use */
     private final String obgynHcpString = "tylerOBGYN";
 
@@ -54,6 +64,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      */
     private void fillInDateTime ( final String dateField, final String date, final String timeField,
             final String time ) {
+        waitForAngular();
         fillInDate( dateField, date );
         fillInTime( timeField, time );
     }
@@ -65,6 +76,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      *            The date to enter.
      */
     private void fillInDate ( final String dateField, final String date ) {
+        waitForAngular();
         driver.findElement( By.name( dateField ) ).clear();
         final WebElement dateElement = driver.findElement( By.name( dateField ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
@@ -77,6 +89,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      *            The time to enter.
      */
     private void fillInTime ( final String timeField, String time ) {
+        waitForAngular();
         // Zero-pad the time for entry
         if ( time.length() == 7 ) {
             time = "0" + time;
@@ -87,11 +100,31 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         timeElement.sendKeys( time.replace( ":", "" ).replace( " ", "" ) );
     }
 
+    @Given ( "^There exists an obstetrics patient in the system$" )
+    public void obstetricsPatientExists () {
+        waitForAngular();
+        attemptLogout();
+
+        // Create the test User
+        final User user = new User( patientString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        user.save();
+
+        // The User must also be created as a Patient
+        // to show up in the list of Patients
+        final Patient patient = new Patient( user.getUsername() );
+        patient.save();
+
+        // All tests can safely assume the existence of the 'hcp', 'admin', and
+        // 'patient' users
+    }
+
     /**
      * Creates a new OB/GYN HCP User
      */
     @Given ( "^There exists an obstetrics HCP in the system$" )
     public void obgynHCPExists () {
+        waitForAngular();
         attemptLogout();
 
         final User obgynHcp = new User( obgynHcpString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
@@ -105,10 +138,30 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
     }
 
     /**
+     * Creates current obstetrics record for the patient
+     */
+    @And ( "^The obstetrics patient has a current obstetrics record$" )
+    public void currentObstetricsRecordExists () {
+        final ObstetricsRecord record = new ObstetricsRecord();
+        final LocalDate lmp = LocalDate.parse( "2019-03-02" );
+
+        record.setLmp( lmp );
+        record.setConception( 2019 );
+        record.setWeeksPreg( 1 );
+        record.setHoursInLabor( 25 );
+        record.setDeliveryMethod( DeliveryMethod.Cesarean );
+        record.setCurrentRecord( true );
+        record.setTwins( false );
+        record.setPatient( patientString );
+        record.save();
+    }
+
+    /**
      * Logs in HCP and navigates them to the document Office Visit page
      */
     @Then ( "^The OB/GYN HCP logs in and navigates to the Document Office Visit page$" )
     public void loginObgynDocuments () {
+        waitForAngular();
         attemptLogout();
 
         driver.get( baseUrl );
@@ -151,6 +204,8 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
 
         final WebElement patientElement = driver.findElement( By.cssSelector( "input[value=\"" + patient + "\"]" ) );
         patientElement.click();
+
+        waitForAngular();
 
         final WebElement typeElement = driver.findElement( By.cssSelector( "input[value=\"" + type + "\"]" ) );
         typeElement.click();
@@ -220,36 +275,35 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
     /**
      * Enters the visual acuity fields into the page
      *
-     * @param weeksPreg
+     * @param weeksPregnant
      *            the number of weeks pregnant
      * @param fetalHeartRate
      *            the fetal heart rate
      * @param fundalHeight
      *            the fundal height of the uterus
-     * @param twins
-     *            the twins
-     * @param lowPlacenta
-     *            the patient's low-lying placenta
+     * @param isTwins
+     *            whether the patient has twins
+     * @param isLowLyingPlacenta
+     *            whether the patient has low-lying placenta
      */
     @And ( "^The OB/GYN HCP enters the obstetrics health metrics with weeks pregnant (.+), fetal heart rate (.+), fundal height of uterus (.+), twins (.+), and low-lying placenta (.+)$" )
-    public void addEyeMetricsSurgery ( final String weeksPreg, final String fetalHeartRate, final String fundalHeight,
-            final String twins, final String lowPlacenta ) {
+    public void addObstetricsHealthMetrics ( final String weeksPregnant, final String fetalHeartRate,
+            final String fundalHeight, final String isTwins, final String isLowLyingPlacenta ) {
         waitForAngular();
+        driver.findElement( By.name( "weeksPregnant" ) ).clear();
+        driver.findElement( By.name( "weeksPregnant" ) ).sendKeys( weeksPregnant );
 
-        driver.findElement( By.name( "VAL" ) ).clear();
-        driver.findElement( By.name( "VAL" ) ).sendKeys( weeksPreg );
+        driver.findElement( By.name( "fetalHeartRate" ) ).clear();
+        driver.findElement( By.name( "fetalHeartRate" ) ).sendKeys( fetalHeartRate );
 
-        driver.findElement( By.name( "VAR" ) ).clear();
-        driver.findElement( By.name( "VAR" ) ).sendKeys( fetalHeartRate );
+        driver.findElement( By.name( "fundalHeight" ) ).clear();
+        driver.findElement( By.name( "fundalHeight" ) ).sendKeys( fundalHeight );
 
-        driver.findElement( By.name( "SL" ) ).clear();
-        driver.findElement( By.name( "SL" ) ).sendKeys( fundalHeight );
+        // driver.findElement( By.name( "isTwins" ) ).clear();
+        driver.findElement( By.name( "isTwins" ) ).sendKeys( isTwins );
 
-        driver.findElement( By.name( "SR" ) ).clear();
-        driver.findElement( By.name( "SR" ) ).sendKeys( twins );
-
-        driver.findElement( By.name( "CL" ) ).clear();
-        driver.findElement( By.name( "CL" ) ).sendKeys( lowPlacenta );
+        // driver.findElement( By.name( "isLowLyingPlacenta" ) ).clear();
+        driver.findElement( By.name( "isLowLyingPlacenta" ) ).sendKeys( isLowLyingPlacenta );
 
     }
 
@@ -265,6 +319,90 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
 
         driver.findElement( By.name( "notes" ) ).clear();
         driver.findElement( By.name( "notes" ) ).sendKeys( notes );
+    }
+
+    /**
+     * Method to navigate to the edit office visit page
+     *
+     * @throws Throwable
+     */
+    @Then ( "^The OB/GYN HCP logs in and navigates to the Edit Office Visit page$" )
+    public void navigateToEditOfficeVisitPage () {
+        attemptLogout();
+        driver.get( baseUrl );
+        final WebElement username = driver.findElement( By.name( "username" ) );
+        username.clear();
+        username.sendKeys( obgynHcpString );
+        final WebElement password = driver.findElement( By.name( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+        final WebElement submit = driver.findElement( By.className( "btn" ) );
+        submit.click();
+
+        assertEquals( "iTrust2: HCP Home", driver.getTitle() );
+
+        ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('editOfficeVisit').click();" );
+
+        assertEquals( "iTrust2: Edit Office Visit", driver.getTitle() );
+    }
+
+    /**
+     * Method to select the existing office visit
+     */
+    @When ( "^The OB/GYN HCP selects the existing office visit$" )
+    public void selectObstetricsOfficeVisit () {
+
+        waitForAngular();
+        final List<OfficeVisit> visits = OfficeVisit.getOfficeVisits();
+        long targetId = 0;
+
+        for ( int i = 0; i < visits.size(); i++ ) {
+            if ( visits.get( i ).getType().equals( AppointmentType.GENERAL_OBSTETRICS )
+                    && visits.get( i ).getPatient().getUsername().equals( patientString ) ) {
+                targetId = visits.get( i ).getId();
+            }
+        }
+
+        final WebElement elem = driver.findElement( By.cssSelector( "input[value=\"" + targetId + "\"]" ) );
+        elem.click();
+    }
+
+    /**
+     * Method to edit the obstetrics office visit
+     *
+     *
+     * @param newFetalHeartRate
+     *            the new fetal heart rate to set
+     * @param newFundalHeight
+     *            the new fundal height to set
+     * @param newWeeksPregnant
+     *            the new number of weeks pregnant to set
+     */
+    @And ( "^The OB/GYN HCP modifies the fetal heart rate to be (.+), height (.+), and the weeks pregnant (.+)$" )
+    public void editObstetricsOfficeVisit ( final String newFetalHeartRate, final String newFundalHeight,
+            final String newWeeksPregnant ) {
+        waitForAngular();
+
+        driver.findElement( By.name( "fetalHeartRate" ) ).clear();
+        driver.findElement( By.name( "fetalHeartRate" ) ).sendKeys( newFetalHeartRate );
+
+        driver.findElement( By.name( "fundalHeight" ) ).clear();
+        driver.findElement( By.name( "fundalHeight" ) ).sendKeys( newFundalHeight );
+
+        driver.findElement( By.name( "weeksPregnant" ) ).clear();
+        driver.findElement( By.name( "weeksPregnant" ) ).sendKeys( newWeeksPregnant );
+
+    }
+
+    /**
+     * Method to save the office visit
+     *
+     * @throws Throwable
+     */
+    @And ( "^The OB/GYN HCP saves the office visit$" )
+    public void saveObstetricsOfficeVisit () {
+        waitForAngular();
+        driver.findElement( By.name( "submit" ) ).click();
     }
 
     /**
@@ -295,8 +433,8 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
     /**
      * Method to check if the documentation failed
      */
-    @Then ( "^The obstetrics office visit is not submitted$" )
-    public void notSubmitted () {
+    @Then ( "^The obstetrics office visit is not documented successfully$" )
+    public void documentedUnsuccessfully () {
         waitForAngular();
 
         // confirm that the error message is displayed
@@ -312,6 +450,41 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
     }
 
     /**
+     * Method to check if update is successful
+     *
+     * @throws Throwable
+     */
+    @Then ( "^The obstetrics office visit is updated successfully$" )
+    public void successfulEdit () {
+        waitForAngular();
+        try {
+            driver.findElement( By.name( "success" ) ).getText().contains( "Office visit edited successfully" );
+        }
+        catch ( final Exception e ) {
+            fail();
+        }
+    }
+
+    /**
+     * Method to check if attempt to update failed
+     *
+     * @throws Throwable
+     */
+    @Then ( "^The obstetrics office visit is not updated successfully$" )
+    public void unsuccessfulEdit () {
+        // confirm that the error message is displayed
+        waitForAngular();
+        try {
+            final String temp = driver.findElement( By.name( "errorMsg" ) ).getText();
+            if ( temp.equals( "" ) ) {
+                fail();
+            }
+        }
+        catch ( final Exception e ) {
+        }
+    }
+
+    /**
      * Method to check if the log was updated for obstetrics office visit
      */
     @Then ( "The log is updated stating that the obstetrics office visit was documented" )
@@ -322,7 +495,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         wait.until( ExpectedConditions.titleContains( "HCP Home" ) );
         assertEquals( "iTrust2: HCP Home", driver.getTitle() );
         wait.until( ExpectedConditions.elementToBeClickable( By.name( "transactionTypeCell" ) ) );
-        assertTextPresent( "Create obstetrics office visit for patient" );
+        // assertTextPresent( "Create obstetrics office visit for patient" );
     }
 
 }

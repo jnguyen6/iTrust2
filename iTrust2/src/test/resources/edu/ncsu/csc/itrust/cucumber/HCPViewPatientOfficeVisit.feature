@@ -17,9 +17,14 @@ Examples:
 	| general         | General Checkup       | 
 	| ophthalmologist | General Checkup       |
 	| optometrist     | General Checkup       |
+	| obstetrics      | General Checkup       |
 	| general         | General Ophthalmology | 
 	| ophthalmologist | General Ophthalmology |
 	| optometrist     | General Ophthalmology |
 	| general         | Ophthalmology Surgery | 
 	| ophthalmologist | Ophthalmology Surgery |
 	| optometrist     | Ophthalmology Surgery |
+	| general         | General Obstetrics    |
+	| ophthalmologist | General Obstetrics    |
+	| optometrist     | General Obstetrics    |
+	| obstetrics      | General Obstetrics    |

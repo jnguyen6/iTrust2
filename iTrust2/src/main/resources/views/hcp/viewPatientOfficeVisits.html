@@ -377,6 +377,33 @@
 														</div>
 													</div>
 												</div>
+												
+						<!-- Diagnosis Panel  -->
+                        <div class="col-md-4" ng-show="selectedVisit.type === 'GENERAL_CHECKUP' && diagnoses.length">
+                          <div class="panel panel-info">
+                            <div class="panel-heading">
+                              <h4>Diagnoses</h4>
+                            </div>
+                            <div class="panel-body" ng-show="diagnoses.length">
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <b>Description</b>
+                                </div>
+                                <div class="col-md-6">
+                                  <b>Note</b>
+                                </div>
+                              </div>
+                              <div name='diagnose' class="row" ng-repeat="d in diagnoses">
+                                <div name='diagnoseDesc' class="col-md-6">
+                                  {{d.code.description}}
+                                </div>
+                                <div name='diagnoseNote' class="col-md-6">
+                                  {{d.note}}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
 												<!-- Eye Health Panel -->
 												<div class="col-md-4"

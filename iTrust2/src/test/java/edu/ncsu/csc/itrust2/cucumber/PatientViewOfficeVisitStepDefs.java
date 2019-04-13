@@ -17,6 +17,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import edu.ncsu.csc.itrust2.forms.admin.ICDCodeForm;
 import edu.ncsu.csc.itrust2.forms.hcp.GeneralCheckupForm;
+import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
 import edu.ncsu.csc.itrust2.forms.hcp.OphthalmologySurgeryForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.EyeSurgeryType;
@@ -27,6 +28,7 @@ import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.Diagnosis;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
+import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
 import edu.ncsu.csc.itrust2.models.persistent.GeneralOphthalmology;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ICDCode;
@@ -42,7 +44,7 @@ import edu.ncsu.csc.itrust2.models.persistent.User;
 public class PatientViewOfficeVisitStepDefs extends CucumberTest {
 
     private final String baseUrl       = "http://localhost:8080/iTrust2";
-    private final String patientString = "calvinWells";
+    private final String patientString = "AliceThirteen";
 
     /**
      * Asserts that the text is on the page
@@ -80,6 +82,7 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
         GeneralCheckup.deleteAll();
         DomainObject.deleteAll( GeneralOphthalmology.class );
         DomainObject.deleteAll( OphthalmologySurgery.class );
+        DomainObject.deleteAll( GeneralObstetrics.class );
 
         final GeneralCheckup genCheckup = getGenCheckup();
         if ( genCheckup != null ) {
@@ -92,6 +95,11 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
         final OphthalmologySurgery ophSurgery = getOphSurgery();
         if ( ophSurgery != null ) {
             ophSurgery.save();
+        }
+
+        final GeneralObstetrics genObgyn = getGenObstetricsVisit();
+        if ( genObgyn != null ) {
+            genObgyn.save();
         }
     }
 
@@ -125,7 +133,7 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
     /**
      * The HCP selects the given type of office visit from the list shown and
      * validates the information shown
-     * 
+     *
      * @param visitType
      *            type of office visit
      */
@@ -138,6 +146,9 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
         }
         else if ( visitType.equals( "Ophthalmology Surgery" ) ) {
             value = 3;
+        }
+        else if ( visitType.equals( "General Obstetrics" ) ) {
+            value = 4;
         }
 
         final List<OfficeVisit> visits = OfficeVisit.getOfficeVisits();
@@ -164,6 +175,8 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
             case 3:
                 validateOphSurgery();
                 break;
+            case 4:
+                validateGenObstetricsVisit();
             default:
                 break;
         }
@@ -321,6 +334,46 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
     }
 
     /**
+     * Generates an obstetrics office visit with mock data
+     */
+    private GeneralObstetrics getGenObstetricsVisit () {
+        final Hospital hosp = new Hospital( "Some Hospital", "Some Road", "78901", "NC" );
+        hosp.save();
+        final GeneralObstetricsForm visit = new GeneralObstetricsForm();
+        visit.setPreScheduled( null );
+        visit.setDate( "2019-04-08T09:50:00.000-04:00" ); // 4/08/2019 9:50 AM
+                                                          // EDT
+        visit.setHcp( "hcp" );
+        visit.setPatient( "AliceThirteen" );
+        visit.setNotes( "Test office visit" );
+        visit.setType( AppointmentType.GENERAL_OBSTETRICS.toString() );
+        visit.setHospital( "Some Hospital" );
+        visit.setDiastolic( 150 );
+        visit.setHdl( 75 );
+        visit.setLdl( 75 );
+        visit.setHeight( 75f );
+        visit.setWeight( 130f );
+        visit.setTri( 300 );
+        visit.setSystolic( 150 );
+        visit.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
+        visit.setPatientSmokingStatus( PatientSmokingStatus.NEVER );
+
+        visit.setWeeksPregnant( 3 );
+        visit.setFetalHeartRate( 10 );
+        visit.setFundalHeight( 20.0 );
+        visit.setIsTwins( false );
+        visit.setIsLowLyingPlacenta( false );
+
+        try {
+            return new GeneralObstetrics( visit );
+        }
+        catch ( final Exception e ) {
+            // Do nothing
+            return null;
+        }
+    }
+
+    /**
      * Validates the data shown is correct for the general checkup office visit
      */
     private void validateGenCheckup () {
@@ -405,6 +458,35 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
 
         assertEquals( "Test office visit", driver.findElement( By.name( "notes" ) ).getText() );
         assertEquals( "CATARACT", driver.findElement( By.name( "surgeryType" ) ).getText() );
+    }
+
+    /**
+     * Validates the data shown is correct for the obstetrics office visit
+     */
+    private void validateGenObstetricsVisit () {
+        assertEquals( "Some Hospital", driver.findElement( By.name( "hospitalName" ) ).getText() );
+        assertEquals( "150", driver.findElement( By.name( "diastolic" ) ).getText() );
+        assertEquals( "AliceThirteen", driver.findElement( By.name( "patientName" ) ).getText() );
+        assertEquals( "75", driver.findElement( By.name( "hdl" ) ).getText() );
+        assertEquals( "75", driver.findElement( By.name( "ldl" ) ).getText() );
+        assertEquals( "75", driver.findElement( By.name( "height" ) ).getText() );
+        assertEquals( "130", driver.findElement( By.name( "weight" ) ).getText() );
+        assertEquals( "300", driver.findElement( By.name( "tri" ) ).getText() );
+        assertEquals( "150", driver.findElement( By.name( "systolic" ) ).getText() );
+        assertEquals( "NONSMOKING", driver.findElement( By.name( "houseSmokingStatus" ) ).getText() );
+        assertEquals( "NEVER", driver.findElement( By.name( "patientSmokingStatus" ) ).getText() );
+        assertEquals( "General Obstetrics", driver.findElement( By.name( "visitType" ) ).getText() );
+        assertEquals( "3", driver.findElement( By.name( "weeksPregnant" ) ).getText() );
+        assertEquals( "10", driver.findElement( By.name( "fetalHeartRate" ) ).getText() );
+        assertEquals( "20", driver.findElement( By.name( "fundalHeight" ) ).getText() );
+        assertEquals( "false", driver.findElement( By.name( "isTwins" ) ).getText() );
+        assertEquals( "false", driver.findElement( By.name( "isLowLyingPlacenta" ) ).getText() );
+        assertEquals( "Date: 04/08/2019", driver.findElement( By.name( "date" ) ).getText() );
+
+        final String time = driver.findElement( By.name( "time" ) ).getText();
+        assertTrue( time.equals( "Time: 10:50 AM" ) || time.equals( "Time: 9:50 AM" ) );
+
+        assertEquals( "Test office visit", driver.findElement( By.name( "notes" ) ).getText() );
     }
 
 }
