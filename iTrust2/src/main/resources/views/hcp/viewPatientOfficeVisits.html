@@ -99,6 +99,18 @@
                   $scope.selectedVisit.patientSmokingStatus = $scope.visits[i].basicHealthMetrics.patientSmokingStatus;
                   
                   validateBasicHealthMetrics();
+                  
+                  //checking obstetrics office visits value
+                  $scope.selectedVisit.weeksPregnant = $scope.visits[i].weeksPregnant;
+                  $scope.selectedVisit.fetalHeartRate = $scope.visits[i].fetalHeartRate;
+                  $scope.selectedVisit.fundalHeight = $scope.visits[i].fundalHeight;
+                  $scope.selectedVisit.isTwins = $scope.visits[i].isTwins;
+                  $scope.selectedVisit.isLowLyingPlacenta = $scope.visits[i].isLowLyingPlacenta;
+                  //console.log(Object.keys(weeksPregnant));
+                  //console.log(Object.keys(fetalHeartRate));
+                  //console.log(Object.keys(fundalHeight));
+                  //console.log(Object.keys(twins));
+                  //console.log(Object.keys(lowLyingPlacenta));
 
                   // Eye health metrics
                   $scope.selectedVisit.visualAcuityOS = $scope.visits[i].visualAcuityOS;
@@ -134,11 +146,16 @@
                           $scope.obstetricsResponse = response.data;
                           for (var i = 0; i < $scope.obstetricsResponse.length; i++) {
                             $scope.diagnoses.push({
-                            	weeksPregnant: obstetrics.weeksPregnant,
-                                fetalHeartRate: obstetrics.fetalHeartRate,
-                                fundalHeight: obstetrics.fundalHeight,
-                                twins: obstetrics.twins,
-                                lowLyingPlacenta: obstetrics.lowLyingPlacenta
+                            	weeksPregnant: obstetricsResponse[i].weeksPregnant,
+                                fetalHeartRate: obstetricsResponse[i].fetalHeartRate,
+                                fundalHeight: obstetricsResponse[i].fundalHeight,
+                                isTwins: obstetricsResponse[i].isTwins,
+                                isLowLyingPlacenta: obstetricsResponse[i].isLowLyingPlacenta
+                                //console.log(Object.keys(weeksPregnant));
+                                //console.log(Object.keys(fetalHeartRate));
+                                //console.log(Object.keys(fundalHeight));
+                                //console.log(Object.keys(twins));
+                                //console.log(Object.keys(lowLyingPlacenta));
                             });
                           }
                         });
@@ -429,21 +446,14 @@
 													</div>
 												</div>
 
-												<!-- Obstetric Office Visit  -->
+												<!-- Obstetrics Panel -->
 												<div class="col-md-4"
-													ng-show="selectedVisit.type === 'GENERAL_OBSTETRICS' && obstetrics.length">
+													ng-show="selectedVisit.type === 'GENERAL_OBSTETRICS'">
 													<div class="panel panel-info">
 														<div class="panel-heading">
-															<h4>Obstetrics Office Visit</h4>
+															<h4>Obstetrics Health Metrics</h4>
 														</div>
 														<div class="panel-body">
-															<div class="form-group row">
-																<div class="col-xs-6">
-																	<label>Date:</label>
-																</div>
-																<div name='date' class="col-xs-6">
-																	{{selectedVisit.date}}</div>
-															</div>
 															<div class="form-group row">
 																<div class="col-xs-6">
 																	<label>Weeks Pregnant:</label>
@@ -453,14 +463,14 @@
 															</div>
 															<div class="form-group row">
 																<div class="col-xs-6">
-																	<label>Fetal Heart Rate:</label>
+																	<label>Fetal Heart Rate (bpm):</label>
 																</div>
-																<div name='sphereOS' class="col-xs-6">
+																<div name='fetalHeartRate' class="col-xs-6">
 																	{{selectedVisit.fetalHeartRate}}</div>
 															</div>
 															<div class="form-group row">
 																<div class="col-xs-6">
-																	<label>Fundal Height of the Uterus:</label>
+																	<label>Fundal Height of Uterus (cm):</label>
 																</div>
 																<div name='fundalHeight' class="col-xs-6">
 																	{{selectedVisit.fundalHeight}}</div>
@@ -469,17 +479,15 @@
 																<div class="col-xs-6">
 																	<label>Twins:</label>
 																</div>
-																<div name='twins' class="col-xs-6">
-																	{{selectedVisit.twins}}</div>
+																<div name='isTwins' class="col-xs-6">
+																	{{selectedVisit.isTwins}}</div>
 															</div>
 															<div class="form-group row">
 																<div class="col-xs-6">
 																	<label>Low Lying Placenta:</label>
 																</div>
-																<div name='lowLyingPlacenta' class="col-xs-6">
-																	{{selectedVisit.lowLyingPlacenta}}</div>
-															</div>
-			
+																<div name='isLowLyingPlacenta' class="col-xs-6">
+																	{{selectedVisit.isLowLyingPlacenta}}</div>
 															</div>
 														</div>
 													</div>
