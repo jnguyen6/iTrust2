@@ -170,8 +170,8 @@
                                         $scope.selectedVisit.weeksPregnant = $scope.visits[i].weeksPregnant;
                                         $scope.selectedVisit.fetalHeartRate = $scope.visits[i].fetalHeartRate;
                                         $scope.selectedVisit.fundalHeight = $scope.visits[i].fundalHeight;
-                                        $scope.selectedVisit.twins = $scope.visits[i].twins;
-                                        $scope.selectedVisit.lowLyingPlacenta = $scope.visits[i].lowLyingPlacenta;
+                                        $scope.selectedVisit.isTwins = $scope.visits[i].isTwins;
+                                        $scope.selectedVisit.isLowLyingPlacenta = $scope.visits[i].isLowLyingPlacenta;
 
                                         var type = $scope.visits[i].type;
                                         var logVisit = angular.copy($scope.selectedVisit);
@@ -197,7 +197,7 @@
                                         } else if ( type === "GENERAL_OBSTETRICS") {
                                             $http({
                                                 method: 'POST',
-                                                url: '/iTrust2/api/v1/obstetricsOfficeVisits/hcp/view/' + $scope.selectedVisitID,
+                                                url: '/iTrust2/api/v1/generalobstetrics/hcp/view' + $scope.selectedVisitID,
                                                 data: logVisit
                                             });
                                         }
@@ -545,7 +545,7 @@
                                     	visit.date = visit.date.toISOString();
                                         $http({
                                             method: 'PUT',
-                                            url: '/iTrust2/api/v1/obstetricsOfficeVisits/' + $scope.selectedVisitID,
+                                            url: '/iTrust2/api/v1/generalobstetrics/' + $scope.selectedVisitID,
                                             data: visit
                                         }).then(function (response) {
                                             $scope.message = "Obstetrics Office visit edited successfully";
@@ -1095,207 +1095,208 @@
 											</div>
 
 											<!-- Obstetrics Panel -->
-									<div ng-show="visit.type == 'GENERAL_OBSTETRICS'"
-										class="col-md-4">
-										<div class="panel panel-info">
-											<div class="panel-heading">
-												<h4>Obstetrics Health Metrics</h4>
-											</div>
-											<div class="panel-body">
-
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Weeks Pregnant:</label>
-													</div>
-													<div class="col-xs-6">
-														<input class="form-control" name="weeksPregnant"
-															ng-model="selectedVisit.weeksPregnant" required="true"
-															type="number" min="0">
-													</div>
-												</div>
-												
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Fetal Heart Rate:</label>
-													</div>
-													<div class="col-xs-4">
-														<input class="form-control" name="fetalHeartRate"
-															ng-model="selectedVisit.fetalHeartRate" required="true"
-															type="number" min="0">
-													</div>
-													<div class="col-xs-2">
-														<span id="helpBlock" class="help-block">BPM</span>
-													</div>
-												</div>
-
-
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Fundal Height of Uterus:</label>
-													</div>
-													<div class="col-xs-4">
-														<input class="form-control" name="fundalHeight"
-															ng-model="selectedVisit.fundalHeight" required="true"
-															type="text">
-													</div>
-													<div class="col-xs-2">
-														<span id="helpBlock" class="help-block">cm</span>
-													</div>
-												</div>
-												
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Twins:</label>
-													</div>
-													<div class="col-xs-6">
-														<select class="form-control" name="isTwins"
-															ng-model="selectedVisit.isTwins" required="true">
-															<option ng-repeat="isTwins in yesOrNo">{{isTwins}}</option>
-														</select>
-													</div>
-												</div>
-
-
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Low Lying Placenta:</label>
-													</div>
-													<div class="col-xs-6">
-														<select class="form-control" name="isLowLyingPlacenta"
-															ng-model="selectedVisit.isLowLyingPlacenta" required="true">
-															<option ng-repeat="isLowLyingPlacenta in yesOrNo">{{isLowLyingPlacenta}}</option>
-														</select>
-													</div>
-												</div>
-												
-											</div>
-
-										</div>
-									</div>
-											
-											
-											<!-- Ophthalmology Surgery Panel  -->
-											<div ng-show="selectedVisit.type == 'OPHTHALMOLOGY_SURGERY'"
-												class="col-md-4">
-												<div class="panel panel-info">
-													<div class="panel-heading">
-														<h4>Surgery Type</h4>
-													</div>
-													<div class="panel-body">
-														<div class="form-group row">
-															<div class="col-xs-6">
-																<label>Surgery Type:</label>
-															</div>
-															<div class="col-xs-6 radio-box">
-																<div class="form-check">
-																	<ul style="list-style: none;">
-																		<li ng-repeat="i in surgerytypes"><label>
-																				<input type="radio"
-																				ng-model="$parent.selectedVisit.surgeryType"
-																				id="{{i}}" name="{{i}}" ng-value="i" required="true" />
-																				{{i}}
-																		</label></li>
-																	</ul>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-
-											<!-- END OF OPHTHALMOLOGY SECTION -->
-
-											<!-- Prescription Panel -->
 											<div class="col-md-4"
-												ng-show="selectedVisit.type == 'GENERAL_CHECKUP'">
+												ng-show="selectedVisit.type === 'GENERAL_OBSTETRICS'">
 												<div class="panel panel-info">
 													<div class="panel-heading">
-														<h4>Prescription</h4>
+														<h4>Obstetrics Health Metrics</h4>
 													</div>
 													<div class="panel-body">
+
 														<div class="form-group row">
 															<div class="col-xs-6">
-																<label>Drug:</label>
+																<label>Weeks Pregnant:</label>
+															</div>
+															<div class="col-xs-6">
+																<input class="form-control" name="weeksPregnant"
+																	ng-model="selectedVisit.weeksPregnant" required="true"
+																	type="text">
+															</div>
+														</div>
+
+														<div class="form-group row">
+															<div class="col-xs-6">
+																<label>Fetal Heart Rate (bpm):</label>
+															</div>
+															<div class="col-xs-6">
+																<input class="form-control" name="fetalHeartRate"
+																	ng-model="selectedVisit.fetalHeartRate" required="true"
+																	type="text">
+															</div>
+														</div>
+
+
+														<div class="form-group row">
+															<div class="col-xs-6">
+																<label>Fundal Height of Uterus (cm):</label>
+															</div>
+															<div class="col-xs-6">
+																<input class="form-control" name="fundalHeight"
+																	ng-model="selectedVisit.fundalHeight" required="true"
+																	type="text">
+
+															</div>
+														</div>
+
+														<div class="form-group row">
+															<div class="col-xs-6">
+																<label>Twins:</label>
 															</div>
 															<div class="col-xs-6 radio-box">
-																<div class="form-check">
-																	<ul style="list-style: none;">
-																		<li ng-repeat="d in drugs"><label> <input
-																				type="radio" ng-model="$parent.drugEntry"
-																				name="{{d.name}}" value="{{d.code}}" required="true" />
-																				{{d.name}}
-																		</label></li>
-																	</ul>
+																<div class="form-group">
+																	<select class="form-control" ng-model="selectedVisit.isTwins"
+																		id="isTwins" name="type">
+																		<option ng-repeat="isTwins in yesOrNo">{{isTwins}}</option>
+																	</select>
 																</div>
 															</div>
 														</div>
+														
 														<div class="form-group row">
 															<div class="col-xs-6">
-																<label>Dosage:</label>
+																<label>Low Lying Placenta:</label>
 															</div>
-															<div class="col-xs-4">
-																<input class="form-control" name="dosageEntry"
-																	ng-model="dosageEntry" required></input>
-															</div>
-															<div class="col-xs-2">
-																<span id="helpBlock" class="help-block">mg</span>
-															</div>
-														</div>
-														<div class="form-group row">
-															<div class="col-xs-6">
-																<label>Start Date:</label>
-															</div>
-															<div class="col-xs-6">
-																<input type="date" class="form-control"
-																	name="startEntry" ng-model="startEntry" required />
+															<div class="col-xs-6 radio-box">
+																<div class="form-group">
+																	<select class="form-control" ng-model="selectedVisit.isLowLyingPlacenta"
+																		id="isLowLyingPlacenta" name="type">
+																		<option ng-repeat="isLowLyingPlacenta in yesOrNo">{{isLowLyingPlacenta}}</option>
+																	</select>
+																</div>
 															</div>
 														</div>
-														<div class="form-group row">
-															<div class="col-xs-6">
-																<label>End Date:</label>
-															</div>
-															<div class="col-xs-6">
-																<input type="date" class="form-control" name="endEntry"
-																	ng-model="endEntry" required />
+														
+														
+													</div>
+
+
+												</div>
+											</div>
+										
+
+
+
+										<!-- Ophthalmology Surgery Panel  -->
+										<div ng-show="selectedVisit.type == 'OPHTHALMOLOGY_SURGERY'"
+											class="col-md-4">
+											<div class="panel panel-info">
+												<div class="panel-heading">
+													<h4>Surgery Type</h4>
+												</div>
+												<div class="panel-body">
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>Surgery Type:</label>
+														</div>
+														<div class="col-xs-6 radio-box">
+															<div class="form-check">
+																<ul style="list-style: none;">
+																	<li ng-repeat="i in surgerytypes"><label>
+																			<input type="radio"
+																			ng-model="$parent.selectedVisit.surgeryType"
+																			id="{{i}}" name="{{i}}" ng-value="i" required="true" />
+																			{{i}}
+																	</label></li>
+																</ul>
 															</div>
 														</div>
-														<div class="form-group row">
-															<div class="col-xs-6">
-																<label>Renewals:</label>
-															</div>
-															<div class="col-xs-4">
-																<input class="form-control" name="renewalEntry"
-																	ng-model="renewalEntry" required></input>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- END OF OPHTHALMOLOGY SECTION -->
+
+										<!-- Prescription Panel -->
+										<div class="col-md-4"
+											ng-show="selectedVisit.type == 'GENERAL_CHECKUP'">
+											<div class="panel panel-info">
+												<div class="panel-heading">
+													<h4>Prescription</h4>
+												</div>
+												<div class="panel-body">
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>Drug:</label>
+														</div>
+														<div class="col-xs-6 radio-box">
+															<div class="form-check">
+																<ul style="list-style: none;">
+																	<li ng-repeat="d in drugs"><label> <input
+																			type="radio" ng-model="$parent.drugEntry"
+																			name="{{d.name}}" value="{{d.code}}" required="true" />
+																			{{d.name}}
+																	</label></li>
+																</ul>
 															</div>
 														</div>
-														<div class="form-group row text-center">
-															<button class="btn btn-success"
-																ng-click="fillPrescription()" name="fillPrescription">Add
-																Prescription</button>
+													</div>
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>Dosage:</label>
 														</div>
-														<div class="form-group row">
-															<div class="col-md-12">
-																<div class="panel panel-default">
-																	<div class="panel-heading">Added Prescriptions</div>
-																	<div class="panel-body">
-																		<div class="row" ng-repeat="p in prescriptions">
-																			<div class="col-md-3">{{p.drug}}</div>
-																			<div class="col-md-2">{{p.dosage}}mg</div>
-																			<br>
-																			<div class="col-md-1"></div>
-																			<!-- "tab" over columns -->
-																			<div class="col-md-3">{{p.startDate | date :
-																				'MM/dd/yyyy'}}</div>
-																			<div class="col-md-3">{{p.endDate | date :
-																				'MM/dd/yyyy'}}</div>
-																			<div class="col-md-3">{{p.renewals}}</div>
-																			<div class="col-md-1">
-																				<button class="btn btn-danger btn-xs"
-																					ng-click="removePrescription($index)"
-																					name="removePrescription">
-																					<b>x</b>
-																				</button>
-																			</div>
+														<div class="col-xs-4">
+															<input class="form-control" name="dosageEntry"
+																ng-model="dosageEntry" required></input>
+														</div>
+														<div class="col-xs-2">
+															<span id="helpBlock" class="help-block">mg</span>
+														</div>
+													</div>
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>Start Date:</label>
+														</div>
+														<div class="col-xs-6">
+															<input type="date" class="form-control" name="startEntry"
+																ng-model="startEntry" required />
+														</div>
+													</div>
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>End Date:</label>
+														</div>
+														<div class="col-xs-6">
+															<input type="date" class="form-control" name="endEntry"
+																ng-model="endEntry" required />
+														</div>
+													</div>
+													<div class="form-group row">
+														<div class="col-xs-6">
+															<label>Renewals:</label>
+														</div>
+														<div class="col-xs-4">
+															<input class="form-control" name="renewalEntry"
+																ng-model="renewalEntry" required></input>
+														</div>
+													</div>
+													<div class="form-group row text-center">
+														<button class="btn btn-success"
+															ng-click="fillPrescription()" name="fillPrescription">Add
+															Prescription</button>
+													</div>
+													<div class="form-group row">
+														<div class="col-md-12">
+															<div class="panel panel-default">
+																<div class="panel-heading">Added Prescriptions</div>
+																<div class="panel-body">
+																	<div class="row" ng-repeat="p in prescriptions">
+																		<div class="col-md-3">{{p.drug}}</div>
+																		<div class="col-md-2">{{p.dosage}}mg</div>
+																		<br>
+																		<div class="col-md-1"></div>
+																		<!-- "tab" over columns -->
+																		<div class="col-md-3">{{p.startDate | date :
+																			'MM/dd/yyyy'}}</div>
+																		<div class="col-md-3">{{p.endDate | date :
+																			'MM/dd/yyyy'}}</div>
+																		<div class="col-md-3">{{p.renewals}}</div>
+																		<div class="col-md-1">
+																			<button class="btn btn-danger btn-xs"
+																				ng-click="removePrescription($index)"
+																				name="removePrescription">
+																				<b>x</b>
+																			</button>
 																		</div>
 																	</div>
 																</div>
@@ -1305,81 +1306,82 @@
 												</div>
 											</div>
 										</div>
-
-										<!-- Procedures panel -->
-										<div ng-show="selectedVisit.type == 'GENERAL_CHECKUP'"
-											class="row">
-											<div class="col-md-8">
-												<div class="panel panel-info">
-													<div class="panel-heading">
-														<h4>Lab Procedures</h4>
-													</div>
-													<div class="panel-body">
-														<div class="form-group row">
-															<div class="col-md-12">
-																<table class="table">
-																	<tr>
-																		<th>LOINC Code</th>
-																		<th>Priority</th>
-																		<th>Comments</th>
-																		<th>Status</th>
-																		<th>Delete</th>
-																	</tr>
-																	<tr ng-repeat="procedure in procedures">
-																		<td>{{procedure.code}}</td>
-																		<td>{{procedure.priority}}</td>
-																		<td>{{procedure.comments}}</td>
-																		<td>{{procedure.status}}</td>
-																		<td><button class="btn btn-danger btn-xs"
-																				ng-click="removeProcedure($index)"
-																				ng-show="procedure.status == 'ASSIGNED'">Delete</button></td>
-																	</tr>
-																</table>
-															</div>
-
-														</div>
-
-
-
-
-
-													</div>
-												</div>
-											</div>
-
-										</div>
-										<!-- Notes and Error Messages -->
-										<!-- Notes and Error Messages -->
-										<div class="row">
-											<div class="form-group col-md-6">
-												<label>Notes:</label>
-												<textarea name="time" ng-model="visit.notes"
-													class="form-control" rows="3"></textarea>
-											</div>
-											<div class="col-md-12 text-right">
-												<div style="white-space: pre-line;">
-													<div name="success" class="text-success">{{message}}</div>
-													<div name="errorMsg" class="text-danger">{{errorMsg}}</div>
-												</div>
-											</div>
-										</div>
 									</div>
 
-									<div class="panel-footer text-right">
-										<button class="btn btn-primary btn-lg" ng-click="submit()"
-											name="submit">Update Office Visit</button>
+									<!-- Procedures panel -->
+									<div ng-show="selectedVisit.type == 'GENERAL_CHECKUP'"
+										class="row">
+										<div class="col-md-8">
+											<div class="panel panel-info">
+												<div class="panel-heading">
+													<h4>Lab Procedures</h4>
+												</div>
+												<div class="panel-body">
+													<div class="form-group row">
+														<div class="col-md-12">
+															<table class="table">
+																<tr>
+																	<th>LOINC Code</th>
+																	<th>Priority</th>
+																	<th>Comments</th>
+																	<th>Status</th>
+																	<th>Delete</th>
+																</tr>
+																<tr ng-repeat="procedure in procedures">
+																	<td>{{procedure.code}}</td>
+																	<td>{{procedure.priority}}</td>
+																	<td>{{procedure.comments}}</td>
+																	<td>{{procedure.status}}</td>
+																	<td><button class="btn btn-danger btn-xs"
+																			ng-click="removeProcedure($index)"
+																			ng-show="procedure.status == 'ASSIGNED'">Delete</button></td>
+																</tr>
+															</table>
+														</div>
+
+													</div>
+
+
+
+
+
+												</div>
+											</div>
+										</div>
+
+									</div>
+									<!-- Notes and Error Messages -->
+									<!-- Notes and Error Messages -->
+									<div class="row">
+										<div class="form-group col-md-6">
+											<label>Notes:</label>
+											<textarea name="time" ng-model="visit.notes"
+												class="form-control" rows="3"></textarea>
+										</div>
+										<div class="col-md-12 text-right">
+											<div style="white-space: pre-line;">
+												<div name="success" class="text-success">{{message}}</div>
+												<div name="errorMsg" class="text-danger">{{errorMsg}}</div>
+											</div>
+										</div>
 									</div>
 								</div>
 
+								<div class="panel-footer text-right">
+									<button class="btn btn-primary btn-lg" ng-click="submit()"
+										name="submit">Update Office Visit</button>
+								</div>
 							</div>
+
 						</div>
 					</div>
 				</div>
-
 			</div>
 
-
 		</div>
+
+
+	</div>
 	</div>
 </body>
 
