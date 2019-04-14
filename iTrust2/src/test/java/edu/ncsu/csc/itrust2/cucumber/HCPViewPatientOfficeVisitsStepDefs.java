@@ -171,8 +171,12 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('HCPOfficeVisits').click();" );
-
+        if ( hcpType.equals( OBGYN_HCP_TYPE ) ) {
+            ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('OBGYNHCPOfficeVisits').click();" );
+        }
+        else {
+            ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('HCPOfficeVisits').click();" );
+        }
         assertEquals( "iTrust2: View Patient Office Visits", driver.getTitle() );
     }
 
