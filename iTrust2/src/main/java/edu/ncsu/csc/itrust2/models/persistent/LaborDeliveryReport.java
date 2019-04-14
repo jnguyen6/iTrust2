@@ -1,6 +1,5 @@
 package edu.ncsu.csc.itrust2.models.persistent;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.List;
@@ -10,9 +9,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.criterion.Criterion;
+import org.hibernate.validator.constraints.Length;
 
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
 
@@ -26,30 +28,92 @@ import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
 @Table ( name = "LaborDeliveryReport" )
 public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
 
+    /** Date representing the date in labor */
     private LocalDate        dateOfLabor;
+
+    /** String representing the time in labor */
     private String           timeOfLabor;
+
+    /** Date representing the date of delivery of baby */
     private LocalDate        dateOfDelivery;
+
+    /** String representing the time of delivery of baby */
     private String           timeOfDelivery;
+
+    /** Double representing the weight of the baby */
     private Double           weight;
+
+    /** Double representing the length of the baby */
     private Double           length;
+
+    /** Integer representing the heart rate of the baby */
     private Integer          heartRate;
+
+    /** Integer representing the blood pressure of the baby */
     private Integer          bloodPressure;
+
+    /** String representing the first name of the baby */
     private String           firstName;
+
+    /** String representing the last name of the baby */
     private String           lastName;
+
+    /**
+     * Date representing the date of the delivery of the second baby, if twins
+     * are born
+     */
     private LocalDate        secondDateOfDelivery;
+
+    /**
+     * String representing the time of the delivery of the second baby, if twins
+     * are born
+     */
     private String           secondTimeOfDelivery;
+
+    /** Double representing the weight of the second baby, if twins are born */
     private Double           secondWeight;
+
+    /** Double representing the length of the second baby, if twins are born */
     private Double           secondLength;
+
+    /**
+     * Integer representing the heart rate of the second baby, if twins are born
+     */
     private Integer          secondHeartRate;
+
+    /**
+     * Integer representing the blood pressure of the second baby, if twins are
+     * born
+     */
     private Integer          secondBloodPressure;
+
+    /**
+     * String representing the first name of the second baby, if twins are born
+     */
     private String           secondFirstName;
+
+    /**
+     * String representing the last name of the second baby, if twins are born
+     */
     private String           secondLastName;
+
+    /**
+     * Obstetrics Record representing the Obstetrics Record
+     */
+    @OneToOne
+    @JoinColumn ( name = "obstetricsrecord_id" )
     private ObstetricsRecord obstetricsRecord;
 
     /** The id of this obstetrics record */
     @Id
     @GeneratedValue ( strategy = GenerationType.AUTO )
     private Long             id;
+
+    /**
+     * The username of the patient for this ObstetricsRecord
+     */
+    @Length ( max = 20 )
+    private String           patient;
 
     /**
      * Default Constructor for LaborDeliveryReport
@@ -99,6 +163,22 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         criteria.add( eq( "patient", patient ) );
 
         return (List<LaborDeliveryReport>) getWhere( LaborDeliveryReport.class, criteria );
+    }
+
+    /**
+     * Get a specific labor delivery report by the database ID
+     *
+     * @param id
+     *            the database ID
+     * @return the specific labor delivery report with the desired ID
+     */
+    public static LaborDeliveryReport getById ( final Long id ) {
+        try {
+            return (LaborDeliveryReport) getWhere( LaborDeliveryReport.class, eqList( ID, id ) ).get( 0 );
+        }
+        catch ( final Exception e ) {
+            return null;
+        }
     }
 
     /**
@@ -451,7 +531,7 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      * @return id of the labor delivery report
      */
     @Override
-    public Serializable getId () {
+    public Long getId () {
         return id;
     }
 
@@ -482,5 +562,24 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      */
     public void setObstetricsRecord ( final ObstetricsRecord obstetricsRecord ) {
         this.obstetricsRecord = obstetricsRecord;
+    }
+
+    /**
+     * Returns the patient for this ObstetricsRecord
+     *
+     * @return the patient for this obstetrics record
+     */
+    public String getPatient () {
+        return patient;
+    }
+
+    /**
+     * Initializes the patient for this ObstetricsRecord
+     *
+     * @param patient
+     *            the patient to set for this obstetrics record
+     */
+    public void setPatient ( final String patient ) {
+        this.patient = patient;
     }
 }

@@ -13,24 +13,78 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
  */
 public class LaborDeliveryReportForm {
 
+    /** Date representing the date in labor */
     private LocalDate        dateOfLabor;
+
+    /** String representing the time in labor */
     private String           timeOfLabor;
+
+    /** Date representing the date of delivery of baby */
     private LocalDate        dateOfDelivery;
+
+    /** String representing the time of delivery of baby */
     private String           timeOfDelivery;
+
+    /** Double representing the weight of the baby */
     private Double           weight;
+
+    /** Double representing the length of the baby */
     private Double           length;
+
+    /** Integer representing the heart rate of the baby */
     private Integer          heartRate;
+
+    /** Integer representing the blood pressure of the baby */
     private Integer          bloodPressure;
+
+    /** String representing the first name of the baby */
     private String           firstName;
+
+    /** String representing the last name of the baby */
     private String           lastName;
+
+    /**
+     * Date representing the date of the delivery of the second baby, if twins
+     * are born
+     */
     private LocalDate        secondDateOfDelivery;
+
+    /**
+     * String representing the time of the delivery of the second baby, if twins
+     * are born
+     */
     private String           secondTimeOfDelivery;
+
+    /** Double representing the weight of the second baby, if twins are born */
     private Double           secondWeight;
+
+    /** Double representing the length of the second baby, if twins are born */
     private Double           secondLength;
+
+    /**
+     * Integer representing the heart rate of the second baby, if twins are born
+     */
     private Integer          secondHeartRate;
+
+    /**
+     * Integer representing the blood pressure of the second baby, if twins are
+     * born
+     */
     private Integer          secondBloodPressure;
+
+    /**
+     * String representing the first name of the second baby, if twins are born
+     */
     private String           secondFirstName;
+
+    /**
+     * String representing the last name of the second baby, if twins are born
+     */
     private String           secondLastName;
+
+    /**
+     * Obstetrics Record representing the Obstetrics Record
+     */
     private ObstetricsRecord obstetricsRecord;
 
     /**
