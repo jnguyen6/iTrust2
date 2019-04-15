@@ -170,8 +170,18 @@
                                         $scope.selectedVisit.weeksPregnant = $scope.visits[i].weeksPregnant;
                                         $scope.selectedVisit.fetalHeartRate = $scope.visits[i].fetalHeartRate;
                                         $scope.selectedVisit.fundalHeight = $scope.visits[i].fundalHeight;
-                                        $scope.selectedVisit.isTwins = $scope.visits[i].isTwins;
-                                        $scope.selectedVisit.isLowLyingPlacenta = $scope.visits[i].isLowLyingPlacenta;
+                                        if ($scope.visits[i].isTwins) {
+                                        	$scope.selectedVisit.isTwins = 'true';
+                                        } else {
+                                        	$scope.selectedVisit.isTwins = 'false';
+                                        }
+                                        if ($scope.visits[i].isLowLyingPlacenta) {
+                                        	$scope.selectedVisit.isLowLyingPlacenta = 'true';
+                                        } else {
+                                        	$scope.selectedVisit.isLowLyingPlacenta = 'false';
+                                        }
+                                        // $scope.selectedVisit.isTwins = $scope.visits[i].isTwins;
+                                        // $scope.selectedVisit.isLowLyingPlacenta = $scope.visits[i].isLowLyingPlacenta;
 
                                         var type = $scope.visits[i].type;
                                         var logVisit = angular.copy($scope.selectedVisit);

@@ -107,9 +107,16 @@
                                 var currentRecords = obstetricsRecords.filter(value => value.currentRecord);
                                 if (currentRecords.length > 0) {
                                     var currentRecord = currentRecords[0];
-                                    if ($scope.getWeeksPregnant(currentRecord.lmp) < 49) {
+                                    $scope.visit.weeksPregnant = $scope.getWeeksPregnant(currentRecord.lmp);
+                                    if ($scope.visit.weeksPregnant < 49) {
                                         $scope.types = $scope.femaleTypes;
+                                        return;
                                     }
+                                }
+                                // If the previous office visit type was an obstetrics record, and we got here
+                                // then we need to set it to general checkup instead.
+                                if ($scope.visit.type === 'GENERAL_OBSTETRICS') {
+                                	$scope.visit.type = 'GENERAL_CHECKUP';
                                 }
                             });
                     }
@@ -177,6 +184,7 @@
                             // And the original one for females
                             $scope.femaleTypes = $scope.types;
                             $scope.maleTypes = $scope.types.filter(value => value != 'GENERAL_OBSTETRICS');
+                            $scope.types = $scope.maleTypes;
                         });                    
                     /*Getting a list of house smoking options*/
                     $http.get("/iTrust2/api/v1/housesmoking")
@@ -335,17 +343,11 @@
                     /* 
                      * Checks validity of obstetrics metrics
                      * 
-                     * weeksPregnant, fetalHeartRate must be ints greater than or equal to 0
+                     * fetalHeartRate must be ints greater than or equal to 0
                      * fundalHeight must be a decimal value (up to 2 decimal digits)
                      * isTwins, isLowLyingPlacenta must be selected (non-null)
                      */
                     function checkObstetricsMetrics() {
-                        // weeksPregnant
-                        if (/^[0-9]{1,3}?$/.test(String($scope.visit.weeksPregnant).replace(/^0+/, '')) == false) {
-                            $scope.errorMsg += "Weeks Pregnant must be an integer value greater than 0\n"
-                        } else if (parseInt($scope.visit.weeksPregnant) < 1) {
-                            $scope.errorMsg += "Weeks Pregnant must be an integer value greater than 0\n"
-                        }
                         // fetalHeartRate
                         if (/^[0-9]{1,3}?$/.test(String($scope.visit.fetalHeartRate).replace(/^0+/, '')) == false) {
                             $scope.errorMsg += "Fetal Heart Rate must be an integer value greater than 0\n"
@@ -1118,9 +1120,7 @@
 														<label>Weeks Pregnant:</label>
 													</div>
 													<div class="col-xs-6">
-														<input class="form-control" name="weeksPregnant"
-															ng-model="visit.weeksPregnant" required="true"
-															type="number" min="0">
+														{{visit.weeksPregnant}}
 													</div>
 												</div>
 												
