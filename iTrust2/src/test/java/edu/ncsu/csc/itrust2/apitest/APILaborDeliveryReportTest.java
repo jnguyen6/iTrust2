@@ -550,10 +550,7 @@ public class APILaborDeliveryReportTest {
         mvc.perform( get( "/api/v1/laborDeliveryReports/" + patient.getSelf() ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
-        
-        
-        
-    	
+
     }
 
 }
