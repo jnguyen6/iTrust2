@@ -44,7 +44,7 @@ public class APILaborDeliveryReportController extends APIController {
      * @return a response containing results of creating a new entry
      */
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
-    @PostMapping ( BASE_PATH + "laborDeliveryReports" )
+    @PostMapping ( BASE_PATH + "laborDeliveryReports/{patient}" )
     public ResponseEntity createLaborDeliveryReport ( @PathVariable final String patient,
             @RequestBody final LaborDeliveryReportForm form ) {
         try {
@@ -109,75 +109,39 @@ public class APILaborDeliveryReportController extends APIController {
     }
     
     /**
-     * Retrieves a list of patient labor and delivery reports, either for an OBGYN or
-     * a non-OBGYN HCP
+     * Retrieves a list of patient Labor and Delivery reports, either for the current
+     * patient if the user has role PATIENT
      *
      * @return a list of patient's labor and delivery reports
      */
-    @PreAuthorize ( "hasRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_PATIENT', 'ROLE_OBGYN')" )
-    @GetMapping ( BASE_PATH + "laborDeliveryReports/{id}" )
-    public ResponseEntity getLaborDeliveryReportsHCP (  @PathVariable ( "id" ) final Long id  ) {
-    	final LaborDeliveryReport report = LaborDeliveryReport.getById( id );
-        if ( null == report ) {
-            return new ResponseEntity( errorResponse( "No labor and delivery report found for id " + id ), HttpStatus.NOT_FOUND );
-        }
-        else {
-            final User self = User.getByName( LoggerUtil.currentUser() );
-            if ( null != self && self.isDoctor() ) {
-                LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_PATIENT_VIEW, LoggerUtil.currentUser(),
-                        report.getPatient() );
-            }
-            else {
-                LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_PATIENT_VIEW, LoggerUtil.currentUser() );
-            }
-            return new ResponseEntity( report, HttpStatus.OK );
-        }
-    }
-    
-    /**
-     * This is used as a marker for the system to know that the HCP has viewed
-     * the report
-     *
-     * @param id
-     *            The id of the report being viewed
-     * @param form
-     *            The report being viewed
-     * @return OK if the report is found, NOT_FOUND otherwise
-     */
-    @PostMapping ( BASE_PATH + "/laborDeliveryReports/hcp/view/{id}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
-    public ResponseEntity viewLaborDeliveryReport ( @PathVariable final Long id,
-            @RequestBody final LaborDeliveryReport form ) {
-        final LaborDeliveryReport report = LaborDeliveryReport.getById( id );
-        if ( null == report ) {
-            return new ResponseEntity( errorResponse( "No report found for name " + id ), HttpStatus.NOT_FOUND );
-        }
-        LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_HCP_VIEW, form.getHcp(), form.getPatient(),
-                form.getHcp() + " viewed the labor and delivery report for " + form.getPatient() + " from " + form.getDate() );
-        return new ResponseEntity( HttpStatus.OK );
+    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
+    @GetMapping ( BASE_PATH + "laborDeliveryReports" )
+    public ResponseEntity getLaborDeliveryReportsPatient () {
+        LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_PATIENT_VIEW, LoggerUtil.currentUser() );
+        return new ResponseEntity( LaborDeliveryReport.getByPatient( LoggerUtil.currentUser() ), HttpStatus.OK );
     }
 
     /**
-     * This is used as a marker for the system to know that the patient has
-     * viewed the report
+     * Retrieves a list of patient Labor and Delivery reports, either for HCP to view
+     * patient reports, or for HCP OBGYN to view patient reports.
      *
-     * @param id
-     *            The id of the report being viewed
-     * @param form
-     *            The report being viewed
-     * @return OK if the report is found, NOT_FOUND otherwise
+     * @return a list of patient's labor and delivery reports
+     *
+     * @param patient
+     *            the username of the patient for which to get reports
      */
-    @PostMapping ( BASE_PATH + "/laborDeliveryReports/patient/view/{id}" )
-    @PreAuthorize ( "hasRole('ROLE_PATIENT')" )
-    public ResponseEntity viewLaborDeliveryReportPatient ( @PathVariable final Long id,
-            @RequestBody final LaborDeliveryReportForm form ) {
-        final LaborDeliveryReport report = LaborDeliveryReport.getById( id );
-        if ( null == report ) {
-            return new ResponseEntity( errorResponse( "No report found for name " + id ), HttpStatus.NOT_FOUND );
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP','ROLE_OBGYN' )" )
+    @GetMapping ( BASE_PATH + "laborDeliveryReports/{patient}" )
+    public ResponseEntity getLaborDeliveryReportsHCP ( @PathVariable final String patient ) {
+        if ( null == Patient.getByName( patient ) ) {
+            return new ResponseEntity( errorResponse( "No patients found with username " + patient ),
+                    HttpStatus.NOT_FOUND );
         }
-        LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_PATIENT_VIEW, form.getHcp(), form.getPatient(),
-                form.getPatient() + " viewed the labor and delivery report for " + form.getDate() );
-        return new ResponseEntity( HttpStatus.OK );
+        LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_HCP_VIEW, User.getByName( LoggerUtil.currentUser() ),
+                User.getByName( patient ) );
+        return new ResponseEntity( LaborDeliveryReport.getByPatient( patient ), HttpStatus.OK );
     }
+    
+   
 
 }
