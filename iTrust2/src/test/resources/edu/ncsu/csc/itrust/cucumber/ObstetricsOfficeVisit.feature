@@ -62,13 +62,7 @@ Scenario Outline: OB/GYN HCP edits an obstetrics office visit
 	Given There exists an obstetrics patient in the system
 	And There exists an obstetrics HCP in the system
 	And The obstetrics patient has a current obstetrics record
-	Then The OB/GYN HCP logs in and navigates to the Document Office Visit page
-    When The OB/GYN HCP enters the date <date>, time <time>, patient <patient>, type of visit <type>, hospital <hospital>
-	And The OB/GYN HCP enters the basic health metrics with height <height>, weight <weight>, systolic <systolic>, diastolic <diastolic>, HDL <HDL>, LDL <LDL>, Triglycerides <tri>, patient smoking status <patientSmoking>, and household smoking status <householdSmokingStatus>
-	And The OB/GYN HCP enters the obstetrics health metrics with weeks pregnant <weeksPregnant>, fetal heart rate <fetalHeartRate>, fundal height of uterus <fundalHeight>, twins <isTwins>, and low-lying placenta <isLowLyingPlacenta> 
-	And The OB/GYN HCP enters notes <notes>
-	And The OB/GYN HCP submits the obstetrics office visit
-	Then The obstetrics office visit is documented successfully
+	And The obstetrics patient has a documented obstetrics office visit
 	Then The OB/GYN HCP logs in and navigates to the Edit Office Visit page
 	When The OB/GYN HCP selects the existing office visit
 	And The OB/GYN HCP modifies the fetal heart rate to be <newFetalHeartRate>, fundal height <newFundalHeight>, and the weeks pregnant <newWeeksPregnant>
@@ -76,13 +70,14 @@ Scenario Outline: OB/GYN HCP edits an obstetrics office visit
 	Then The obstetrics office visit is updated successfully
 
 Examples:
-	| newFetalHeartRate   	| newFundalHeight | newWeeksPregnant	| date			| time 		| patient 		| type 					| hospital 			| weeksPregnant	        | fetalHeartRate	| fundalHeight	| isTwins	    | isLowLyingPlacenta 	|  height  |  weight  |  systolic  |  diastolic  |  HDL    |  LDL  |  tri  | patientSmoking  | householdSmokingStatus  |  notes 									                |
-	| 50        	        | 150    	      | 5				    | 03/11/2019	| 10:00 am	| AliceThirteen	| GENERAL_OBSTETRICS	| General Hospital 	| 10				    | 30				| 2.5		    | false		    | false		            |  160     |  160     |  50        |     50      |  60     |  105  |  550  | NEVER           | NONSMOKING              |  This is a test for editing obstetrics office visit	    |
+	| newFetalHeartRate   	| newFundalHeight | newWeeksPregnant	|
+	| 50        	        | 150    	      | 5				    |
 
 Scenario Outline: OB/GYN HCP incorrectly edits an obstetrics office visit 
 	Given There exists an obstetrics patient in the system
 	And There exists an obstetrics HCP in the system
 	And The obstetrics patient has a current obstetrics record
+    And The obstetrics patient has a documented obstetrics office visit
 	Then The OB/GYN HCP logs in and navigates to the Edit Office Visit page
 	When The OB/GYN HCP selects the existing office visit
 	And The OB/GYN HCP modifies the fetal heart rate to be <newFetalHeartRate>, fundal height <newFundalHeight>, and the weeks pregnant <newWeeksPregnant>
@@ -90,6 +85,7 @@ Scenario Outline: OB/GYN HCP incorrectly edits an obstetrics office visit
 	Then The obstetrics office visit is not updated successfully
 
 Examples:
-	| newFetalHeartRate    | newFundalHeight	| newWeeksPregnant  |
-	| -30         	       | 1   		        | 30            	| 
-	| 30	               | 10                 | -30     			|
+	| newFetalHeartRate   	| newFundalHeight | newWeeksPregnant	|
+	| -30        	        | 150    	      | 5				    |
+    | 30        	        | -150    	      | 5				    | 
+    | 30        	        | 150    	      | -5				    |

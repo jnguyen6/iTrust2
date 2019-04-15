@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,9 +18,15 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
+import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
+import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
+import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
+import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.OfficeVisit;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
@@ -154,6 +161,60 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         record.setTwins( false );
         record.setPatient( patientString );
         record.save();
+    }
+
+    /**
+     * Creates obstetrics office visit for the patient
+     *
+     * @throws ParseException
+     */
+    @And ( "^The obstetrics patient has a documented obstetrics office visit$" )
+    public void createObstetricOfficeVisit () throws ParseException {
+        DomainObject.deleteAll( GeneralObstetrics.class );
+        final GeneralObstetrics genObgyn = getGenObstetricsVisit();
+        if ( genObgyn != null ) {
+            genObgyn.save();
+        }
+    }
+
+    /**
+     * Generates an obstetrics office visit with mock data
+     */
+    private GeneralObstetrics getGenObstetricsVisit () {
+        final Hospital hosp = new Hospital( "Some Hospital", "Some Road", "78901", "NC" );
+        hosp.save();
+        final GeneralObstetricsForm visit = new GeneralObstetricsForm();
+        visit.setPreScheduled( null );
+        visit.setDate( "2019-04-08T09:50:00.000-04:00" ); // 4/08/2019 9:50 AM
+                                                          // EDT
+        visit.setHcp( obgynHcpString );
+        visit.setPatient( patientString );
+        visit.setNotes( "Test office visit" );
+        visit.setType( AppointmentType.GENERAL_OBSTETRICS.toString() );
+        visit.setHospital( "Some Hospital" );
+        visit.setDiastolic( 150 );
+        visit.setHdl( 75 );
+        visit.setLdl( 75 );
+        visit.setHeight( 75f );
+        visit.setWeight( 130f );
+        visit.setTri( 300 );
+        visit.setSystolic( 150 );
+        visit.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
+        visit.setPatientSmokingStatus( PatientSmokingStatus.NEVER );
+
+        visit.setWeeksPregnant( 3 );
+        visit.setFetalHeartRate( 10 );
+        visit.setFundalHeight( 20.0 );
+        visit.setIsTwins( false );
+        visit.setIsLowLyingPlacenta( false );
+
+        try {
+            return new GeneralObstetrics( visit );
+        }
+        catch ( final Exception e ) {
+            // Do nothing
+            return null;
+        }
     }
 
     /**
@@ -378,7 +439,7 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      * @param newWeeksPregnant
      *            the new number of weeks pregnant to set
      */
-    @And ( "^The OB/GYN HCP modifies the fetal heart rate to be (.+), height (.+), and the weeks pregnant (.+)$" )
+    @And ( "^The OB/GYN HCP modifies the fetal heart rate to be (.+), fundal height (.+), and the weeks pregnant (.+)$" )
     public void editObstetricsOfficeVisit ( final String newFetalHeartRate, final String newFundalHeight,
             final String newWeeksPregnant ) {
         waitForAngular();

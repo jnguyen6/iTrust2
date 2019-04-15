@@ -187,14 +187,15 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
      */
     private GeneralCheckup getGenCheckup () {
         // Set First Diagnosis Code for APIEmergencyRecordFormTest
-        ICDCodeForm codeForm = new ICDCodeForm();
-        codeForm.setCode( "T49" );
-        codeForm.setDescription( "Poisoned by topical agents.  Probably in Blighttown" );
-        final ICDCode poisoned = new ICDCode( codeForm );
-        poisoned.save();
+        final ICDCodeForm codeForm = new ICDCodeForm();
+        // codeForm.setCode( "T49" );
+        // codeForm.setDescription( "Poisoned by topical agents. Probably in
+        // Blighttown" );
+        // final ICDCode poisoned = new ICDCode( codeForm );
+        // poisoned.save();
 
         // Create Second Diagnosis Code for APIEmergencyRecordFormTest
-        codeForm = new ICDCodeForm();
+        // codeForm = new ICDCodeForm();
         codeForm.setCode( "S34" );
         codeForm.setDescription( "Injury of lumbar and sacral spinal cord.  Probably carrying teammates." );
         final ICDCode backPain = new ICDCode( codeForm );
@@ -222,10 +223,10 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
         estusD.setCode( backPain );
         estusD.setNote( "Maybe try a bandaid" );
         diagnoses.add( estusD );
-        final Diagnosis peach = new Diagnosis();
-        peach.setCode( poisoned );
-        peach.setNote( "This guy is poisoned! Give him a peach" );
-        diagnoses.add( peach );
+        // final Diagnosis peach = new Diagnosis();
+        // peach.setCode( poisoned );
+        // peach.setNote( "This guy is poisoned! Give him a peach" );
+        // diagnoses.add( peach );
         form.setDiagnoses( diagnoses );
         try {
             return new GeneralCheckup( form );
