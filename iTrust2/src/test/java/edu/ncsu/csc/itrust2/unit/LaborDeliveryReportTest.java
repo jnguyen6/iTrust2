@@ -56,14 +56,7 @@ public class LaborDeliveryReportTest {
         report.setBloodPressure( 70 );
         report.setFirstName( "Sanchit" );
         report.setLastName( "Razdan" );
-        report.setSecondDateOfDelivery( LocalDate.now() );
-        report.setSecondTimeOfDelivery( "15:03" );
-        report.setSecondWeight( 2.3 );
-        report.setSecondLength( 10.4 );
-        report.setSecondHeartRate( 75 );
-        report.setSecondBloodPressure( 75 );
-        report.setSecondFirstName( "Swarnim" );
-        report.setSecondLastName( "Razdan" );
+
         final ObstetricsRecord record = new ObstetricsRecord();
         final LocalDate lmp = LocalDate.parse( "2019-03-02" );
         record.setLmp( lmp );
@@ -72,10 +65,19 @@ public class LaborDeliveryReportTest {
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
         record.setCurrentRecord( false );
-        record.setTwins( false );
+        record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
         report.setObstetricsRecord( record );
+
+        report.setSecondDateOfDelivery( LocalDate.now() );
+        report.setSecondTimeOfDelivery( "15:03" );
+        report.setSecondWeight( 2.3 );
+        report.setSecondLength( 10.4 );
+        report.setSecondHeartRate( 75 );
+        report.setSecondBloodPressure( 75 );
+        report.setSecondFirstName( "Swarnim" );
+        report.setSecondLastName( "Razdan" );
         report.setPatient( "patient" );
         report.save();
 
@@ -112,14 +114,7 @@ public class LaborDeliveryReportTest {
         form.setBloodPressure( 70 );
         form.setFirstName( "Sanchit" );
         form.setLastName( "Razdan" );
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
-        form.setSecondWeight( 2.3 );
-        form.setSecondLength( 10.4 );
-        form.setSecondHeartRate( 75 );
-        form.setSecondBloodPressure( 75 );
-        form.setSecondFirstName( "Swarnim" );
-        form.setSecondLastName( "Razdan" );
+
         final ObstetricsRecord record2 = new ObstetricsRecord();
         final LocalDate lmp2 = LocalDate.parse( "2019-03-02" );
         record2.setLmp( lmp2 );
@@ -128,10 +123,19 @@ public class LaborDeliveryReportTest {
         record2.setHoursInLabor( 25 );
         record2.setDeliveryMethod( DeliveryMethod.Cesarean );
         record2.setCurrentRecord( false );
-        record2.setTwins( false );
+        record2.setTwins( true );
         record2.setPatient( "patient" );
         record2.save();
-        form.setObstetricsRecord( record );
+        form.setObstetricsRecord( record2 );
+
+        form.setSecondDateOfDelivery( LocalDate.now() );
+        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondWeight( 2.3 );
+        form.setSecondLength( 10.4 );
+        form.setSecondHeartRate( 75 );
+        form.setSecondBloodPressure( 75 );
+        form.setSecondFirstName( "Swarnim" );
+        form.setSecondLastName( "Razdan" );
 
         final LaborDeliveryReport ldr = new LaborDeliveryReport( form );
         ldr.setPatient( "patient" );

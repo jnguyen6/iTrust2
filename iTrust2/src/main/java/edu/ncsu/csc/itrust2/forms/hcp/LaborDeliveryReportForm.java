@@ -110,15 +110,27 @@ public class LaborDeliveryReportForm {
         setBloodPressure( ov.getBloodPressure() );
         setFirstName( ov.getFirstName() );
         setLastName( ov.getLastName() );
-        setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
-        setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
-        setSecondWeight( ov.getSecondWeight() );
-        setSecondLength( ov.getSecondLength() );
-        setSecondHeartRate( ov.getSecondHeartRate() );
-        setSecondBloodPressure( ov.getSecondBloodPressure() );
-        setSecondFirstName( ov.getSecondFirstName() );
-        setSecondLastName( ov.getSecondLastName() );
         setObstetricsRecord( ov.getObstetricsRecord() );
+        if ( ov.getObstetricsRecord().isTwins() ) {
+            setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
+            setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
+            setSecondWeight( ov.getSecondWeight() );
+            setSecondLength( ov.getSecondLength() );
+            setSecondHeartRate( ov.getSecondHeartRate() );
+            setSecondBloodPressure( ov.getSecondBloodPressure() );
+            setSecondFirstName( ov.getSecondFirstName() );
+            setSecondLastName( ov.getSecondLastName() );
+        }
+        else {
+            setSecondDateOfDelivery( LocalDate.MIN );
+            setSecondTimeOfDelivery( "12:00" );
+            setSecondWeight( 20.9 );
+            setSecondLength( 1.3 );
+            setSecondHeartRate( 160 );
+            setSecondBloodPressure( 70 );
+            setSecondFirstName( "Bob" );
+            setSecondLastName( "Marley" );
+        }
     }
 
     /**

@@ -138,15 +138,28 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         setBloodPressure( ov.getBloodPressure() );
         setFirstName( ov.getFirstName() );
         setLastName( ov.getLastName() );
-        setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
-        setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
-        setSecondWeight( ov.getSecondWeight() );
-        setSecondLength( ov.getSecondLength() );
-        setSecondHeartRate( ov.getSecondHeartRate() );
-        setSecondBloodPressure( ov.getSecondBloodPressure() );
-        setSecondFirstName( ov.getSecondFirstName() );
-        setSecondLastName( ov.getSecondLastName() );
         setObstetricsRecord( ov.getObstetricsRecord() );
+        if ( obstetricsRecord.isTwins() ) {
+            setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
+            setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
+            setSecondWeight( ov.getSecondWeight() );
+            setSecondLength( ov.getSecondLength() );
+            setSecondHeartRate( ov.getSecondHeartRate() );
+            setSecondBloodPressure( ov.getSecondBloodPressure() );
+            setSecondFirstName( ov.getSecondFirstName() );
+            setSecondLastName( ov.getSecondLastName() );
+        }
+        else {
+            setSecondDateOfDelivery( LocalDate.MIN );
+            setSecondTimeOfDelivery( "12:00" );
+            setSecondWeight( 20.9 );
+            setSecondLength( 1.3 );
+            setSecondHeartRate( 160 );
+            setSecondBloodPressure( 70 );
+            setSecondFirstName( "Bob" );
+            setSecondLastName( "Marley" );
+        }
+
     }
 
     /**
@@ -197,6 +210,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            date of labor to be set for the labor delivery report
      */
     public void setDateOfLabor ( final LocalDate dateOfLabor ) {
+        if ( dateOfLabor.isAfter( LocalDate.now() ) ) {
+            throw new IllegalArgumentException( "The date of labor must be before the current date" );
+        }
         this.dateOfLabor = dateOfLabor;
     }
 
@@ -216,6 +232,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            time of labor to be set for the labor delivery report
      */
     public void setTimeOfLabor ( final String timeOfLabor ) {
+        if ( timeOfLabor == null ) {
+            throw new IllegalArgumentException( "The time of labor cannot be null" );
+        }
         this.timeOfLabor = timeOfLabor;
     }
 
@@ -235,6 +254,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            date of delivery to be set for the baby.
      */
     public void setDateOfDelivery ( final LocalDate dateOfDelivery ) {
+        if ( dateOfDelivery.isAfter( LocalDate.now() ) ) {
+            throw new IllegalArgumentException( "The date of delivery must be before the current date" );
+        }
         this.dateOfDelivery = dateOfDelivery;
     }
 
@@ -254,6 +276,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            time of delivery to be set for the baby
      */
     public void setTimeOfDelivery ( final String timeOfDelivery ) {
+        if ( timeOfDelivery == null ) {
+            throw new IllegalArgumentException( "The time of delivery cannot be null" );
+        }
         this.timeOfDelivery = timeOfDelivery;
     }
 
@@ -273,6 +298,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            weight to be set for the baby
      */
     public void setWeight ( final Double weight ) {
+        if ( weight < 0 ) {
+            throw new IllegalArgumentException( "The weight must be a nonnegative double" );
+        }
         this.weight = weight;
     }
 
@@ -292,6 +320,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            length to be set for the baby
      */
     public void setLength ( final Double length ) {
+        if ( length < 0 ) {
+            throw new IllegalArgumentException( "The length must be a nonnegative double" );
+        }
         this.length = length;
     }
 
@@ -311,6 +342,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            heart rate to be set for the baby
      */
     public void setHeartRate ( final Integer heartRate ) {
+        if ( heartRate < 0 ) {
+            throw new IllegalArgumentException( "The heart rate must be a nonnegative integer" );
+        }
         this.heartRate = heartRate;
     }
 
@@ -330,6 +364,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            blood pressure to be set for the baby
      */
     public void setBloodPressure ( final Integer bloodPressure ) {
+        if ( bloodPressure < 0 ) {
+            throw new IllegalArgumentException( "The blood pressure must be a nonnegative integer" );
+        }
         this.bloodPressure = bloodPressure;
     }
 
@@ -349,6 +386,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            first name to be set for the baby
      */
     public void setFirstName ( final String firstName ) {
+        if ( firstName == null ) {
+            throw new IllegalArgumentException( "The first name cannot be null" );
+        }
         this.firstName = firstName;
     }
 
@@ -388,6 +428,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            born
      */
     public void setSecondDateOfDelivery ( final LocalDate secondDateOfDelivery ) {
+        if ( secondDateOfDelivery.isAfter( LocalDate.now() ) ) {
+            throw new IllegalArgumentException( "The date of delivery must be before the current date" );
+        }
         this.secondDateOfDelivery = secondDateOfDelivery;
     }
 
@@ -408,6 +451,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            born
      */
     public void setSecondTimeOfDelivery ( final String secondTimeOfDelivery ) {
+        if ( secondTimeOfDelivery == null ) {
+            throw new IllegalArgumentException( "The time of delivery cannot be null" );
+        }
         this.secondTimeOfDelivery = secondTimeOfDelivery;
     }
 
@@ -427,6 +473,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            weight of the second baby to be set, if twins are born
      */
     public void setSecondWeight ( final Double secondWeight ) {
+        if ( secondWeight < 0 ) {
+            throw new IllegalArgumentException( "The weight cannot be a nonnegative double" );
+        }
         this.secondWeight = secondWeight;
     }
 
@@ -446,6 +495,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            length of the seconed baby to be set, if twins are born
      */
     public void setSecondLength ( final Double secondLength ) {
+        if ( secondLength < 0 ) {
+            throw new IllegalArgumentException( "The length cannot be a nonnegative double" );
+        }
         this.secondLength = secondLength;
     }
 
@@ -465,6 +517,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            heart rate of the second baby, if twins are born
      */
     public void setSecondHeartRate ( final Integer secondHeartRate ) {
+        if ( secondHeartRate < 0 ) {
+            throw new IllegalArgumentException( "The heart rate cannot be a nonnegative intger" );
+        }
         this.secondHeartRate = secondHeartRate;
     }
 
@@ -484,6 +539,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            blood pressure for the second baby, if twins are born
      */
     public void setSecondBloodPressure ( final Integer secondBloodPressure ) {
+        if ( secondBloodPressure < 0 ) {
+            throw new IllegalArgumentException( "The blood pressure cannot be a nonnegative integer" );
+        }
         this.secondBloodPressure = secondBloodPressure;
     }
 
@@ -503,6 +561,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            first name to be set for the second baby, if twins are born
      */
     public void setSecondFirstName ( final String secondFirstName ) {
+        if ( secondFirstName == null ) {
+            throw new IllegalArgumentException( "The first name cannot be null" );
+        }
         this.secondFirstName = secondFirstName;
     }
 
@@ -561,6 +622,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            the obstetrics record of the labor delivery report
      */
     public void setObstetricsRecord ( final ObstetricsRecord obstetricsRecord ) {
+        if ( obstetricsRecord == null ) {
+            throw new IllegalArgumentException( "The obstetrics record cannot be null" );
+        }
         this.obstetricsRecord = obstetricsRecord;
     }
 

@@ -43,7 +43,8 @@ import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
 
 /**
- * Test for the API functionality for interacting with labor and delivery reports
+ * Test for the API functionality for interacting with labor and delivery
+ * reports
  *
  * @author Madhura Waghmare (mswaghma)
  *
@@ -52,8 +53,8 @@ import edu.ncsu.csc.itrust2.mvc.config.WebMvcConfiguration;
 @ContextConfiguration ( classes = { RootConfiguration.class, WebMvcConfiguration.class } )
 @WebAppConfiguration
 public class APILaborDeliveryReportTest {
-	
-	/** MockMvc object used for integration testing. */
+
+    /** MockMvc object used for integration testing. */
     private MockMvc               mvc;
 
     /** Java API used to convert java objects to JSON. */
@@ -84,7 +85,7 @@ public class APILaborDeliveryReportTest {
 
         gson = new GsonBuilder().create();
     }
-    
+
     /**
      * Tests APILaborDeliveryReportController's createLaborDeliveryReport
      * endpoints with an invaild and valid reports
@@ -134,14 +135,7 @@ public class APILaborDeliveryReportTest {
         form.setBloodPressure( 70 );
         form.setFirstName( "Madhura" );
         form.setLastName( "Waghmare" );
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
-        form.setSecondWeight( 2.3 );
-        form.setSecondLength( 10.4 );
-        form.setSecondHeartRate( 75 );
-        form.setSecondBloodPressure( 75 );
-        form.setSecondFirstName( "Nishad" );
-        form.setSecondLastName( "Waghmare" );
+
         final ObstetricsRecord record = new ObstetricsRecord();
         final LocalDate lmp = LocalDate.parse( "2019-03-02" );
         record.setLmp( lmp );
@@ -150,11 +144,20 @@ public class APILaborDeliveryReportTest {
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
         record.setCurrentRecord( false );
-        record.setTwins( false );
+        record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
         form.setObstetricsRecord( record );
-        
+
+        form.setSecondDateOfDelivery( LocalDate.now() );
+        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondWeight( 2.3 );
+        form.setSecondLength( 10.4 );
+        form.setSecondHeartRate( 75 );
+        form.setSecondBloodPressure( 75 );
+        form.setSecondFirstName( "Nishad" );
+        form.setSecondLastName( "Waghmare" );
+
         final LaborDeliveryReportForm test = new LaborDeliveryReportForm();
         test.setDateOfLabor( form.getDateOfLabor() );
         test.setTimeOfLabor( form.getTimeOfLabor() );
@@ -177,11 +180,12 @@ public class APILaborDeliveryReportTest {
         test.setObstetricsRecord( form.getObstetricsRecord() );
 
         // Make invalid post request - male patient
-        mvc.perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( form ) ) ).andExpect( status().isBadRequest() );
+        mvc.perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
+                .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )
+                .andExpect( status().isBadRequest() );
         assertEquals( 0, LaborDeliveryReport.getByPatient( "patient" ).size() );
 
-     // Delete all the patients in the system before starting next tests
+        // Delete all the patients in the system before starting next tests
         DomainObject.deleteAll( Patient.class );
 
         patient.setAddress1( "1 Test Street" );
@@ -201,7 +205,7 @@ public class APILaborDeliveryReportTest {
         mvc.perform( post( "/api/v1/patients" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patient ) ) );
 
-     // Then, create new labor and delivery report
+        // Then, create new labor and delivery report
         final String newRecString = mvc
                 .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )
@@ -220,6 +224,7 @@ public class APILaborDeliveryReportTest {
         form2.setBloodPressure( 70 );
         form2.setFirstName( "Gabe" );
         form2.setLastName( "Walker" );
+        form2.setObstetricsRecord( record );
         form2.setSecondDateOfDelivery( LocalDate.now() );
         form2.setSecondTimeOfDelivery( "15:03" );
         form2.setSecondWeight( 2.3 );
@@ -228,7 +233,7 @@ public class APILaborDeliveryReportTest {
         form2.setSecondBloodPressure( 75 );
         form2.setSecondFirstName( "Asia" );
         form2.setSecondLastName( "Walker" );
-        
+
         final LaborDeliveryReportForm test2 = new LaborDeliveryReportForm();
         test2.setDateOfLabor( form2.getDateOfLabor() );
         test2.setTimeOfLabor( form2.getTimeOfLabor() );
@@ -250,7 +255,7 @@ public class APILaborDeliveryReportTest {
         test2.setSecondLastName( form2.getSecondLastName() );
         test2.setObstetricsRecord( form2.getObstetricsRecord() );
 
-     // Attempt to add another new labor delivery reports
+        // Attempt to add another new labor delivery reports
         final String newRecString2 = mvc
                 .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form2 ) ) )
@@ -258,7 +263,7 @@ public class APILaborDeliveryReportTest {
         final LaborDeliveryReport newRep2 = gson.fromJson( newRecString2, LaborDeliveryReport.class );
         assertEquals( 2, LaborDeliveryReport.getByPatient( "patient" ).size() );
     }
-    
+
     /**
      * Tests APILaborDeliveryReportController's editLaborDeliveryReport
      * endpoints with an invaild and valid input
@@ -269,7 +274,7 @@ public class APILaborDeliveryReportTest {
     @Test
     @WithMockUser ( username = "obgyn", roles = { "OBGYN" } )
     public void testLaborDeliveryReportEditReport () throws Exception {
-    	// First, initialize the patient
+        // First, initialize the patient
         final UserForm patientForm = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patientForm ) ) );
@@ -308,14 +313,7 @@ public class APILaborDeliveryReportTest {
         form.setBloodPressure( 70 );
         form.setFirstName( "Madhura" );
         form.setLastName( "Waghmare" );
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
-        form.setSecondWeight( 2.3 );
-        form.setSecondLength( 10.4 );
-        form.setSecondHeartRate( 75 );
-        form.setSecondBloodPressure( 75 );
-        form.setSecondFirstName( "Nishad" );
-        form.setSecondLastName( "Waghmare" );
+
         final ObstetricsRecord record = new ObstetricsRecord();
         final LocalDate lmp = LocalDate.parse( "2019-03-02" );
         record.setLmp( lmp );
@@ -324,11 +322,21 @@ public class APILaborDeliveryReportTest {
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
         record.setCurrentRecord( false );
-        record.setTwins( false );
+        record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
         form.setObstetricsRecord( record );
-        
+
+        form.setObstetricsRecord( record );
+        form.setSecondDateOfDelivery( LocalDate.now() );
+        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondWeight( 2.3 );
+        form.setSecondLength( 10.4 );
+        form.setSecondHeartRate( 75 );
+        form.setSecondBloodPressure( 75 );
+        form.setSecondFirstName( "Nishad" );
+        form.setSecondLastName( "Waghmare" );
+
         final LaborDeliveryReportForm form2 = new LaborDeliveryReportForm();
         form2.setDateOfLabor( LocalDate.now() );
         form2.setTimeOfLabor( "12:01" );
@@ -340,6 +348,7 @@ public class APILaborDeliveryReportTest {
         form2.setBloodPressure( 70 );
         form2.setFirstName( "Madhura" );
         form2.setLastName( "Waghmare" );
+        form2.setObstetricsRecord( record );
         form2.setSecondDateOfDelivery( LocalDate.now() );
         form2.setSecondTimeOfDelivery( "15:03" );
         form2.setSecondWeight( 2.3 );
@@ -348,53 +357,30 @@ public class APILaborDeliveryReportTest {
         form2.setSecondBloodPressure( 75 );
         form2.setSecondFirstName( "Nishad" );
         form2.setSecondLastName( "Waghmare" );
-       
-    	
-     // Then, create new labor and delivery report
+
+        // Then, create new labor and delivery report
         final String newRecString = mvc
                 .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final LaborDeliveryReport newRep = gson.fromJson( newRecString, LaborDeliveryReport.class );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
-        
-     // Then update report
+
+        // Then update report
         mvc.perform( put( "/api/v1/LaborDeliveryReports/" + newRep.getId() ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( form2 ) ) ).andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
-        assertEquals( "12:01", LaborDeliveryReport.getByPatient("patient").get(0).getTimeOfLabor() );
-        
-//        form2.setDateOfLabor( LocalDate.now() );
-//        form2.setTimeOfLabor( "12:01" );
-//        form2.setDateOfDelivery( LocalDate.now() );
-//        form2.setTimeOfDelivery( "15:00" );
-//        form2.setWeight( -2.0 );
-//        form2.setLength( 12.34 );
-//        form2.setHeartRate( 70 );
-//        form2.setBloodPressure( 70 );
-//        form2.setFirstName( "Madhura" );
-//        form2.setLastName( "Waghmare" );
-//        form2.setSecondDateOfDelivery( LocalDate.now() );
-//        form2.setSecondTimeOfDelivery( "15:03" );
-//        form2.setSecondWeight( 2.3 );
-//        form2.setSecondLength( 10.4 );
-//        form2.setSecondHeartRate( 75 );
-//        form2.setSecondBloodPressure( -1 );
-//        form2.setSecondFirstName( "Nishad" );
-//        form2.setSecondLastName( "Waghmare" );
-//        
-//     // Then attempt to update report
-//        mvc.perform( put( "/api/v1/LaborDeliveryReports/" + newRep.getId() ).contentType( MediaType.APPLICATION_JSON )
-//                .content( TestUtils.asJsonString( form2 ) ) ).andExpect( status().isBadRequest() );
+                .content( TestUtils.asJsonString( form2 ) ) ).andExpect( status().isOk() ).andReturn().getResponse()
+                .getContentAsString();
+        assertEquals( "12:01", LaborDeliveryReport.getByPatient( "patient" ).get( 0 ).getTimeOfLabor() );
     }
-    
+
     /**
-     * Tests APILaborDeliveryReportController's getLaborDeliveryReportsPatient endpoint as a
-     * patient.
+     * Tests APILaborDeliveryReportController's getLaborDeliveryReportsPatient
+     * endpoint as a patient.
      */
     @Test
     @WithMockUser ( username = "patient", roles = { "PATIENT" } )
     public void testLaborDeliveryReportAPIAsPatient () throws Exception {
-    	// Initialize the patient
+        // Initialize the patient
         final UserForm patientForm = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patientForm ) ) );
@@ -416,16 +402,16 @@ public class APILaborDeliveryReportTest {
         patient.setZip( "27514" );
         mvc.perform( post( "/api/v1/patients" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patient ) ) );
-        
+
         // Then initialize the OB/GYN HCP
         final UserForm userForm = new UserForm( "obgyn", "123456", Role.ROLE_OBGYN, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( userForm ) ) );
-        
+
         mvc.perform( get( "/api/v1/laborDeliveryReports" ) ).andExpect( status().isOk() )
-        .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
+                .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
         assertEquals( 0, LaborDeliveryReport.getByPatient( "patient" ).size() );
-        
+
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
         form.setDateOfLabor( LocalDate.now() );
         form.setTimeOfLabor( "12:00" );
@@ -437,14 +423,7 @@ public class APILaborDeliveryReportTest {
         form.setBloodPressure( 70 );
         form.setFirstName( "Madhura" );
         form.setLastName( "Waghmare" );
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
-        form.setSecondWeight( 2.3 );
-        form.setSecondLength( 10.4 );
-        form.setSecondHeartRate( 75 );
-        form.setSecondBloodPressure( 75 );
-        form.setSecondFirstName( "Nishad" );
-        form.setSecondLastName( "Waghmare" );
+
         final ObstetricsRecord record = new ObstetricsRecord();
         final LocalDate lmp = LocalDate.parse( "2019-03-02" );
         record.setLmp( lmp );
@@ -453,32 +432,39 @@ public class APILaborDeliveryReportTest {
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
         record.setCurrentRecord( false );
-        record.setTwins( false );
+        record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
         form.setObstetricsRecord( record );
-       
-       
+
+        form.setSecondDateOfDelivery( LocalDate.now() );
+        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondWeight( 2.3 );
+        form.setSecondLength( 10.4 );
+        form.setSecondHeartRate( 75 );
+        form.setSecondBloodPressure( 75 );
+        form.setSecondFirstName( "Nishad" );
+        form.setSecondLastName( "Waghmare" );
+
         final LaborDeliveryReport report = new LaborDeliveryReport( form );
         report.setPatient( "patient" );
         report.save();
-              
-        
+
         // Retrieve the reports as a patient - one record
         mvc.perform( get( "/api/v1/laborDeliveryReports" ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
-        
+
     }
-    
+
     /**
-     * Tests APILaborDeliveryReportController's getLaborDeliveryReportsPatient endpoint as a
-     * HCP or OBGYN
+     * Tests APILaborDeliveryReportController's getLaborDeliveryReportsPatient
+     * endpoint as a HCP or OBGYN
      */
     @Test
     @WithMockUser ( username = "obgyn", roles = { "OBGYN", "HCP" } )
     public void testLaborDeliveryReportAPIAsHCP () throws Exception {
-    	// First, initialize the patient
+        // First, initialize the patient
         final UserForm patientForm = new UserForm( "patient", "123456", Role.ROLE_PATIENT, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( patientForm ) ) );
@@ -505,7 +491,7 @@ public class APILaborDeliveryReportTest {
         final UserForm userForm = new UserForm( "obgyn", "123456", Role.ROLE_OBGYN, 1 );
         mvc.perform( post( "/api/v1/users" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( userForm ) ) );
-        
+
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
         form.setDateOfLabor( LocalDate.now() );
         form.setTimeOfLabor( "12:00" );
@@ -517,14 +503,7 @@ public class APILaborDeliveryReportTest {
         form.setBloodPressure( 70 );
         form.setFirstName( "Madhura" );
         form.setLastName( "Waghmare" );
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
-        form.setSecondWeight( 2.3 );
-        form.setSecondLength( 10.4 );
-        form.setSecondHeartRate( 75 );
-        form.setSecondBloodPressure( 75 );
-        form.setSecondFirstName( "Nishad" );
-        form.setSecondLastName( "Waghmare" );
+
         final ObstetricsRecord record = new ObstetricsRecord();
         final LocalDate lmp = LocalDate.parse( "2019-03-02" );
         record.setLmp( lmp );
@@ -533,20 +512,29 @@ public class APILaborDeliveryReportTest {
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
         record.setCurrentRecord( false );
-        record.setTwins( false );
+        record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
         form.setObstetricsRecord( record );
-        
-     // Then, create new labor and delivery report
+
+        form.setSecondDateOfDelivery( LocalDate.now() );
+        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondWeight( 2.3 );
+        form.setSecondLength( 10.4 );
+        form.setSecondHeartRate( 75 );
+        form.setSecondBloodPressure( 75 );
+        form.setSecondFirstName( "Nishad" );
+        form.setSecondLastName( "Waghmare" );
+
+        // Then, create new labor and delivery report
         final String newRecString = mvc
                 .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final LaborDeliveryReport newRep = gson.fromJson( newRecString, LaborDeliveryReport.class );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
-        
-     // Retrieve the reports as a HCP - one record
+
+        // Retrieve the reports as a HCP - one record
         mvc.perform( get( "/api/v1/laborDeliveryReports/" + patient.getSelf() ) ).andExpect( status().isOk() )
                 .andExpect( content().contentType( MediaType.APPLICATION_JSON_UTF8_VALUE ) );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
