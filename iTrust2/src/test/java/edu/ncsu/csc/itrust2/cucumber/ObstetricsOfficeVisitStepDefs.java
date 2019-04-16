@@ -334,10 +334,8 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
     }
 
     /**
-     * Enters the visual acuity fields into the page
+     * Enters the obstetrics health fields into the page
      *
-     * @param weeksPregnant
-     *            the number of weeks pregnant
      * @param fetalHeartRate
      *            the fetal heart rate
      * @param fundalHeight
@@ -347,12 +345,10 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      * @param isLowLyingPlacenta
      *            whether the patient has low-lying placenta
      */
-    @And ( "^The OB/GYN HCP enters the obstetrics health metrics with weeks pregnant (.+), fetal heart rate (.+), fundal height of uterus (.+), twins (.+), and low-lying placenta (.+)$" )
-    public void addObstetricsHealthMetrics ( final String weeksPregnant, final String fetalHeartRate,
-            final String fundalHeight, final String isTwins, final String isLowLyingPlacenta ) {
+    @And ( "^The OB/GYN HCP enters the obstetrics health metrics with fetal heart rate (.+), fundal height of uterus (.+), twins (.+), and low-lying placenta (.+)$" )
+    public void addObstetricsHealthMetrics ( final String fetalHeartRate, final String fundalHeight,
+            final String isTwins, final String isLowLyingPlacenta ) {
         waitForAngular();
-        driver.findElement( By.name( "weeksPregnant" ) ).clear();
-        driver.findElement( By.name( "weeksPregnant" ) ).sendKeys( weeksPregnant );
 
         driver.findElement( By.name( "fetalHeartRate" ) ).clear();
         driver.findElement( By.name( "fetalHeartRate" ) ).sendKeys( fetalHeartRate );
@@ -360,10 +356,8 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         driver.findElement( By.name( "fundalHeight" ) ).clear();
         driver.findElement( By.name( "fundalHeight" ) ).sendKeys( fundalHeight );
 
-        // driver.findElement( By.name( "isTwins" ) ).clear();
         driver.findElement( By.name( "isTwins" ) ).sendKeys( isTwins );
 
-        // driver.findElement( By.name( "isLowLyingPlacenta" ) ).clear();
         driver.findElement( By.name( "isLowLyingPlacenta" ) ).sendKeys( isLowLyingPlacenta );
 
     }

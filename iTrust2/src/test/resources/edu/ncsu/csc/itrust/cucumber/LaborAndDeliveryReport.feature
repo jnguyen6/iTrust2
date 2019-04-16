@@ -53,11 +53,11 @@ Examples:
     | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/11/2020     | 10:00 am       | Cesarean       | 10       | 1      | 9        | 60          | 90          | Moe         | Joe        |
     | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10000          | Cesarean       | 10       | 1      | 9        | 60          | 90          | Moe         | Joe        |
     | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10:00 am       | Mistake        | 10       | 1      | 9        | 60          | 90          | Moe         | Joe        |
-    | AliceThirteen   | 03/11/2020        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | -10      | 1      | 9        | 60          | 90          | Moe         | Joe        |
-    | AliceThirteen   | 03/11/2020        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | -1     | 9        | 60          | 90          | Moe         | Joe        |
-    | AliceThirteen   | 03/11/2020        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | 1      | -9       | 60          | 90          | Moe         | Joe        |
-    | AliceThirteen   | 03/11/2020        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | 1      | 9        | -60         | 90          | Moe         | Joe        |
-    | AliceThirteen   | 03/11/2020        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | 1      | 9        | 60          | -90         | null        | Joe        |
+    | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | -10      | 1      | 9        | 60          | 90          | Moe         | Joe        |
+    | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | -1     | 9        | 60          | 90          | Moe         | Joe        |
+    | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | 1      | -9       | 60          | 90          | Moe         | Joe        |
+    | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | 1      | 9        | -60         | 90          | Moe         | Joe        |
+    | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | 1      | 9        | 60          | -90         | null        | Joe        |
 
 Scenario Outline: OB/GYN HCP edits a labor and delivery report
 	Given There exists an obstetrics patient in the system
