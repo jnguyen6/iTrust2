@@ -11,9 +11,9 @@
                 /* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
                 /*<![CDATA[*/
                 var app = angular.module('myApp', []);
-                app.controller('viewPatientFoodDiary', function ($scope, $http) {
+                app.controller('viewPatientReports', function ($scope, $http) {
                     $scope.Object = Object; // Allows for use of Object.keys()
-                    $scope.diaryEntries = {};
+                    $scope.diaryReports = {};
 
                     $scope.displayName = function (p) {
                         return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
@@ -28,25 +28,34 @@
                     $http.get("/iTrust2/api/v1/patients").then(
                         function (response) {
                             $scope.patients = response.data;
-
+                            $scope.hold = [];
+                	        var counter = 0;
+                	        for( i = 0; i < $scope.patients.length; i++){
+                	          if($scope.patients[i].gender == "Female"){
+                	            $scope.hold[counter] = $scope.patients[i];
+                	         	  counter = counter + 1;
+                	          }
+                            }
+                	        $scope.patients = $scope.hold;
                             $scope.selectPatient = function (patient) {
                                 $scope.selectedDate = null; // Reset selected date
 
-                                $scope.loadEntries = function () {
-                                    // Get diary entries for selected patient
-                                    $http.get("/iTrust2/api/v1/diary/" + $scope.selectedPatient).then(
+                                $scope.loadReports = function () {
+                                    // Get Reports for selected patient
+                                    $http.get("/iTrust2/api/v1/laborDeliveryReports/" + $scope.selectedPatient).then(
                                         function (response) {
-                                            $scope.diaryEntries = response.data || {};
-                                            $scope.diaryEntries = $scope.groupDates($scope.diaryEntries, 'date');
+                                            $scope.diaryReports = response.data || {};
+                                            $scope.diaryReports = $scope.groupDates($scope.diaryReports, 'date');
                                             $scope.message = "";
+                                            console.log($scope.diaryReports);
                                         },
                                         function (rejection) {
-                                            $scope.diaryEntries = [];
-                                            $scope.message = "Could not display diary entries.";
+                                            $scope.diaryReports = [];
+                                            $scope.message = "Could not display reports.";
                                         });
                                 };
 
-                                $scope.loadEntries();
+                                $scope.loadReports();
                             };
                         },
                         function (rejection) {
@@ -86,7 +95,7 @@
                 /*]]>*/
             </script>
 
-		<div ng-app="myApp" ng-controller="viewPatientFoodDiary" class="row">
+		<div ng-app="myApp" ng-controller="viewPatientReports" class="row">
 			<div class="col-md-3">
 				<h2>Patients:</h2>
 				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
@@ -116,9 +125,9 @@
 					</div>
 					<div class="panel-body">
 						<div style="margin-left: 10px;">
-							<div ng-if="Object.keys(diaryEntries).length > 0"></div>
+							<div ng-if="Object.keys(diaryReports).length > 0"></div>
 
-							<div class="radio" ng-repeat="(date, entry) in diaryEntries">
+							<div class="radio" ng-repeat="(date, entry) in diaryReports">
 								<label> <input type="radio"
 									ng-model="$parent.selectedDate" name="date" value="{{date}}"
 									required="true" /> {{date | date : 'MM/dd/yyyy'}}
@@ -127,70 +136,214 @@
 
 							<div ng-if="!selectedPatient">Please select a patient to view their labor and delivery Reports.</div>
 							<div
-								ng-if="selectedPatient && (!diaryEntries || Object.keys(diaryEntries).length == 0)">
+								ng-if="selectedPatient && (!diaryReports || Object.keys(diaryReports).length == 0)">
 								There are no labor and delivery reports for this patient.</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-7" ng-show="selectedDate && diaryEntries && Object.keys(diaryEntries).length > 0">
+			<div class="col-md-7">
 				<div class="panel panel-primary">
 					<div class="panel-heading">
 						<h3>
-							<b>Food Diary Entries for: {{selectedDate | date :
-								'MM/dd/yyyy'}}</b>
+							<b>View Labor and Delivery Reports</b>
 						</h3>
-						</div>
-
-						<table class="table table-bordered" ng-show="selectedDate"
-							ng-repeat="(date, entries) in diaryEntries"
+					</div>
+					<div class="panel-body">
+						<div ng-hide="selectedDate">Please select a delivery report</div>
+						<div class="panel panel-primary" ng-show="selectedDate"
+							ng-repeat="(date, Reports) in diaryReports"
 							ng-if="date == selectedDate">
-							<thead>
-								<tr>
-									<th>Type of meal</th>
-									<th>Food</th>
-									<th>Servings</th>
-									<th>Calories</th>
-									<th>Fat (g)</th>
-									<th>Sodium (mg)</th>
-									<th>Carbs (g)</th>
-									<th>Sugars (g)</th>
-									<th>Fiber (g)</th>
-									<th>Protein (g)</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr ng-repeat="d in entries track by $index">
-									<td id="mealType-{{$index}}">{{d.mealType}}</td>
-									<td id="name-{{$index}}">{{d.food}}</td>
-									<td id="servings-{{$index}}">{{d.servings}}</td>
-									<td id="calories-{{$index}}">{{d.calories}}</td>
-									<td id="fat-{{$index}}">{{d.fat}}</td>
-									<td id="sodium-{{$index}}">{{d.sodium}}</td>
-									<td id="carbs-{{$index}}">{{d.carbs}}</td>
-									<td id="sugars-{{$index}}">{{d.sugars}}</td>
-									<td id="fiber-{{$index}}">{{d.fiber}}</td>
-									<td id="protein-{{$index}}">{{d.protein}}</td>
-								</tr>
-								<tr>
-									<th colspan="3" style="text-align: right;">Totals:</th>
-									<th id="totalCalories">{{ entries | sumByColumn:
-										'calories' : 'servings' }}</th>
-									<th id="totalFat">{{ entries | sumByColumn: 'fat' :
-										'servings' }}</th>
-									<th id="totalSodium">{{ entries | sumByColumn: 'sodium' :
-										'servings' }}</th>
-									<th id="totalCarbs">{{ entries | sumByColumn: 'carbs' :
-										'servings' }}</th>
-									<th id="totalSugars">{{ entries | sumByColumn: 'sugars' :
-										'servings' }}</th>
-									<th id="totalFiber">{{ entries | sumByColumn: 'fiber' :
-										'servings' }}</th>
-									<th id="totalProtein">{{ entries | sumByColumn: 'protein'
-										: 'servings' }}</th>
-								</tr>
-							</tbody>
-						</table>
+							<div class="panel-heading">
+								<h3>
+									<b>Labor:</b>
+								</h3>
+								<div class="panel panel-default">
+									<div class="panel-body">
+
+
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Date:</label>
+											</div>
+											<div name='date' class="form-group col-md-2">
+												{{Reports.date | date : 'MM/dd/yyyy'}}</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Time:</label>
+											</div>
+											<div name='time' class="form-group col-md-2">
+												{{selectedVisit.date | date : 'shortTime'}}</div>
+										</div>
+
+
+									</div>
+
+
+
+									<!-- Delivery Panel -->
+									<div class="col-md-8">
+										<div class="panel panel-info">
+											<div class="panel-heading">
+												<h4>Delivery:</h4>
+											</div>
+											<div class="panel-body">
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Date:</label>
+													</div>
+													<div name='dateDelivery' class="form-group col-md-2">
+														{{selectedVisit.dateDelivery | date : 'MM/dd/yyyy'}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Time:</label>
+													</div>
+													<div name='deliveryTime' class="form-group col-md-2">
+														{{selectedVisit.deliveryTime | date : 'shortTime'}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Type:</label>
+													</div>
+													<div class="col-xs-6 ">
+														<div name='deliveryType' class="form-check">
+															{{selectedVisit.deliveryType}}</div>
+													</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Weight:</label>
+													</div>
+													<div name='weightOne' class="col-xs-6">
+														{{selectedVisit.weightOne}}</div>
+													<div name='weightTwo' class="col-xs-6">
+														{{selectedVisit.weightTwo}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Length:</label>
+													</div>
+													<div name='length' class="col-xs-6">
+														{{selectedVisit.length}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Heart Rate:</label>
+													</div>
+													<div name='heartRate' class="col-xs-6">
+														{{selectedVisit.heartRate}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Blood Pressure:</label>
+													</div>
+													<div name='bloodPressure' class="col-xs-6">
+														{{selectedVisit.bloodPressure}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>First Name:</label>
+													</div>
+													<div name='firstName' class="col-xs-6">
+														{{selectedVisit.firstName}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Last Name:</label>
+													</div>
+													<div name='lastName' class="col-xs-6">
+														{{selectedVisit.lastName}}</div>
+												</div>
+
+
+											</div>
+										</div>
+									</div>
+
+									<!-- Twin Delivery Panel -->
+									<div class="col-md-8" ng-show="isTwins">
+										<div class="panel panel-info">
+											<div class="panel-heading">
+												<h4>Delivery:</h4>
+											</div>
+											<div class="panel-body">
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Date:</label>
+													</div>
+													<div name='date' class="col-xs-6">
+														{{selectedVisit.date}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Time:</label>
+													</div>
+													<div name='time' class="col-xs-6">
+														{{selectedVisit.date | date : 'shortTime'}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Type:</label>
+													</div>
+													<div class="col-xs-6 ">
+														<div name='deliveryTypeTwin' class="form-check">
+															{{selectedVisit.deliveryTypeTwin}}</div>
+													</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Weight:</label>
+													</div>
+													<div name='weightOneTwin' class="col-xs-6">
+														{{selectedVisit.weightOneTwin}}</div>
+													<div name='weightTwoTwin' class="col-xs-6">
+														{{selectedVisit.weightTwoTwin}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Length:</label>
+													</div>
+													<div name='lengthTwin' class="col-xs-6">
+														{{selectedVisit.lengthTwin}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Heart Rate:</label>
+													</div>
+													<div name='heartRateTwin' class="col-xs-6">
+														{{selectedVisit.heartRateTwin}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Blood Pressure:</label>
+													</div>
+													<div name='bloodPressureTwin' class="col-xs-6">
+														{{selectedVisit.bloodPressureTwin}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>First Name:</label>
+													</div>
+													<div name='firstNameTwin' class="col-xs-6">
+														{{selectedVisit.firstNameTwin}}</div>
+												</div>
+												<div class="form-group row">
+													<div class="col-xs-6">
+														<label>Last Name:</label>
+													</div>
+													<div name='lastNameTwin' class="col-xs-6">
+														{{selectedVisit.lastNameTwin}}</div>
+												</div>
+
+
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
 					</div>
 				</div>
 			</div>
