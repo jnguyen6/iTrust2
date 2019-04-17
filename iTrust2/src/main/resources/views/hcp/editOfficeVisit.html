@@ -547,8 +547,7 @@
                                         })
                                     }
                                 } else if ($scope.selectedVisit.type === "GENERAL_OBSTETRICS") {
-                                    if (validateBasicHealthMetrics())
-                                        checkBasicHealthMetrics();
+                                    checkBasicHealthMetrics();
                                     checkObstetricsMetrics();
                                     if ($scope.errorMsg == "") {
                                     	var visit = angular.copy($scope.selectedVisit);
@@ -559,6 +558,32 @@
                                             data: visit
                                         }).then(function (response) {
                                             $scope.message = "Obstetrics Office visit edited successfully";
+                                            
+                                         	// Now that we know the office visit was successfully updated,
+                                            // let's update the obstetrics record
+                                         	// Get the obstetrics records for this patient
+                                            $http.get("/iTrust2/api/v1/obstetricsRecord/" + $scope.selectedVisit.patient).then(
+                                                function (response) {
+                                                    var obstetricsRecords = response.data;
+                                                    var updatedRecord = null;
+                                                    
+                                                    // Double check that there's a current record. If not, don't do anything to the obstetrics record.
+                                                    currentRecords = obstetricsRecords.filter(value => value.currentRecord);
+                                                    if (currentRecords.length > 0) {
+                                                        updatedRecord = angular.copy(currentRecords[0]);
+	                                                    updatedRecord.twins = ($scope.selectedVisit.isTwins === 'true') ? true: false;
+	                                                    // Update the record
+	                                                    $http.put("/iTrust2/api/v1/obstetricsRecord/" + updatedRecord.id, updatedRecord).then(
+	                                                            function (response) {
+	                                                                $scope.message += "\nObstetrics record updated successfully";
+	                                                            }, function (rejection) {
+	                                                                $scope.errorMsg = "\nError updating obstetrics record."
+	                                                            });
+                                                    }
+                                                }, function (rejection) {
+                                                    $scope.errorMsg = "\nError updating obstetrics record."
+                                                });
+                                            
                                         }, function (rejection) {
                                             $scope.message = "Error occurred editing obstetrics office visit";
                                         })

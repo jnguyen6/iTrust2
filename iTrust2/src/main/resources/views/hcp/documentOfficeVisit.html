@@ -512,10 +512,32 @@
                                 }).then(function (response) {
                                     $scope.errorMsg = "";
                                     $scope.message = "Office visit created successfully";
+                                    
+                                    // Now that we know the office visit was successfully updated,
+                                    // let's update the obstetrics record
+                                 	// Get the obstetrics records for this patient
+                                    $http.get("/iTrust2/api/v1/obstetricsRecord/" + $scope.visit.actualPatient.self.username).then(
+                                        function (response) {
+                                            var obstetricsRecords = response.data;
+                                            var updatedRecord = null;
+                                            
+                                            // Double check that there's a current record. If not, don't do anything to the obstetrics record.
+                                            updatedRecord = angular.copy(obstetricsRecords.filter(value => value.currentRecord)[0]);
+                                            updatedRecord.twins = ($scope.selectedVisit.isTwins === 'true') ? true: false;
+                                            // Update the record
+                                            $http.put("/iTrust2/api/v1/obstetricsRecord/" + updatedRecord.id, updatedRecord).then(
+                                                    function (response) {
+                                                        $scope.message += "\nObstetrics record updated successfully";
+                                                    }, function (rejection) {
+                                                        $scope.errorMsg = "\nError updating obstetrics record."
+                                                    });
+                                        }, function (rejection) {
+                                            $scope.errorMsg = "\nError updating obstetrics record."
+                                        });
                                 }, function (rejection) {
                                     $scope.message = "";
                                     $scope.errorMsg = "Error occurred creating office visit";
-                                })
+                                });
                             }
                         } else {
                             $scope.message = "";
