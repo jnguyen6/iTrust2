@@ -143,7 +143,7 @@ public class APILaborDeliveryReportTest {
         record.setWeeksPreg( 1 );
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
-        record.setCurrentRecord( false );
+        record.setCurrentRecord( true );
         record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
@@ -215,6 +215,7 @@ public class APILaborDeliveryReportTest {
         final LaborDeliveryReport newRep = gson.fromJson( newRecString, LaborDeliveryReport.class );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
 
+        record.setCurrentRecord( false );
         final LaborDeliveryReportForm form2 = new LaborDeliveryReportForm();
         form2.setDateOfLabor( LocalDate.now() );
         form2.setTimeOfLabor( "12:00" );
@@ -260,12 +261,10 @@ public class APILaborDeliveryReportTest {
         test2.setDeliveryMethod( form2.getDeliveryMethod() );
 
         // Attempt to add another new labor delivery reports
-        final String newRecString2 = mvc
-                .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
-                        .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form2 ) ) )
-                .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
-        final LaborDeliveryReport newRep2 = gson.fromJson( newRecString2, LaborDeliveryReport.class );
-        assertEquals( 2, LaborDeliveryReport.getByPatient( "patient" ).size() );
+        mvc.perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
+                .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form2 ) ) )
+                .andExpect( status().isBadRequest() );
+        assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
     }
 
     /**
@@ -325,7 +324,7 @@ public class APILaborDeliveryReportTest {
         record.setWeeksPreg( 1 );
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
-        record.setCurrentRecord( false );
+        record.setCurrentRecord( true );
         record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
@@ -436,7 +435,7 @@ public class APILaborDeliveryReportTest {
         record.setWeeksPreg( 1 );
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
-        record.setCurrentRecord( false );
+        record.setCurrentRecord( true );
         record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
@@ -517,7 +516,7 @@ public class APILaborDeliveryReportTest {
         record.setWeeksPreg( 1 );
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
-        record.setCurrentRecord( false );
+        record.setCurrentRecord( true );
         record.setTwins( true );
         record.setPatient( "patient" );
         record.save();

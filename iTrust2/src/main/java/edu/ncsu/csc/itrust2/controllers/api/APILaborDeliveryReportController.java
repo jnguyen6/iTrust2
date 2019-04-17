@@ -56,7 +56,7 @@ public class APILaborDeliveryReportController extends APIController {
 
             report.setPatient( patient );
             report.save();
-            final User child1 = new User( "patientChild1", "123456", Role.ROLE_PATIENT, 1 );
+            final User child1 = new User( report.getFirstName(), "123456", Role.ROLE_PATIENT, 1 );
             child1.save();
             final PatientForm form1 = new PatientForm();
             form1.setMother( patient );
@@ -76,10 +76,9 @@ public class APILaborDeliveryReportController extends APIController {
             final Patient child = new Patient( form1 );
             child.addRepresentative( mother );
             child.save();
-            mother.save();
 
             if ( report.getObstetricsRecord().isTwins() ) {
-                final User child2 = new User( "patientChild2", "123456", Role.ROLE_PATIENT, 1 );
+                final User child2 = new User( report.getSecondFirstName(), "123456", Role.ROLE_PATIENT, 1 );
                 child2.save();
                 final PatientForm form2 = new PatientForm();
                 form2.setMother( patient );
@@ -95,19 +94,19 @@ public class APILaborDeliveryReportController extends APIController {
                 form2.setPhone( mother.getPhone() );
                 form2.setDateOfBirth( report.getDateOfDelivery().toString() ); // YYYY-MM-dd
                 form2.setEthnicity( mother.getEthnicity().toString() );
-                form2.setSelf( child1.getUsername() );
+                form2.setSelf( child2.getUsername() );
 
                 final Patient twin = new Patient( form2 );
                 twin.addRepresentative( mother );
                 twin.save();
-                mother.save();
             }
+            mother.save();
 
             LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_CREATE, LoggerUtil.currentUser() );
             return new ResponseEntity( report, HttpStatus.OK );
         }
         catch ( final Exception e ) {
-            e.printStackTrace();
+            // e.printStackTrace();
             return new ResponseEntity(
                     errorResponse( "Could not create Labor and Delivery Report provided due to " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );

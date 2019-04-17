@@ -64,7 +64,7 @@ public class LaborDeliveryReportTest {
         record.setWeeksPreg( 1 );
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
-        record.setCurrentRecord( false );
+        record.setCurrentRecord( true );
         record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
@@ -124,7 +124,7 @@ public class LaborDeliveryReportTest {
         record2.setWeeksPreg( 1 );
         record2.setHoursInLabor( 25 );
         record2.setDeliveryMethod( DeliveryMethod.Cesarean );
-        record2.setCurrentRecord( false );
+        record2.setCurrentRecord( true );
         record2.setTwins( true );
         record2.setPatient( "patient" );
         record2.save();
@@ -198,7 +198,7 @@ public class LaborDeliveryReportTest {
         record.setWeeksPreg( 1 );
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
-        record.setCurrentRecord( false );
+        record.setCurrentRecord( true );
         record.setTwins( false );
         record.setPatient( "patient" );
         record.save();

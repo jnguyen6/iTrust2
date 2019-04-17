@@ -118,8 +118,6 @@ public class LaborDeliveryReportForm {
         setLastName( ov.getLastName() );
         setDeliveryMethod( ov.getDeliveryMethod() );
         setObstetricsRecord( ov.getObstetricsRecord() );
-        obstetricsRecord.setDeliveryMethod( ov.getDeliveryMethod() );
-        obstetricsRecord.setCurrentRecord( false );
         if ( ov.getObstetricsRecord().isTwins() ) {
             setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
             setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );

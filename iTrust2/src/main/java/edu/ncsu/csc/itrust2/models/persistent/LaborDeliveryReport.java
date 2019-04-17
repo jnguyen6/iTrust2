@@ -646,6 +646,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         if ( obstetricsRecord == null ) {
             throw new IllegalArgumentException( "The obstetrics record cannot be null" );
         }
+        if ( !obstetricsRecord.isCurrentRecord() ) {
+            throw new IllegalArgumentException( "The obstetrics record cannot be previous" );
+        }
         this.obstetricsRecord = obstetricsRecord;
     }
 
