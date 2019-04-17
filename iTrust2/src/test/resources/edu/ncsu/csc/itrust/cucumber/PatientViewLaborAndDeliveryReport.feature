@@ -4,7 +4,7 @@ Feature: Patient Views Labor and Delivery Reports
     So that I can see the information regarding my labor and delivery report records
     
 Scenario Outline: The patient does not have a labor and delivery report
-    Given There exists a patient in the system who is eligible for an obstetrics record.
+    Given there exists a patient in the iTrust2 system
     Then I log on as a patient.
     When I navigate to the View Obstetrics Records page.
     Then <text> is displayed on the page. 
@@ -13,20 +13,26 @@ Examples:
     | text                                      |
     | You have no labor and delivery reports.   |
     
-Scenario Outline: The patient has a labor and delivery report to view
-    Given There exists a patient in the system who is eligible for an obstetrics record.
-    Then I log in as an OB/GYN HCP to document an obstetrics record for a patient.
-    When I navigate to the document obstetrics record page to document an obstetrics record for a patient.
-    And I select radio button with text <username> to select a patient.
-    And I enter <LMP> for a current obstetrics record for the patient.
-    And I click create obstetrics record to document an obstetrics record for a patient.
-    Then I document a labor and delivery report for a patient.
-    Then I log out as OB/GYN HCP.
-    Then I log on as an obstetrics patient.
-    When I navigate to the View Obstetrics Labor and Delivery Report page.
-    Then I select the patient's <username> and the radio button with text <dateDelivery>.
+Scenario Outline: The patient has a labor and delivery report to view without twins
+    Given there exists a patient in the iTrust2 system
+	And The obstetrics patient has a current obstetrics record in the iTrust2 system
+	And The patient has an existing labor and delivery report without twins
+	Then I log in as a patient and navigate to the View Patient Labor and Delivery Report page
+    Then I select the date of the report <dateDelivery>
 	Then The patient's labor and delivery report is displayed
-    
+	
 Examples:
-	| username	    | LMP		    | dateDelivery   |
-	| AliceThirteen	| 11/01/2018	| 03/22/2019     |
+    | dateDelivery |
+    | 03/22/2019   |
+    
+Scenario Outline: The patient has a labor and delivery report to view with twins
+    Given there exists a patient in the iTrust2 system
+	And The obstetrics patient has a current obstetrics record in the iTrust2 system
+	And The patient has an existing labor and delivery report with twins
+	Then I log in as a patient and navigate to the View Patient Labor and Delivery Report page
+    Then I select the date of the report <dateDelivery>
+	Then The patient's labor and delivery report is displayed
+	
+Examples:
+    | dateDelivery |
+    | 03/22/2019   |

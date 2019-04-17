@@ -38,9 +38,10 @@ import edu.ncsu.csc.itrust2.models.persistent.OphthalmologySurgery;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
- * Step definitions for and HCP to view all of the patients' office visits.
+ * Step definitions for an HCP to view all of the patients' office visits.
  *
  * @author Domenick DiBiase (dndibias)
+ * @author Jimmy Nguyen (jnguyen6)
  */
 public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
 

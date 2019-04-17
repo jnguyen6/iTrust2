@@ -5,13 +5,12 @@ Feature: Document Labor and Delivery Reports
 	
 Scenario Outline: OB/GYN HCP documents a labor and delivery report for no twins
 	Given There exists an obstetrics patient in the system
-	And the patient has a current obstetrics record
-	And There exists an obstetrics HCP in the system
+	And The obstetrics patient has a current obstetrics record in the iTrust2 system
+	And There exists an obstetrics HCP in the iTrust2 system
 	Then The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page
     When The OB/GYN HCP selects the patient <patient> and enters the date of labor <dateLabor>, time of labor <timeLabor>, date of delivery <dateDelivery>, time of delivery <timeDelivery>, delivery method <deliveryType>, weight in pounds <lbs> and ounces <oz>, length <length>, heart rate <heartRate>, blood pressure <bloodPres>, first name <firstName>, and last name <lastName>
-    And the OB/GYN HCP adds the labor and delivery report
-	Then The labor and delivery is documented successfully
-	And The log is updated stating that the labor and delivery report was documented
+    And The OB/GYN HCP adds the labor and delivery report
+	Then The labor and delivery report is documented successfully
 
 Examples:
     | patient         | dateLabor         | timeLabor     | dateDelivery   | timeDelivery   | deliveryType   | lbs      | oz     | length   | heartRate   | bloodPres   | firstName   | lastName   |
@@ -22,13 +21,12 @@ Examples:
     
 Scenario Outline: OB/GYN HCP documents a labor and delivery report for twins
 	Given There exists an obstetrics patient in the system
-	And the patient has a current obstetrics record
-	And There exists an obstetrics HCP in the system
+	And The obstetrics patient has a current obstetrics record in the iTrust2 system
+	And There exists an obstetrics HCP in the iTrust2 system
 	Then The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page
     When The OB/GYN HCP selects the patient <patient> and enters the date of labor <dateLabor>, time of labor <timeLabor>, date of delivery <dateDelivery>, time of delivery <timeDelivery>, delivery method <deliveryType>, weight in pounds <lbs> and ounces <oz>, length <length>, heart rate <heartRate>, blood pressure <bloodPres>, first name <firstName>, and last name <lastName> for twins
     And the OB/GYN HCP adds the labor and delivery report
-	Then The labor and delivery is documented successfully
-	And The log is updated stating that the labor and delivery report was documented
+	Then The labor and delivery report is documented successfully
 	
 Examples:
     | patient         | dateLabor         | timeLabor     | dateDelivery   | timeDelivery   | deliveryType   | lbs      | oz     | length   | heartRate   | bloodPres   | firstName   | lastName   |
@@ -39,12 +37,12 @@ Examples:
     
 Scenario Outline: OB/GYN HCP incorrectly documents a labor and delivery report
 	Given There exists an obstetrics patient in the system
-	And the patient has a current obstetrics record
-	And There exists an obstetrics HCP in the system
+	And The obstetrics patient has a current obstetrics record in the iTrust2 system
+	And There exists an obstetrics HCP in the iTrust2 system
 	Then The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page
     When The OB/GYN HCP selects the patient <patient> and enters the date of labor <dateLabor>, time of labor <timeLabor>, date of delivery <dateDelivery>, time of delivery <timeDelivery>, delivery method <deliveryType>, weight in pounds <lbs> and ounces <oz>, length <length>, heart rate <heartRate>, blood pressure <bloodPres>, first name <firstName>, and last name <lastName>
     And the OB/GYN HCP adds the labor and delivery report
-	Then The labor and delivery is not documented successfully
+	Then The labor and delivery report is not documented successfully
 	
 Examples:
     | patient         | dateLabor         | timeLabor     | dateDelivery   | timeDelivery   | deliveryType   | lbs      | oz     | length   | heartRate   | bloodPres   | firstName   | lastName   |
@@ -61,35 +59,29 @@ Examples:
 
 Scenario Outline: OB/GYN HCP edits a labor and delivery report
 	Given There exists an obstetrics patient in the system
-	And the patient has a current obstetrics record
-	And There exists an obstetrics HCP in the system
-	Then The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page
-    When The OB/GYN HCP selects the patient <patient> and enters the date of labor <dateLabor>, time of labor <timeLabor>, date of delivery <dateDelivery>, time of delivery <timeDelivery>, delivery method <deliveryType>, weight in pounds <lbs> and ounces <oz>, length <length>, heart rate <heartRate>, blood pressure <bloodPres>, first name <firstName>, and last name <lastName> for twins
-    And the OB/GYN HCP adds the labor and delivery report
-	Then The labor and delivery is documented successfully
-	Then The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page
+	And The obstetrics patient has a current obstetrics record in the iTrust2 system
+	And There exists an obstetrics HCP in the iTrust2 system
+	And The obstetrics patient has a documented labor and delivery report
+	Then The OB/GYN HCP logs in and navigates to the Edit Patient Labor and Delivery Reports page
     When The OB/GYN HCP selects the patient <patient> and the date of the report <dateReport>
-	And The OB/GYN HCP modifies the date of labor to be <newDateLabor>, length <newLength>, and the first name <newFirstName>
+	And The OB/GYN HCP modifies the date of labor <newDateLabor>, length <newLength>, and the first name <newFirstName>
 	And The OB/GYN HCP saves the labor and delivery report
-	Then The obstetrics office visit is updated successfully
+	Then The labor and delivery report is updated successfully
 
 Examples:
-    | newDateLabor    | newLength   | newFirstName    | patient         | dateLabor         | timeLabor     | dateDelivery   | timeDelivery   | deliveryType   | lbs      | oz     | length   | heartRate   | bloodPres   | firstName   | lastName   |
-    | 02/11/2019      | 7           | Doe             | AliceThirteen   | 03/11/2019        | 10:00 am      | 03/22/2019     | 10:00 am       | Cesarean       | 10       | 1      | 9        | 60          | 90          | Moe         | Joe        |
+    | newDateLabor    | newLength   | newFirstName    | patient         |
+    | 02/11/2019      | 7           | Doe             | AliceThirteen   |
     
-Scenario Outline: OB/GYN HCP edits a labor and delivery report
+Scenario Outline: OB/GYN HCP incorrectly edits a labor and delivery report
 	Given There exists an obstetrics patient in the system
-	And the patient has a current obstetrics record
-	And There exists an obstetrics HCP in the system
-	Then The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page
-    When The OB/GYN HCP selects the patient <patient> and enters the date of labor <dateLabor>, time of labor <timeLabor>, date of delivery <dateDelivery>, time of delivery <timeDelivery>, delivery method <deliveryType>, weight in pounds <lbs> and ounces <oz>, length <length>, heart rate <heartRate>, blood pressure <bloodPres>, first name <firstName>, and last name <lastName> for twins
-    And the OB/GYN HCP adds the labor and delivery report
-	Then The labor and delivery is documented successfully
-	Then The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page
+	And The obstetrics patient has a current obstetrics record in the iTrust2 system
+	And There exists an obstetrics HCP in the iTrust2 system
+	And The obstetrics patient has a documented labor and delivery report
+	Then The OB/GYN HCP logs in and navigates to the Edit Patient Labor and Delivery Reports page
     When The OB/GYN HCP selects the patient <patient> and the date of the report <dateReport>
-	And The OB/GYN HCP modifies the date of labor to be <newDateLabor>, length <newLength>, and the first name <newFirstName>
+	And The OB/GYN HCP modifies the date of labor <newDateLabor>, length <newLength>, and the first name <newFirstName>
 	And The OB/GYN HCP saves the labor and delivery report
-	Then The obstetrics office visit is not updated successfully
+	Then The labor and delivery report is not updated successfully
 	
 Examples:
     | newDateLabor    | newLength   | newFirstName    | patient         | dateLabor         | timeLabor     | dateDelivery   | timeDelivery   | deliveryType   | lbs      | oz     | length   | heartRate   | bloodPres   | firstName   | lastName   |

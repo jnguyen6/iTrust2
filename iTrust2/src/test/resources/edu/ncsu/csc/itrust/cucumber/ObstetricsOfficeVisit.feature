@@ -13,7 +13,6 @@ Scenario Outline: OB/GYN HCP documents an obstetrics office visit
 	And The OB/GYN HCP enters notes <notes>
 	And The OB/GYN HCP submits the obstetrics office visit
 	Then The obstetrics office visit is documented successfully
-	And The log is updated stating that the obstetrics office visit was documented
 	
 Examples:
 	| date			| time 		| patient 		| type 					  | hospital 			| fetalHeartRate	| fundalHeight	| isTwins 	| isLowLyingPlacenta 	| notes 	                                                     |
@@ -52,11 +51,10 @@ Scenario Outline: OB/GYN HCP documents an obstetrics office visit with Basic Hea
 	And The OB/GYN HCP enters notes <notes>
 	And The OB/GYN HCP submits the obstetrics office visit
 	Then The obstetrics office visit is documented successfully
-	And The log is updated stating that the obstetrics office visit was documented
 
 Examples:
 	| date			| time 		| patient 		| type 					| hospital 			| fetalHeartRate	| fundalHeight	| isTwins	| isLowLyingPlacenta 	|  height  |  weight  |  systolic  |  diastolic  |  HDL    |  LDL  |  tri  | patientSmoking  | householdSmokingStatus  |  notes 									                |
-	| 03/11/2019	| 10:00 am	| AliceThirteen	| GENERAL_OBSTETRICS	| General Hospital 	| 30				| 2.5		    | false		| false		            |  160     |  160     |  50        |     50      |  60     |  105  |  550  | NEVER           | NONSMOKING              |  This is a test for documenting obstetrics office visit	|
+	| 03/11/2019	| 10:00 am	| AliceThirteen	| GENERAL_OBSTETRICS	| General Hospital 	| 30				| 2.5		    | false		| false		            |  160     |  160     |  50        |     50      |  60     |  105  |  100  | NEVER           | NONSMOKING              |  This is a test for documenting obstetrics office visit	|
 	
 Scenario Outline: OB/GYN HCP edits an obstetrics office visit
 	Given There exists an obstetrics patient in the system

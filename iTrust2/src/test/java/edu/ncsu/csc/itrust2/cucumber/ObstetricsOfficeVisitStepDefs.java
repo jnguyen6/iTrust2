@@ -11,8 +11,6 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -54,6 +52,8 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      */
     public void assertTextPresent ( final String text ) {
         try {
+            assertEquals( "Create OB/GYN Office Visit",
+                    driver.getPageSource().contains( "Create OB/GYN Office Visit" ) );
             assertTrue( driver.getPageSource().contains( text ) );
         }
         catch ( final Exception e ) {
@@ -537,20 +537,6 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
         }
         catch ( final Exception e ) {
         }
-    }
-
-    /**
-     * Method to check if the log was updated for obstetrics office visit
-     */
-    @Then ( "The log is updated stating that the obstetrics office visit was documented" )
-    public void logObOfficeVisit () {
-        waitForAngular();
-        driver.get( baseUrl );
-        final WebDriverWait wait = new WebDriverWait( driver, 20 );
-        wait.until( ExpectedConditions.titleContains( "HCP Home" ) );
-        assertEquals( "iTrust2: HCP Home", driver.getTitle() );
-        wait.until( ExpectedConditions.elementToBeClickable( By.name( "transactionTypeCell" ) ) );
-        // assertTextPresent( "Create obstetrics office visit for patient" );
     }
 
 }
