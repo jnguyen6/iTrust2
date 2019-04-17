@@ -1,7 +1,5 @@
 package edu.ncsu.csc.itrust2.controllers.api;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,13 +10,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
-import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
+import edu.ncsu.csc.itrust2.forms.hcp_patient.PatientForm;
+import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.enums.TransactionType;
-import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
 import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
-import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 import edu.ncsu.csc.itrust2.utils.LoggerUtil;
@@ -33,8 +29,8 @@ import edu.ncsu.csc.itrust2.utils.LoggerUtil;
 @SuppressWarnings ( { "rawtypes", "unchecked" } )
 @RestController
 public class APILaborDeliveryReportController extends APIController {
-	
-	/**
+
+    /**
      * Creates a new labor and delivery report object and saves it to the DB
      *
      * @param patient
@@ -48,18 +44,64 @@ public class APILaborDeliveryReportController extends APIController {
     public ResponseEntity createLaborDeliveryReport ( @PathVariable final String patient,
             @RequestBody final LaborDeliveryReportForm form ) {
         try {
-        	
-        	final LaborDeliveryReport report = new LaborDeliveryReport(form);
-        	final Patient person = Patient.getByName( patient );
+
+            final LaborDeliveryReport report = new LaborDeliveryReport( form );
+            final Patient mother = Patient.getByName( patient );
             // check if the patient is female
-            if ( person.getGender().toString().equals( "Male" ) ) {
-                return new ResponseEntity(
-                        errorResponse( "Could not create Labor and Delivery Report because " + patient + " is a male patient" ),
+            if ( mother.getGender().toString().equals( "Male" ) ) {
+                return new ResponseEntity( errorResponse(
+                        "Could not create Labor and Delivery Report because " + patient + " is a male patient" ),
                         HttpStatus.BAD_REQUEST );
             }
-        	
-            report.setPatient(patient);
+
+            report.setPatient( patient );
             report.save();
+            final User child1 = new User( "patientChild1", "123456", Role.ROLE_PATIENT, 1 );
+            child1.save();
+            final PatientForm form1 = new PatientForm();
+            form1.setMother( patient );
+            form1.setFirstName( report.getFirstName() );
+            form1.setPreferredName( report.getFirstName() );
+            form1.setLastName( report.getLastName() );
+            form1.setEmail( mother.getEmail() );
+            form1.setAddress1( mother.getAddress1() );
+            form1.setAddress2( mother.getAddress2() );
+            form1.setCity( mother.getCity() );
+            form1.setState( mother.getState().toString() );
+            form1.setZip( mother.getZip() );
+            form1.setPhone( mother.getPhone() );
+            form1.setDateOfBirth( report.getDateOfDelivery().toString() ); // YYYY-MM-dd
+            form1.setEthnicity( mother.getEthnicity().toString() );
+            form1.setSelf( child1.getUsername() );
+            final Patient child = new Patient( form1 );
+            child.addRepresentative( mother );
+            child.save();
+            mother.save();
+
+            if ( report.getObstetricsRecord().isTwins() ) {
+                final User child2 = new User( "patientChild2", "123456", Role.ROLE_PATIENT, 1 );
+                child2.save();
+                final PatientForm form2 = new PatientForm();
+                form2.setMother( patient );
+                form2.setFirstName( report.getFirstName() );
+                form2.setPreferredName( report.getFirstName() );
+                form2.setLastName( report.getLastName() );
+                form2.setEmail( mother.getEmail() );
+                form2.setAddress1( mother.getAddress1() );
+                form2.setAddress2( mother.getAddress2() );
+                form2.setCity( mother.getCity() );
+                form2.setState( mother.getState().toString() );
+                form2.setZip( mother.getZip() );
+                form2.setPhone( mother.getPhone() );
+                form2.setDateOfBirth( report.getDateOfDelivery().toString() ); // YYYY-MM-dd
+                form2.setEthnicity( mother.getEthnicity().toString() );
+                form2.setSelf( child1.getUsername() );
+
+                final Patient twin = new Patient( form2 );
+                twin.addRepresentative( mother );
+                twin.save();
+                mother.save();
+            }
 
             LoggerUtil.log( TransactionType.LABOR_DELIVERY_REPORT_CREATE, LoggerUtil.currentUser() );
             return new ResponseEntity( report, HttpStatus.OK );
@@ -71,7 +113,7 @@ public class APILaborDeliveryReportController extends APIController {
                     HttpStatus.BAD_REQUEST );
         }
     }
-	
+
     /**
      * Edits an Labor and Delivery Report object and saves it to the database.
      *
@@ -86,7 +128,8 @@ public class APILaborDeliveryReportController extends APIController {
      */
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
     @PutMapping ( BASE_PATH + "LaborDeliveryReports/{id}" )
-    public ResponseEntity editLaborDeliveryReport ( @PathVariable final long id, @RequestBody final LaborDeliveryReportForm form ) {
+    public ResponseEntity editLaborDeliveryReport ( @PathVariable final long id,
+            @RequestBody final LaborDeliveryReportForm form ) {
         try {
             final LaborDeliveryReport current = new LaborDeliveryReport( form );
             final LaborDeliveryReport saved = LaborDeliveryReport.getById( id );
@@ -107,10 +150,10 @@ public class APILaborDeliveryReportController extends APIController {
                     HttpStatus.BAD_REQUEST );
         }
     }
-    
+
     /**
-     * Retrieves a list of patient Labor and Delivery reports, either for the current
-     * patient if the user has role PATIENT
+     * Retrieves a list of patient Labor and Delivery reports, either for the
+     * current patient if the user has role PATIENT
      *
      * @return a list of patient's labor and delivery reports
      */
@@ -122,8 +165,8 @@ public class APILaborDeliveryReportController extends APIController {
     }
 
     /**
-     * Retrieves a list of patient Labor and Delivery reports, either for HCP to view
-     * patient reports, or for HCP OBGYN to view patient reports.
+     * Retrieves a list of patient Labor and Delivery reports, either for HCP to
+     * view patient reports, or for HCP OBGYN to view patient reports.
      *
      * @return a list of patient's labor and delivery reports
      *
@@ -131,7 +174,7 @@ public class APILaborDeliveryReportController extends APIController {
      *            the username of the patient for which to get reports
      */
     @PreAuthorize ( "hasAnyRole('ROLE_HCP','ROLE_OBGYN' )" )
-    @GetMapping ( BASE_PATH + "laborDeliveryReports/{patient}" ) 
+    @GetMapping ( BASE_PATH + "laborDeliveryReports/{patient}" )
     public ResponseEntity getLaborDeliveryReportsHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {
             return new ResponseEntity( errorResponse( "No patients found with username " + patient ),
@@ -141,7 +184,5 @@ public class APILaborDeliveryReportController extends APIController {
                 User.getByName( patient ) );
         return new ResponseEntity( LaborDeliveryReport.getByPatient( patient ), HttpStatus.OK );
     }
-    
-   
 
 }

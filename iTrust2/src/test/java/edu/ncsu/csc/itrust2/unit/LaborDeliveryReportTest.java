@@ -79,6 +79,7 @@ public class LaborDeliveryReportTest {
         report.setSecondFirstName( "Swarnim" );
         report.setSecondLastName( "Razdan" );
         report.setPatient( "patient" );
+        report.setDeliveryMethod( record.getDeliveryMethod() );
         report.save();
 
         final LaborDeliveryReport test = LaborDeliveryReport.getById( report.getId() );
@@ -102,6 +103,7 @@ public class LaborDeliveryReportTest {
         assertEquals( report.getSecondLastName(), test.getSecondLastName() );
         assertEquals( report.getPatient(), test.getPatient() );
         assertEquals( report.getId(), test.getId() );
+        assertEquals( report.getDeliveryMethod(), test.getDeliveryMethod() );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
         form.setDateOfLabor( LocalDate.now() );
@@ -136,6 +138,7 @@ public class LaborDeliveryReportTest {
         form.setSecondBloodPressure( 75 );
         form.setSecondFirstName( "Swarnim" );
         form.setSecondLastName( "Razdan" );
+        form.setDeliveryMethod( record2.getDeliveryMethod() );
 
         final LaborDeliveryReport ldr = new LaborDeliveryReport( form );
         ldr.setPatient( "patient" );
@@ -158,6 +161,7 @@ public class LaborDeliveryReportTest {
         assertEquals( report.getSecondBloodPressure(), ldr.getSecondBloodPressure() );
         assertEquals( report.getSecondFirstName(), ldr.getSecondFirstName() );
         assertEquals( report.getSecondLastName(), ldr.getSecondLastName() );
+        assertEquals( report.getDeliveryMethod(), ldr.getDeliveryMethod() );
         assertEquals( report.getPatient(), ldr.getPatient() );
 
     }
@@ -201,6 +205,7 @@ public class LaborDeliveryReportTest {
         report.setObstetricsRecord( record );
 
         report.setPatient( "patient" );
+        report.setDeliveryMethod( record.getDeliveryMethod() );
         report.save();
 
         assertEquals( 1, ObstetricsRecord.getByPatient( "patient" ).size() );

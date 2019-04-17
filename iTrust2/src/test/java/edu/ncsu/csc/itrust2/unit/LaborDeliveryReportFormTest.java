@@ -50,10 +50,11 @@ public class LaborDeliveryReportFormTest {
         record.setHoursInLabor( 25 );
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
         record.setCurrentRecord( false );
-        record.setTwins( false );
+        record.setTwins( true );
         record.setPatient( "patient" );
         record.save();
         form.setObstetricsRecord( record );
+        form.setDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm test = new LaborDeliveryReportForm();
         test.setDateOfLabor( form.getDateOfLabor() );
@@ -75,6 +76,7 @@ public class LaborDeliveryReportFormTest {
         test.setSecondFirstName( form.getSecondFirstName() );
         test.setSecondLastName( form.getSecondLastName() );
         test.setObstetricsRecord( form.getObstetricsRecord() );
+        test.setDeliveryMethod( record.getDeliveryMethod() );
 
         assertEquals( form.getDateOfLabor(), test.getDateOfLabor() );
         assertEquals( form.getTimeOfLabor(), test.getTimeOfLabor() );

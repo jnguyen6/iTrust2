@@ -17,6 +17,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.validator.constraints.Length;
 
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 
 /**
  * LaborDeliveryReport Class.
@@ -116,6 +117,11 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
     private String           patient;
 
     /**
+     * The delivery method of the labor delivery report
+     */
+    private DeliveryMethod   deliveryMethod;
+
+    /**
      * Default Constructor for LaborDeliveryReport
      */
     public LaborDeliveryReport () {
@@ -139,6 +145,9 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         setFirstName( ov.getFirstName() );
         setLastName( ov.getLastName() );
         setObstetricsRecord( ov.getObstetricsRecord() );
+        setDeliveryMethod( ov.getDeliveryMethod() );
+        obstetricsRecord.setDeliveryMethod( ov.getDeliveryMethod() );
+        obstetricsRecord.setCurrentRecord( false );
         if ( obstetricsRecord.isTwins() ) {
             setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
             setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
@@ -408,7 +417,13 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            last name to be set for the baby
      */
     public void setLastName ( final String lastName ) {
-        this.lastName = lastName;
+        if ( lastName == null || lastName.equals( "" ) ) {
+            final String username = obstetricsRecord.getPatient();
+            this.lastName = Patient.getByName( username ).getLastName();
+        }
+        else {
+            this.lastName = lastName;
+        }
     }
 
     /**
@@ -583,7 +598,13 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            last name of the second baby to be set, if twins are born
      */
     public void setSecondLastName ( final String secondLastName ) {
-        this.secondLastName = secondLastName;
+        if ( secondLastName == null || secondLastName.equals( "" ) ) {
+            final String username = obstetricsRecord.getPatient();
+            this.secondLastName = Patient.getByName( username ).getLastName();
+        }
+        else {
+            this.secondLastName = secondLastName;
+        }
     }
 
     /**
@@ -629,21 +650,40 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
     }
 
     /**
-     * Returns the patient for this ObstetricsRecord
+     * Returns the patient for this labor delivery report
      *
-     * @return the patient for this obstetrics record
+     * @return the patient for this labor delivery report
      */
     public String getPatient () {
         return patient;
     }
 
     /**
-     * Initializes the patient for this ObstetricsRecord
+     * Initializes the patient for this labor delivery report
      *
      * @param patient
-     *            the patient to set for this obstetrics record
+     *            the patient to set for this labor delivery report
      */
     public void setPatient ( final String patient ) {
         this.patient = patient;
+    }
+
+    /**
+     * Returns the delivery method for this labor delivery report
+     *
+     * @return the patient for this labor delivery report
+     */
+    public DeliveryMethod getDeliveryMethod () {
+        return deliveryMethod;
+    }
+
+    /**
+     * Sets the delivery method for the labor delivery report
+     *
+     * @param deliveryMethod
+     *            the deliveryMethod to set for this labor delivery report
+     */
+    public void setDeliveryMethod ( final DeliveryMethod deliveryMethod ) {
+        this.deliveryMethod = deliveryMethod;
     }
 }

@@ -2,6 +2,7 @@ package edu.ncsu.csc.itrust2.forms.hcp;
 
 import java.time.LocalDate;
 
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 
@@ -88,6 +89,11 @@ public class LaborDeliveryReportForm {
     private ObstetricsRecord obstetricsRecord;
 
     /**
+     * The delivery method of the labor delivery report
+     */
+    private DeliveryMethod   deliveryMethod;
+
+    /**
      * Default Constructor for the Labor Delivery Report Form
      */
     public LaborDeliveryReportForm () {
@@ -110,7 +116,10 @@ public class LaborDeliveryReportForm {
         setBloodPressure( ov.getBloodPressure() );
         setFirstName( ov.getFirstName() );
         setLastName( ov.getLastName() );
+        setDeliveryMethod( ov.getDeliveryMethod() );
         setObstetricsRecord( ov.getObstetricsRecord() );
+        obstetricsRecord.setDeliveryMethod( ov.getDeliveryMethod() );
+        obstetricsRecord.setCurrentRecord( false );
         if ( ov.getObstetricsRecord().isTwins() ) {
             setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
             setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
@@ -494,6 +503,25 @@ public class LaborDeliveryReportForm {
      */
     public void setObstetricsRecord ( final ObstetricsRecord obstetricsRecord ) {
         this.obstetricsRecord = obstetricsRecord;
+    }
+
+    /**
+     * Returns the delivery method for this labor delivery report
+     *
+     * @return the patient for this labor delivery report
+     */
+    public DeliveryMethod getDeliveryMethod () {
+        return deliveryMethod;
+    }
+
+    /**
+     * Sets the delivery method for the labor delivery report
+     *
+     * @param deliveryMethod
+     *            the deliveryMethod to set for this labor delivery report
+     */
+    public void setDeliveryMethod ( final DeliveryMethod deliveryMethod ) {
+        this.deliveryMethod = deliveryMethod;
     }
 
 }
