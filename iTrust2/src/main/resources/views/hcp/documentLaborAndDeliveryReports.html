@@ -46,8 +46,8 @@
             $scope.isPrego = false;
 
             
-         	// Split entries into groups by date
-            $scope.groupDates = function (arr, key) {
+         	// Arrange reports by date
+            $scope.orderDates = function (arr, key) {
                 var groups = {};
 
                 for (var i = 0; l = arr.length, i < l; i++) {
@@ -62,57 +62,81 @@
                 });
 
                 return orderedGroups;
+
             };
+            
+            $scope.updateInfo = function() {
 
-            $http.get("/iTrust2/api/v1/patients").then(
-                function (response) {
-                    $scope.patients = response.data.filter(value => value.gender === "Female");
-                    
-                    $scope.selectPatient = function (patient) {
-                        $scope.selectedReport = null; // Reset selected report and date
-                        $scope.selectedDate = null;
-                        
-                     	// Get the obstetrics records for this patient
-                        $scope.getObstetricsRecords = function() {
-                     	    $http.get("/iTrust2/api/v1/obstetricsRecord/" + patient.self.username).then(
-	                            function (response) {
-	                                var obstetricsRecords = response.data || {};
-	                                var currentRecords = obstetricsRecords.filter(value => value.currentRecord);
-	                                $scope.isPrego = (currentRecords.length > 0) ? true : false;
-	                                if ($scope.isPrego) {
-	                                    $scope.newReport.obstetricsRecord = angular.copy(currentRecords[0]);
-	                                } else {
-	                                    $scope.newReport.obstetricsRecord = {};
-	                                }
-	                            });
-                     	};
-
-                        $scope.loadReports = function () {
-                            // Get Reports for selected patient
-                            $http.get("/iTrust2/api/v1/laborDeliveryReports/" + $scope.selectedPatient).then(
-                                function (response) {
-                                    $scope.reports = response.data || {};
-                                  	$scope.reports = $scope.groupDates($scope.reports, 'date');
-                                    $scope.message = "";
-                                    console.log($scope.reports);
-                                },
-                                function (rejection) {
-                                    $scope.reports = [];
-                                    $scope.message = "Could not get labor and delivery reports for this patient.";
-                                });
-                        };
-
-                        $scope.getObstetricsRecords();
-                        $scope.loadReports();
-                        
-                    };
-                },
-                function (rejection) {
-                    $scope.patient = null;
-                });
+	            $http.get("/iTrust2/api/v1/patients").then(
+	                function (response) {
+	                    $scope.patients = response.data.filter(value => value.gender === "Female");
+	                    
+	                    $scope.selectPatient = function (patient) {
+	                        $scope.selectedReport = null; // Reset selected report and date
+	                        $scope.selectedDate = null;
+	                        
+	                     	// Get the obstetrics records for this patient
+	                        $scope.getObstetricsRecords = function() {
+	                     	    $http.get("/iTrust2/api/v1/obstetricsRecord/" + patient.self.username).then(
+		                            function (response) {
+		                                var obstetricsRecords = response.data || {};
+		                                var currentRecords = obstetricsRecords.filter(value => value.currentRecord);
+		                                $scope.isPrego = (currentRecords.length > 0) ? true : false;
+		                                if ($scope.isPrego) {
+		                                    $scope.newReport.obstetricsRecord = angular.copy(currentRecords[0]);
+		                                } else {
+		                                    $scope.newReport.obstetricsRecord = {};
+		                                }
+		                            });
+	                     	};
+	
+	                        $scope.loadReports = function () {
+	                            // Get Reports for selected patient
+	                            $http.get("/iTrust2/api/v1/laborDeliveryReports/" + $scope.selectedPatient).then(
+	                                function (response) {
+	                                    $scope.reports = response.data || {};
+	                                  	$scope.reports = $scope.orderDates($scope.reports, 'datetimeOfLabor');
+	                                    $scope.editError = "";
+	                                    console.log($scope.reports);
+	                                },
+	                                function (rejection) {
+	                                    $scope.reports = [];
+	                                    $scope.editError = "Could not get labor and delivery reports for this patient.";
+	                                });
+	                        };
+	
+	                        $scope.getObstetricsRecords();
+	                        $scope.loadReports();
+	                        
+	                    };
+	                },
+	                function (rejection) {
+	                    $scope.patient = null;
+	                });
+            }
+            
+            $scope.updateInfo();
             
            	$scope.selectReport = function(report) {
-           	    $scope.selectedReport = report;
+           	    $scope.selectedReport = report[0];
+
+           	    const datetimeOfLabor = new Date($scope.selectedReport.datetimeOfLabor);
+           	    $scope.selectedReport.dateofLabor = datetimeOfLabor;
+           	 	$scope.selectedReport.timeOfLabor = datetimeOfLabor;
+           	 	
+           	 	const datetimeOfDelivery = new Date($scope.selectedReport.datetimeOfDelivery);
+           	 	$scope.selectedReport.dateofDelivery = datetimeOfDelivery;
+        	 	$scope.selectedReport.timeOfDelivery = datetimeOfDelivery;
+        	 	
+        	 	const secondDatetimeOfDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
+        	 	$scope.selectedReport.secondDateofDelivery = secondDatetimeOfDelivery;
+        	 	$scope.selectedReport.secondTimeOfDelivery = secondDatetimeOfDelivery;
+        	 	
+        	 	$scope.selectedReport.weightlbs = Math.floor($scope.selectedReport.weight);
+        	 	$scope.selectedReport.weightoz = ($scope.selectedReport.weight % 1) * 16;
+        	 	
+        	 	$scope.selectedReport.secondWeightlbs = Math.floor($scope.selectedReport.secondWeight);
+        	 	$scope.selectedReport.secondWeightoz = ($scope.selectedReport.secondWeight % 1) * 16;
            	}
 
            	
@@ -164,47 +188,50 @@
 	            if ($scope.newReport.deliveryMethod == undefined) {
                     $scope.submitError += "Please select a delivery method\n";
                 }
-	            
-	            // Check and set weight
-	            // lbs
-	            if (parseInt($scope.newReport.weightlbs) < 0) {
-                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
-                }
-	            //oz
-	            if (parseInt($scope.newReport.weightoz) < 0) {
-                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0\n"
-                }
-	            var lbs = parseFloat($scope.newReport.weightlbs);
-	            var oz = parseFloat($scope.newReport.weightoz);
-	            $scope.newReport.weight = lbs + (oz / 16);
-	            
-	            // Check length
-	            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.newReport.length)) == false) {
-                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0\n"
-                } else if (parseFloat($scope.newReport.length) <= 0) {
-                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0\n"
-                }
-	            
-	         	// Check Heart rate
-	            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.heartRate).replace(/^0+/, '')) == false) {
-                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0\n"
-                } else if (parseInt($scope.newReport.heartRate) < 0) {
-                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0\n"
-                }
 	         	
-	         	// Check blood pressure
-	            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.bloodPressure).replace(/^0+/, '')) == false) {
-                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0\n"
-                } else if (parseInt($scope.newReport.bloodPressure) < 0) {
-                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0\n"
-                }
-	         	
-	         	// Check names
-	         	if (!$scope.newReport.firstName || $scope.newReport.firstName >=50) {
-                    $scope.submitError += "Baby first name cannot be empty and must be less than 50 characters.\n"
-	         	}
-	         	if (!$scope.newReport.lastName || $scope.newReport.lastName >=50) {
-                    $scope.submitError += "Baby last name cannot be empty and must be less than 50 characters.\n"
+	         	if ($scope.newReport.deliveryMethod === 'Miscarraige') {
+
+		            // Check and set weight
+		            // lbs
+		            if (parseInt($scope.newReport.weightlbs) < 0) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
+	                }
+		            //oz
+		            if (parseInt($scope.newReport.weightoz) < 0) {
+	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                }
+		            var lbs = parseFloat($scope.newReport.weightlbs);
+		            var oz = parseFloat($scope.newReport.weightoz);
+		            $scope.newReport.weight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.newReport.length)) == false) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0\n"
+	                } else if (parseFloat($scope.newReport.length) <= 0) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.heartRate).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.newReport.heartRate) < 0) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.bloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.newReport.bloodPressure) < 0) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.newReport.firstName || $scope.newReport.firstName >=50) {
+	                    $scope.submitError += "Baby first name cannot be empty and must be less than 50 characters.\n"
+		         	}
+		         	if (!$scope.newReport.lastName || $scope.newReport.lastName >=50) {
+	                    $scope.submitError += "Baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
 	         	}
            	}
            	
@@ -235,47 +262,50 @@
                     $scope.submitError += "Please select a delivery method for the twin\n";
                 }
 	            
-	            // Check and set weight
-	            // lbs
-	            if (parseInt($scope.newReport.secondWeightlbs) < 0) {
-                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
-                }
-	            //oz
-	            if (parseInt($scope.newReport.secondWeightoz) < 0) {
-                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
-                }
-	            var lbs = parseFloat($scope.newReport.secondWeightlbs);
-	            var oz = parseFloat($scope.newReport.secondWeightoz);
-	            $scope.newReport.secondWeight = lbs + (oz / 16);
-	            
-	            // Check length
-	            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.newReport.secondLength)) == false) {
-                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
-                } else if (parseFloat($scope.newReport.secondLength) <= 0) {
-                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
-                }
-	            
-	         	// Check Heart rate
-	            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.secondHeartRate).replace(/^0+/, '')) == false) {
-                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
-                } else if (parseInt($scope.newReport.secondHeartRate) < 0) {
-                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
-                }
-	         	
-	         	// Check blood pressure
-	            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.secondBloodPressure).replace(/^0+/, '')) == false) {
-                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
-                } else if (parseInt($scope.newReport.secondBloodPressure) < 0) {
-                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
-                }
-	         	
-	         	// Check names
-	         	if (!$scope.newReport.secondFirstName || $scope.newReport.secondFirstName >=50) {
-                    $scope.submitError += "Second baby first name cannot be empty and must be less than 50 characters\n"
-	         	}
-	         	if (!$scope.newReport.secondLastName || $scope.newReport.secondLastName >=50) {
-                    $scope.submitError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
-	         	}
+	         	if ($scope.newReport.secondDeliveryMethod === 'Miscarraige') {
+
+		            // Check and set weight
+		            // lbs
+		            if (parseInt($scope.newReport.secondWeightlbs) < 0) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            //oz
+		            if (parseInt($scope.newReport.secondWeightoz) < 0) {
+	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            var lbs = parseFloat($scope.newReport.secondWeightlbs);
+		            var oz = parseFloat($scope.newReport.secondWeightoz);
+		            $scope.newReport.secondWeight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.newReport.secondLength)) == false) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                } else if (parseFloat($scope.newReport.secondLength) <= 0) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.secondHeartRate).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.newReport.secondHeartRate) < 0) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.secondBloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.newReport.secondBloodPressure) < 0) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.newReport.secondFirstName || $scope.newReport.secondFirstName >=50) {
+	                    $scope.submitError += "Second baby first name cannot be empty and must be less than 50 characters\n"
+		         	}
+		         	if (!$scope.newReport.secondLastName || $scope.newReport.secondLastName >=50) {
+	                    $scope.submitError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
+           		}
            	}
 
             
@@ -385,46 +415,49 @@
                     $scope.editError += "Please select a delivery method\n";
                 }
 	            
-	            // Check and set weight
-	            // lbs
-	            if (parseInt($scope.selectedReport.weightlbs) < 0) {
-                    $scope.editError += "Weight in lbs must be an integer value greater than or equal to 0\n"
-                }
-	            //oz
-	            if (parseInt($scope.selectedReport.weightoz) < 0) {
-                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
-                }
-	            var lbs = parseFloat($scope.selectedReport.weightlbs);
-	            var oz = parseFloat($scope.selectedReport.weightoz);
-	            $scope.selectedReport.weight = lbs + (oz / 16);
-	            
-	            // Check length
-	            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.selectedReport.length)) == false) {
-                    $scope.editError += "Length must be a floating point number up to two digits greater than 0\n"
-                } else if (parseFloat($scope.selectedReport.length) <= 0) {
-                    $scope.editError += "Length must be a floating point number up to two digits greater than 0\n"
-                }
-	            
-	         	// Check Heart rate
-	            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.heartRate).replace(/^0+/, '')) == false) {
-                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0\n"
-                } else if (parseInt($scope.selectedReport.heartRate) < 0) {
-                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0\n"
-                }
-	         	
-	         	// Check blood pressure
-	            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.bloodPressure).replace(/^0+/, '')) == false) {
-                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0\n"
-                } else if (parseInt($scope.selectedReport.bloodPressure) < 0) {
-                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0\n"
-                }
-	         	
-	         	// Check names
-	         	if (!$scope.selectedReport.firstName || $scope.selectedReport.firstName >=50) {
-                    $scope.editError += "Baby first name cannot be empty and must be less than 50 characters.\n"
-	         	}
-	         	if (!$scope.selectedReport.lastName || $scope.selectedReport.lastName >=50) {
-                    $scope.editError += "Baby last name cannot be empty and must be less than 50 characters.\n"
+	         	if ($scope.selectedReport.deliveryMethod === 'Miscarraige') {
+
+		            // Check and set weight
+		            // lbs
+		            if (parseInt($scope.selectedReport.weightlbs) < 0) {
+	                    $scope.editError += "Weight in lbs must be an integer value greater than or equal to 0\n"
+	                }
+		            //oz
+		            if (parseInt($scope.selectedReport.weightoz) < 0) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                }
+		            var lbs = parseFloat($scope.selectedReport.weightlbs);
+		            var oz = parseFloat($scope.selectedReport.weightoz);
+		            $scope.selectedReport.weight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.selectedReport.length)) == false) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0\n"
+	                } else if (parseFloat($scope.selectedReport.length) <= 0) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.heartRate).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.selectedReport.heartRate) < 0) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.bloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.selectedReport.bloodPressure) < 0) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.selectedReport.firstName || $scope.selectedReport.firstName >=50) {
+	                    $scope.editError += "Baby first name cannot be empty and must be less than 50 characters.\n"
+		         	}
+		         	if (!$scope.selectedReport.lastName || $scope.selectedReport.lastName >=50) {
+	                    $scope.editError += "Baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
 	         	}
            	}
            	
@@ -454,47 +487,50 @@
 	            if ($scope.selectedReport.secondDeliveryMethod == undefined) {
                     $scope.editError += "Please select a delivery method for the twin\n";
                 }
-	            
-	            // Check and set weight
-	            // lbs
-	            if (parseInt($scope.selectedReport.secondWeightlbs) < 0) {
-                    $scope.editError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
-                }
-	            //oz
-	            if (parseInt($scope.selectedReport.secondWeightoz) < 0) {
-                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
-                }
-	            var lbs = parseFloat($scope.selectedReport.secondWeightlbs);
-	            var oz = parseFloat($scope.selectedReport.secondWeightoz);
-	            $scope.selectedReport.secondWeight = lbs + (oz / 16);
-	            
-	            // Check length
-	            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.selectedReport.secondLength)) == false) {
-                    $scope.editError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
-                } else if (parseFloat($scope.selectedReport.secondLength) <= 0) {
-                    $scope.editError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
-                }
-	            
-	         	// Check Heart rate
-	            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.secondHeartRate).replace(/^0+/, '')) == false) {
-                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
-                } else if (parseInt($scope.selectedReport.secondHeartRate) < 0) {
-                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
-                }
 	         	
-	         	// Check blood pressure
-	            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.secondBloodPressure).replace(/^0+/, '')) == false) {
-                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
-                } else if (parseInt($scope.selectedReport.secondBloodPressure) < 0) {
-                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
-                }
-	         	
-	         	// Check names
-	         	if (!$scope.selectedReport.secondFirstName || $scope.selectedReport.secondFirstName >=50) {
-                    $scope.editError += "Second baby first name cannot be empty and must be less than 50 characters\n"
-	         	}
-	         	if (!$scope.selectedReport.secondLastName || $scope.selectedReport.secondLastName >=50) {
-                    $scope.editError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
+	         	if ($scope.selectedReport.secondDeliveryMethod === 'Miscarraige') {
+	            
+		            // Check and set weight
+		            // lbs
+		            if (parseInt($scope.selectedReport.secondWeightlbs) < 0) {
+	                    $scope.editError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            //oz
+		            if (parseInt($scope.selectedReport.secondWeightoz) < 0) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            var lbs = parseFloat($scope.selectedReport.secondWeightlbs);
+		            var oz = parseFloat($scope.selectedReport.secondWeightoz);
+		            $scope.selectedReport.secondWeight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.selectedReport.secondLength)) == false) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                } else if (parseFloat($scope.selectedReport.secondLength) <= 0) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.secondHeartRate).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.selectedReport.secondHeartRate) < 0) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.secondBloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.selectedReport.secondBloodPressure) < 0) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.selectedReport.secondFirstName || $scope.selectedReport.secondFirstName >=50) {
+	                    $scope.editError += "Second baby first name cannot be empty and must be less than 50 characters\n"
+		         	}
+		         	if (!$scope.selectedReport.secondLastName || $scope.selectedReport.secondLastName >=50) {
+	                    $scope.editError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
 	         	}
            	}
            	
@@ -679,80 +715,82 @@
 												</select>
 											</div>
 										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Weight:</label>
+										<div ng-if="selectedReport.deliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='selected-weightlbs' class="col-xs-4">
+													<input class="form-control" name="selected-weightlbs"
+														ng-model="selectedReport.weightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
 											</div>
-											<div name='selected-weightlbs' class="col-xs-4">
-												<input class="form-control" name="selected-weightlbs"
-													ng-model="selectedReport.weightlbs" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='selected-weightoz' class="col-xs-4">
+													<input class="form-control" name="selected-weightoz"
+														ng-model="selectedReport.weightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">lbs</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='selected-length' class="col-xs-4">
+													<input class="form-control" name="selected-length"
+														ng-model="selectedReport.length" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5"></div>
-											<div name='selected-weightoz' class="col-xs-4">
-												<input class="form-control" name="selected-weightoz"
-													ng-model="selectedReport.weightoz" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='selected-heartRate' class="col-xs-4">
+													<input class="form-control" name="selected-heartRate"
+														ng-model="selectedReport.heartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">oz</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='selected-bloodPressure' class="col-xs-4">
+													<input class="form-control" name="selected-bloodPressure"
+														ng-model="selectedReport.bloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Length:</label>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='selected-firstName' class="col-xs-6">
+													<input class="form-control" name="selected-firstName"
+														ng-model="selectedReport.firstName" required="true" type="text">
+												</div>
 											</div>
-											<div name='selected-length' class="col-xs-4">
-												<input class="form-control" name="selected-length"
-													ng-model="selectedReport.length" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">in</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Heart Rate:</label>
-											</div>
-											<div name='selected-heartRate' class="col-xs-4">
-												<input class="form-control" name="selected-heartRate"
-													ng-model="selectedReport.heartRate" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">BPM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Blood Pressure:</label>
-											</div>
-											<div name='selected-bloodPressure' class="col-xs-4">
-												<input class="form-control" name="selected-bloodPressure"
-													ng-model="selectedReport.bloodPressure" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">MoM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>First Name:</label>
-											</div>
-											<div name='selected-firstName' class="col-xs-6">
-												<input class="form-control" name="selected-firstName"
-													ng-model="selectedReport.firstName" required="true" type="text">
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>Last Name:</label>
-											</div>
-											<div name='selected-lastName' class="col-xs-6">
-												<input class="form-control" name="selected-lastName"
-													ng-model="selectedReport.lastName" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='selected-lastName' class="col-xs-6">
+													<input class="form-control" name="selected-lastName"
+														ng-model="selectedReport.lastName" required="true" type="text">
+												</div>
 											</div>
 										</div>
 									</div>
@@ -797,80 +835,82 @@
 												</select>
 											</div>
 										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Weight:</label>
+										<div ng-if="selectedReport.secondDeliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='selected-secondWeightlbs' class="col-xs-4">
+													<input class="form-control" name="selected-secondWeightlbs"
+														ng-model="selectedReport.secondWeightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
 											</div>
-											<div name='selected-secondWeightlbs' class="col-xs-4">
-												<input class="form-control" name="selected-secondWeightlbs"
-													ng-model="selectedReport.secondWeightlbs" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='selected-secondWeightoz' class="col-xs-4">
+													<input class="form-control" name="selected-secondWeightoz"
+														ng-model="selectedReport.secondWeightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">lbs</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='selected-secondLength' class="col-xs-4">
+													<input class="form-control" name="selected-secondLength"
+														ng-model="selectedReport.secondLength" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5"></div>
-											<div name='selected-secondWeightoz' class="col-xs-4">
-												<input class="form-control" name="selected-secondWeightoz"
-													ng-model="selectedReport.secondWeightoz" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='selected-secondHeartRate' class="col-xs-4">
+													<input class="form-control" name="selected-secondHeartRate"
+														ng-model="selectedReport.secondHeartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">oz</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='selected-secondBloodPressure' class="col-xs-4">
+													<input class="form-control" name="selected-secondBloodPressure"
+														ng-model="selectedReport.secondBloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Length:</label>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='selected-secondFirstName' class="col-xs-6">
+													<input class="form-control" name="selected-secondFirstName"
+														ng-model="selectedReport.secondFirstName" required="true" type="text">
+												</div>
 											</div>
-											<div name='selected-secondLength' class="col-xs-4">
-												<input class="form-control" name="selected-secondLength"
-													ng-model="selectedReport.secondLength" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">in</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Heart Rate:</label>
-											</div>
-											<div name='selected-secondHeartRate' class="col-xs-4">
-												<input class="form-control" name="selected-secondHeartRate"
-													ng-model="selectedReport.secondHeartRate" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">BPM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Blood Pressure:</label>
-											</div>
-											<div name='selected-secondBloodPressure' class="col-xs-4">
-												<input class="form-control" name="selected-secondBloodPressure"
-													ng-model="selectedReport.secondBloodPressure" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">MoM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>First Name:</label>
-											</div>
-											<div name='selected-secondFirstName' class="col-xs-6">
-												<input class="form-control" name="selected-secondFirstName"
-													ng-model="selectedReport.secondFirstName" required="true" type="text">
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>Last Name:</label>
-											</div>
-											<div name='selected-secondLastName' class="col-xs-6">
-												<input class="form-control" name="selected-secondLastName"
-													ng-model="selectedReport.secondLastName" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='selected-secondLastName' class="col-xs-6">
+													<input class="form-control" name="selected-secondLastName"
+														ng-model="selectedReport.secondLastName" required="true" type="text">
+												</div>
 											</div>
 										</div>
 									</div>
@@ -970,80 +1010,82 @@
 												</select>
 											</div>
 										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Weight:</label>
+										<div ng-if="newReport.deliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='new-weightlbs' class="col-xs-4">
+													<input class="form-control" name="new-weightlbs"
+														ng-model="newReport.weightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
 											</div>
-											<div name='new-weightlbs' class="col-xs-4">
-												<input class="form-control" name="new-weightlbs"
-													ng-model="newReport.weightlbs" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='new-weightoz' class="col-xs-4">
+													<input class="form-control" name="new-weightoz"
+														ng-model="newReport.weightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">lbs</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='new-length' class="col-xs-4">
+													<input class="form-control" name="new-length"
+														ng-model="newReport.length" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5"></div>
-											<div name='new-weightoz' class="col-xs-4">
-												<input class="form-control" name="new-weightoz"
-													ng-model="newReport.weightoz" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='new-heartRate' class="col-xs-4">
+													<input class="form-control" name="new-heartRate"
+														ng-model="newReport.heartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">oz</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='new-bloodPressure' class="col-xs-4">
+													<input class="form-control" name="new-bloodPressure"
+														ng-model="newReport.bloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Length:</label>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='new-firstName' class="col-xs-6">
+													<input class="form-control" name="new-firstName"
+														ng-model="newReport.firstName" required="true" type="text">
+												</div>
 											</div>
-											<div name='new-length' class="col-xs-4">
-												<input class="form-control" name="new-length"
-													ng-model="newReport.length" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">in</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Heart Rate:</label>
-											</div>
-											<div name='new-heartRate' class="col-xs-4">
-												<input class="form-control" name="new-heartRate"
-													ng-model="newReport.heartRate" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">BPM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Blood Pressure:</label>
-											</div>
-											<div name='new-bloodPressure' class="col-xs-4">
-												<input class="form-control" name="new-bloodPressure"
-													ng-model="newReport.bloodPressure" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">MoM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>First Name:</label>
-											</div>
-											<div name='new-firstName' class="col-xs-6">
-												<input class="form-control" name="new-firstName"
-													ng-model="newReport.firstName" required="true" type="text">
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>Last Name:</label>
-											</div>
-											<div name='new-lastName' class="col-xs-6">
-												<input class="form-control" name="new-lastName"
-													ng-model="newReport.lastName" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='new-lastName' class="col-xs-6">
+													<input class="form-control" name="new-lastName"
+														ng-model="newReport.lastName" required="true" type="text">
+												</div>
 											</div>
 										</div>
 									</div>
@@ -1088,80 +1130,82 @@
 												</select>
 											</div>
 										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Weight:</label>
+										<div ng-if="newReport.secondDeliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='new-secondWeightlbs' class="col-xs-4">
+													<input class="form-control" name="new-secondWeightlbs"
+														ng-model="newReport.secondWeightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
 											</div>
-											<div name='new-secondWeightlbs' class="col-xs-4">
-												<input class="form-control" name="new-secondWeightlbs"
-													ng-model="newReport.secondWeightlbs" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='new-secondWeightoz' class="col-xs-4">
+													<input class="form-control" name="new-secondWeightoz"
+														ng-model="newReport.secondWeightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">lbs</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='new-secondLength' class="col-xs-4">
+													<input class="form-control" name="new-secondLength"
+														ng-model="newReport.secondLength" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5"></div>
-											<div name='new-secondWeightoz' class="col-xs-4">
-												<input class="form-control" name="new-secondWeightoz"
-													ng-model="newReport.secondWeightoz" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='new-secondHeartRate' class="col-xs-4">
+													<input class="form-control" name="new-secondHeartRate"
+														ng-model="newReport.secondHeartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
 											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">oz</span>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='new-secondBloodPressure' class="col-xs-4">
+													<input class="form-control" name="new-secondBloodPressure"
+														ng-model="newReport.secondBloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Length:</label>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='new-secondFirstName' class="col-xs-6">
+													<input class="form-control" name="new-secondFirstName"
+														ng-model="newReport.secondFirstName" required="true" type="text">
+												</div>
 											</div>
-											<div name='new-secondLength' class="col-xs-4">
-												<input class="form-control" name="new-secondLength"
-													ng-model="newReport.secondLength" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">in</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Heart Rate:</label>
-											</div>
-											<div name='new-secondHeartRate' class="col-xs-4">
-												<input class="form-control" name="new-secondHeartRate"
-													ng-model="newReport.secondHeartRate" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">BPM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-5">
-												<label>Blood Pressure:</label>
-											</div>
-											<div name='new-secondBloodPressure' class="col-xs-4">
-												<input class="form-control" name="new-secondBloodPressure"
-													ng-model="newReport.secondBloodPressure" required="true" type="text">
-											</div>
-											<div class="col-xs-3">
-												<span id="helpBlock" class="help-block">MoM</span>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>First Name:</label>
-											</div>
-											<div name='new-secondFirstName' class="col-xs-6">
-												<input class="form-control" name="new-secondFirstName"
-													ng-model="newReport.secondFirstName" required="true" type="text">
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-xs-6">
-												<label>Last Name:</label>
-											</div>
-											<div name='new-secondLastName' class="col-xs-6">
-												<input class="form-control" name="new-secondLastName"
-													ng-model="newReport.secondLastName" required="true" type="text">
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='new-secondLastName' class="col-xs-6">
+													<input class="form-control" name="new-secondLastName"
+														ng-model="newReport.secondLastName" required="true" type="text">
+												</div>
 											</div>
 										</div>
 									</div>
