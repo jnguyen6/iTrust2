@@ -80,6 +80,7 @@ public class LaborDeliveryReportTest {
         report.setSecondLastName( "Razdan" );
         report.setPatient( "patient" );
         report.setDeliveryMethod( record.getDeliveryMethod() );
+        report.setSecondDeliveryMethod( record.getDeliveryMethod() );
         report.save();
 
         final LaborDeliveryReport test = LaborDeliveryReport.getById( report.getId() );
@@ -104,6 +105,7 @@ public class LaborDeliveryReportTest {
         assertEquals( report.getPatient(), test.getPatient() );
         assertEquals( report.getId(), test.getId() );
         assertEquals( report.getDeliveryMethod(), test.getDeliveryMethod() );
+        assertEquals( report.getSecondDeliveryMethod(), test.getSecondDeliveryMethod() );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
         form.setDateOfLabor( LocalDate.now() );
@@ -139,6 +141,7 @@ public class LaborDeliveryReportTest {
         form.setSecondFirstName( "Swarnim" );
         form.setSecondLastName( "Razdan" );
         form.setDeliveryMethod( record2.getDeliveryMethod() );
+        form.setSecondDeliveryMethod( record2.getDeliveryMethod() );
 
         final LaborDeliveryReport ldr = new LaborDeliveryReport( form );
         ldr.setPatient( "patient" );
@@ -162,6 +165,7 @@ public class LaborDeliveryReportTest {
         assertEquals( report.getSecondFirstName(), ldr.getSecondFirstName() );
         assertEquals( report.getSecondLastName(), ldr.getSecondLastName() );
         assertEquals( report.getDeliveryMethod(), ldr.getDeliveryMethod() );
+        assertEquals( report.getSecondDeliveryMethod(), ldr.getSecondDeliveryMethod() );
         assertEquals( report.getPatient(), ldr.getPatient() );
 
     }
@@ -206,6 +210,7 @@ public class LaborDeliveryReportTest {
 
         report.setPatient( "patient" );
         report.setDeliveryMethod( record.getDeliveryMethod() );
+        report.setSecondDeliveryMethod( record.getDeliveryMethod() );
         report.save();
 
         assertEquals( 1, ObstetricsRecord.getByPatient( "patient" ).size() );

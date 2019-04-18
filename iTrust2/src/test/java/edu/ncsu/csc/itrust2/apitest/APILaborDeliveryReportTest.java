@@ -158,6 +158,7 @@ public class APILaborDeliveryReportTest {
         form.setSecondFirstName( "Nishad" );
         form.setSecondLastName( "Waghmare" );
         form.setDeliveryMethod( record.getDeliveryMethod() );
+        form.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm test = new LaborDeliveryReportForm();
         test.setDateOfLabor( form.getDateOfLabor() );
@@ -180,6 +181,7 @@ public class APILaborDeliveryReportTest {
         test.setSecondLastName( form.getSecondLastName() );
         test.setObstetricsRecord( form.getObstetricsRecord() );
         test.setDeliveryMethod( form.getDeliveryMethod() );
+        test.setSecondDeliveryMethod( form.getDeliveryMethod() );
 
         // Make invalid post request - male patient
         mvc.perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
@@ -237,6 +239,7 @@ public class APILaborDeliveryReportTest {
         form2.setSecondFirstName( "Asia" );
         form2.setSecondLastName( "Walker" );
         form2.setDeliveryMethod( record.getDeliveryMethod() );
+        form2.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm test2 = new LaborDeliveryReportForm();
         test2.setDateOfLabor( form2.getDateOfLabor() );
@@ -259,6 +262,7 @@ public class APILaborDeliveryReportTest {
         test2.setSecondLastName( form2.getSecondLastName() );
         test2.setObstetricsRecord( form2.getObstetricsRecord() );
         test2.setDeliveryMethod( form2.getDeliveryMethod() );
+        test2.setSecondDeliveryMethod( form2.getDeliveryMethod() );
 
         // Attempt to add another new labor delivery reports
         mvc.perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
@@ -339,6 +343,7 @@ public class APILaborDeliveryReportTest {
         form.setSecondFirstName( "Nishad" );
         form.setSecondLastName( "Waghmare" );
         form.setDeliveryMethod( record.getDeliveryMethod() );
+        form.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm form2 = new LaborDeliveryReportForm();
         form2.setDateOfLabor( LocalDate.now() );
@@ -361,6 +366,7 @@ public class APILaborDeliveryReportTest {
         form2.setSecondFirstName( "Nishad" );
         form2.setSecondLastName( "Waghmare" );
         form2.setDeliveryMethod( record.getDeliveryMethod() );
+        form2.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         // Then, create new labor and delivery report
         final String newRecString = mvc
@@ -450,6 +456,7 @@ public class APILaborDeliveryReportTest {
         form.setSecondFirstName( "Nishad" );
         form.setSecondLastName( "Waghmare" );
         form.setDeliveryMethod( record.getDeliveryMethod() );
+        form.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReport report = new LaborDeliveryReport( form );
         report.setPatient( "patient" );
@@ -531,6 +538,7 @@ public class APILaborDeliveryReportTest {
         form.setSecondFirstName( "Nishad" );
         form.setSecondLastName( "Waghmare" );
         form.setDeliveryMethod( record.getDeliveryMethod() );
+        form.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         // Then, create new labor and delivery report
         final String newRecString = mvc
