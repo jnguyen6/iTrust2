@@ -55,6 +55,7 @@ public class LaborDeliveryReportFormTest {
         record.save();
         form.setObstetricsRecord( record );
         form.setDeliveryMethod( record.getDeliveryMethod() );
+        form.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm test = new LaborDeliveryReportForm();
         test.setDateOfLabor( form.getDateOfLabor() );
@@ -77,6 +78,7 @@ public class LaborDeliveryReportFormTest {
         test.setSecondLastName( form.getSecondLastName() );
         test.setObstetricsRecord( form.getObstetricsRecord() );
         test.setDeliveryMethod( record.getDeliveryMethod() );
+        test.setSecondDeliveryMethod( form.getSecondDeliveryMethod() );
 
         assertEquals( form.getDateOfLabor(), test.getDateOfLabor() );
         assertEquals( form.getTimeOfLabor(), test.getTimeOfLabor() );
@@ -96,6 +98,8 @@ public class LaborDeliveryReportFormTest {
         assertEquals( form.getSecondBloodPressure(), test.getSecondBloodPressure() );
         assertEquals( form.getSecondFirstName(), test.getSecondFirstName() );
         assertEquals( form.getSecondLastName(), test.getSecondLastName() );
+        assertEquals( form.getDeliveryMethod(), test.getDeliveryMethod() );
+        assertEquals( form.getSecondDeliveryMethod(), test.getSecondDeliveryMethod() );
 
     }
 

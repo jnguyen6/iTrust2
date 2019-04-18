@@ -122,6 +122,12 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
     private DeliveryMethod   deliveryMethod;
 
     /**
+     * The delivery method of the labor delivery report of the second baby, if
+     * twins are born
+     */
+    private DeliveryMethod   secondDeliveryMethod;
+
+    /**
      * Default Constructor for LaborDeliveryReport
      */
     public LaborDeliveryReport () {
@@ -157,6 +163,8 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
             setSecondBloodPressure( ov.getSecondBloodPressure() );
             setSecondFirstName( ov.getSecondFirstName() );
             setSecondLastName( ov.getSecondLastName() );
+            setSecondDeliveryMethod( ov.getSecondDeliveryMethod() );
+            obstetricsRecord.setDeliveryMethod( ov.getSecondDeliveryMethod() );
         }
         else {
             setSecondDateOfDelivery( LocalDate.MIN );
@@ -167,6 +175,7 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
             setSecondBloodPressure( 70 );
             setSecondFirstName( "Bob" );
             setSecondLastName( "Marley" );
+            setSecondDeliveryMethod( DeliveryMethod.Miscarriage );
         }
 
     }
@@ -688,5 +697,24 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      */
     public void setDeliveryMethod ( final DeliveryMethod deliveryMethod ) {
         this.deliveryMethod = deliveryMethod;
+    }
+
+    /**
+     * Returns the delivery method for this labor delivery report
+     *
+     * @return the patient for this labor delivery report
+     */
+    public DeliveryMethod getSecondDeliveryMethod () {
+        return deliveryMethod;
+    }
+
+    /**
+     * Sets the delivery method for the labor delivery report
+     *
+     * @param secondDeliveryMethod
+     *            the deliveryMethod to set for this labor delivery report
+     */
+    public void setSecondDeliveryMethod ( final DeliveryMethod secondDeliveryMethod ) {
+        this.secondDeliveryMethod = secondDeliveryMethod;
     }
 }
