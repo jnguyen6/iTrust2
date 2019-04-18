@@ -126,7 +126,7 @@ public class APILaborDeliveryReportController extends APIController {
      *
      */
     @PreAuthorize ( "hasRole('ROLE_OBGYN')" )
-    @PutMapping ( BASE_PATH + "LaborDeliveryReports/{id}" )
+    @PutMapping ( BASE_PATH + "laborDeliveryReports/{id}" )
     public ResponseEntity editLaborDeliveryReport ( @PathVariable final long id,
             @RequestBody final LaborDeliveryReportForm form ) {
         try {

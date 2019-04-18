@@ -109,6 +109,9 @@
 	                        $scope.getObstetricsRecords();
 	                        $scope.loadReports();
 	                        
+	                        $scope.newReport.lastName = patient.lastName;
+	                        $scope.newReport.secondLastName = patient.lastName;
+	                        
 	                    };
 	                },
 	                function (rejection) {
@@ -614,7 +617,7 @@
                     $scope.editCheckSecondDelivery();
                 }
                 
-				var reportToSubmit = angular.copy($scope.newReport);
+				var reportToSubmit = angular.copy($scope.selectedReport);
                 
                 console.log(reportToSubmit);
                 
