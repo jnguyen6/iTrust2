@@ -12,7 +12,10 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
+import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
@@ -130,6 +133,44 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     }
 
     // Add code for creating a labor and delivery report here:
+    @And ( "^The obstetrics patient has a documented labor and delivery report$" )
+    public void createLaborDeliveryReport () {
+        DomainObject.deleteAll( LaborDeliveryReport.class );
+        final LaborDeliveryReport report = getLaborDeliveryReport();
+        if ( report != null ) {
+            report.save();
+        }
+    }
+
+    /**
+     * Generates a labor and delivery report with mock data
+     */
+    private LaborDeliveryReport getLaborDeliveryReport () {
+        final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
+        form.setDatetimeOfLabor( "2019-03-11T10:00:00.000-04:00" );
+        form.setDatetimeOfDelivery( "2019-03-22T10:00:00.000-04:00" );
+        form.setWeight( 3.4 );
+        form.setLength( 12.34 );
+        form.setHeartRate( 70 );
+        form.setBloodPressure( 70 );
+        form.setFirstName( "Sanchit" );
+        form.setLastName( "Razdan" );
+        form.setSecondDatetimeOfDelivery( "2019-03-22T10:00:00.000-04:00" );
+        form.setSecondWeight( 2.3 );
+        form.setSecondLength( 10.4 );
+        form.setSecondHeartRate( 75 );
+        form.setSecondBloodPressure( 75 );
+        form.setSecondFirstName( "Swarnim" );
+        form.setSecondLastName( "Razdan" );
+
+        try {
+            return new LaborDeliveryReport( form );
+        }
+        catch ( final Exception e ) {
+            // Do nothing
+            return null;
+        }
+    }
 
     /**
      * Logs in HCP and navigates them to the document Labor and Deliver Report
@@ -213,8 +254,8 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
             final String newFirstName ) {
         waitForAngular();
 
-        driver.findElement( By.name( "dateLabor" ) ).clear();
-        driver.findElement( By.name( "dateLabor" ) ).sendKeys( newDateLabor );
+        driver.findElement( By.name( "dateOfLabor" ) ).clear();
+        driver.findElement( By.name( "dateOfLabor" ) ).sendKeys( newDateLabor );
 
         driver.findElement( By.name( "length" ) ).clear();
         driver.findElement( By.name( "length" ) ).sendKeys( newLength );
@@ -256,11 +297,13 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         fillInDateTime( "dateLabor", dateLabor, "timeLabor", timeLabor );
         fillInDateTime( "dateDelivery", dateDelivery, "timeDelivery", timeDelivery );
 
-        driver.findElement( By.name( "lbs" ) ).clear();
-        driver.findElement( By.name( "lbs" ) ).sendKeys( lbs );
+        driver.findElement( By.name( "deliveryMethod" ) ).sendKeys( deliveryType );
 
-        driver.findElement( By.name( "oz" ) ).clear();
-        driver.findElement( By.name( "oz" ) ).sendKeys( oz );
+        driver.findElement( By.name( "weightlbs" ) ).clear();
+        driver.findElement( By.name( "weightlbs" ) ).sendKeys( lbs );
+
+        driver.findElement( By.name( "weightoz" ) ).clear();
+        driver.findElement( By.name( "weightoz" ) ).sendKeys( oz );
 
         driver.findElement( By.name( "length" ) ).clear();
         driver.findElement( By.name( "length" ) ).sendKeys( length );
@@ -268,8 +311,8 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         driver.findElement( By.name( "heartRate" ) ).clear();
         driver.findElement( By.name( "heartRate" ) ).sendKeys( heartRate );
 
-        driver.findElement( By.name( "bloodPres" ) ).clear();
-        driver.findElement( By.name( "bloodPres" ) ).sendKeys( bloodPres );
+        driver.findElement( By.name( "bloodPressure" ) ).clear();
+        driver.findElement( By.name( "bloodPressure" ) ).sendKeys( bloodPres );
 
         driver.findElement( By.name( "firstName" ) ).clear();
         driver.findElement( By.name( "firstName" ) ).sendKeys( firstName );
@@ -310,14 +353,16 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        fillInDateTime( "dateLabor", dateLabor, "timeLabor", timeLabor );
-        fillInDateTime( "dateDelivery", dateDelivery, "timeDelivery", timeDelivery );
+        fillInDateTime( "dateOFLabor", dateLabor, "timeOfLabor", timeLabor );
+        fillInDateTime( "dateOfDelivery", dateDelivery, "timeOfDelivery", timeDelivery );
 
-        driver.findElement( By.name( "lbs" ) ).clear();
-        driver.findElement( By.name( "lbs" ) ).sendKeys( lbs );
+        driver.findElement( By.name( "deliveryMethod" ) ).sendKeys( deliveryType );
 
-        driver.findElement( By.name( "oz" ) ).clear();
-        driver.findElement( By.name( "oz" ) ).sendKeys( oz );
+        driver.findElement( By.name( "weightlbs" ) ).clear();
+        driver.findElement( By.name( "weightlbs" ) ).sendKeys( lbs );
+
+        driver.findElement( By.name( "weightoz" ) ).clear();
+        driver.findElement( By.name( "weightoz" ) ).sendKeys( oz );
 
         driver.findElement( By.name( "length" ) ).clear();
         driver.findElement( By.name( "length" ) ).sendKeys( length );
@@ -325,8 +370,8 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         driver.findElement( By.name( "heartRate" ) ).clear();
         driver.findElement( By.name( "heartRate" ) ).sendKeys( heartRate );
 
-        driver.findElement( By.name( "bloodPres" ) ).clear();
-        driver.findElement( By.name( "bloodPres" ) ).sendKeys( bloodPres );
+        driver.findElement( By.name( "bloodPressure" ) ).clear();
+        driver.findElement( By.name( "bloodPressure" ) ).sendKeys( bloodPres );
 
         driver.findElement( By.name( "firstName" ) ).clear();
         driver.findElement( By.name( "firstName" ) ).sendKeys( firstName );
@@ -334,32 +379,33 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         driver.findElement( By.name( "lastName" ) ).clear();
         driver.findElement( By.name( "lastName" ) ).sendKeys( lastName );
 
-        // The same procedure will be done for the second baby patient
+        // The same procedure, but for the second baby patient
         waitForAngular();
 
-        fillInDateTime( "dateLabor", dateLabor, "timeLabor", timeLabor );
-        fillInDateTime( "dateDelivery", dateDelivery, "timeDelivery", timeDelivery );
+        fillInDateTime( "secondDateOfDelivery", dateDelivery, "secondTimeOfDelivery", timeDelivery );
 
-        driver.findElement( By.name( "lbs" ) ).clear();
-        driver.findElement( By.name( "lbs" ) ).sendKeys( lbs );
+        driver.findElement( By.name( "secondDeliveryMethod" ) ).sendKeys( deliveryType );
 
-        driver.findElement( By.name( "oz" ) ).clear();
-        driver.findElement( By.name( "oz" ) ).sendKeys( oz );
+        driver.findElement( By.name( "secondWeightlbs" ) ).clear();
+        driver.findElement( By.name( "secondWeightlbs" ) ).sendKeys( lbs );
 
-        driver.findElement( By.name( "length" ) ).clear();
-        driver.findElement( By.name( "length" ) ).sendKeys( length );
+        driver.findElement( By.name( "secondWeightoz" ) ).clear();
+        driver.findElement( By.name( "secondWeightoz" ) ).sendKeys( oz );
 
-        driver.findElement( By.name( "heartRate" ) ).clear();
-        driver.findElement( By.name( "heartRate" ) ).sendKeys( heartRate );
+        driver.findElement( By.name( "secondLength" ) ).clear();
+        driver.findElement( By.name( "secondLength" ) ).sendKeys( length );
 
-        driver.findElement( By.name( "bloodPres" ) ).clear();
-        driver.findElement( By.name( "bloodPres" ) ).sendKeys( bloodPres );
+        driver.findElement( By.name( "secondHeartRate" ) ).clear();
+        driver.findElement( By.name( "secondHeartRate" ) ).sendKeys( heartRate );
 
-        driver.findElement( By.name( "firstName" ) ).clear();
-        driver.findElement( By.name( "firstName" ) ).sendKeys( firstName );
+        driver.findElement( By.name( "secondBloodPressure" ) ).clear();
+        driver.findElement( By.name( "secondBloodPressure" ) ).sendKeys( bloodPres );
 
-        driver.findElement( By.name( "lastName" ) ).clear();
-        driver.findElement( By.name( "lastName" ) ).sendKeys( lastName );
+        driver.findElement( By.name( "secondFirstName" ) ).clear();
+        driver.findElement( By.name( "secondFirstName" ) ).sendKeys( firstName );
+
+        driver.findElement( By.name( "secondLastName" ) ).clear();
+        driver.findElement( By.name( "secondLastName" ) ).sendKeys( lastName );
 
     }
 

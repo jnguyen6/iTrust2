@@ -10,9 +10,13 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
+import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -81,6 +85,37 @@ public class PatientViewLaborAndDeliveryReport extends CucumberTest {
 
     // Add code for creating a labor and delivery report (with and without
     // twins) here:
+    @And ( "^The patient has an existing labor and delivery report without twins$" )
+    public void createLaborDeliveryReportWithTwins () {
+        DomainObject.deleteAll( LaborDeliveryReport.class );
+        final LaborDeliveryReport report = getLaborDeliveryReportWithTwins();
+        if ( report != null ) {
+            report.save();
+        }
+    }
+
+    /**
+     * Generates a labor and delivery report for twins with mock data
+     */
+    private LaborDeliveryReport getLaborDeliveryReportWithTwins () {
+        final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
+        form.setDatetimeOfLabor( "2019-03-11T10:00:00.000-04:00" );
+        form.setDatetimeOfDelivery( "2019-03-22T10:00:00.000-04:00" );
+        form.setWeight( 3.4 );
+        form.setLength( 12.34 );
+        form.setHeartRate( 70 );
+        form.setBloodPressure( 70 );
+        form.setFirstName( "Sanchit" );
+        form.setLastName( "Razdan" );
+
+        try {
+            return new LaborDeliveryReport( form );
+        }
+        catch ( final Exception e ) {
+            // Do nothing
+            return null;
+        }
+    }
 
     /**
      * The patient logs in and navigates to the View Patient Labor and Delivery

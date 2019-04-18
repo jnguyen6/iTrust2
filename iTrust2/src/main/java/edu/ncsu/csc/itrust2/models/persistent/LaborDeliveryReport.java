@@ -162,6 +162,8 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         setLastName( ov.getLastName() );
         setObstetricsRecord( ov.getObstetricsRecord() );
         setDeliveryMethod( ov.getDeliveryMethod() );
+        obstetricsRecord.setWeeksPreg(
+                (int) ChronoUnit.WEEKS.between( obstetricsRecord.getLmp(), datetimeDelivery.toLocalDateTime() ) );
         obstetricsRecord.setHoursInLabor( (int) ChronoUnit.HOURS.between( datetimeLabor, datetimeDelivery ) );
         obstetricsRecord.setDeliveryMethod( ov.getDeliveryMethod() );
         obstetricsRecord.setCurrentRecord( false );

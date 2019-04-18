@@ -47,9 +47,9 @@ public class LaborDeliveryReportTest {
     @Test
     public void testLaborDeliveryReportValid () throws ParseException {
         final LaborDeliveryReport report = new LaborDeliveryReport();
-        final ZonedDateTime datetimeLabor = ZonedDateTime.parse( "2018-04-16T09:50:00.000-04:00" );
+        final ZonedDateTime datetimeLabor = ZonedDateTime.parse( "2019-03-16T09:50:00.000-04:00" );
         report.setDatetimeOfLabor( datetimeLabor );
-        final ZonedDateTime datetimeDelivery = ZonedDateTime.parse( "2018-05-16T09:50:00.000-04:00" );
+        final ZonedDateTime datetimeDelivery = ZonedDateTime.parse( "2019-04-30T09:50:00.000-04:00" );
         report.setDatetimeOfDelivery( datetimeDelivery );
         report.setWeight( 3.4 );
         report.setLength( 12.34 );
@@ -72,7 +72,7 @@ public class LaborDeliveryReportTest {
         report.setObstetricsRecord( record );
 
         final ZonedDateTime seconddatetimeDelivery = ZonedDateTime
-                .parse( "2018-06-16T09:50:00.000-04:00[America/New_York]" );
+                .parse( "2019-04-30T09:50:00.000-04:00[America/New_York]" );
         report.setSecondDatetimeOfDelivery( seconddatetimeDelivery );
         report.setSecondWeight( 2.3 );
         report.setSecondLength( 10.4 );
