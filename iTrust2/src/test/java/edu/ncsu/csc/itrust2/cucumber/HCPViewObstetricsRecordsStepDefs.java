@@ -24,6 +24,7 @@ import cucumber.api.java.en.When;
 import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
+import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
@@ -41,6 +42,7 @@ public class HCPViewObstetricsRecordsStepDefs extends CucumberTest {
 
     @Before
     public void setUp () {
+        DomainObject.deleteAll( LaborDeliveryReport.class );
         DomainObject.deleteAll( ObstetricsRecord.class );
     }
 

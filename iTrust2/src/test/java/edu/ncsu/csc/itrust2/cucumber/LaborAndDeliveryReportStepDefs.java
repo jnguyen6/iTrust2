@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -13,10 +15,11 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
+import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
-import edu.ncsu.csc.itrust2.models.persistent.Patient;
+import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -95,25 +98,6 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         timeElement.sendKeys( time.replace( ":", "" ).replace( " ", "" ) );
     }
 
-    @Given ( "^There exists an obstetrics patient in the iTrust2 system$" )
-    public void obstetricsPatientExists () {
-        waitForAngular();
-        attemptLogout();
-
-        // Create the test User
-        final User user = new User( patientString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
-                Role.ROLE_PATIENT, 1 );
-        user.save();
-
-        // The User must also be created as a Patient
-        // to show up in the list of Patients
-        final Patient patient = new Patient( user.getUsername() );
-        patient.save();
-
-        // All tests can safely assume the existence of the 'hcp', 'admin', and
-        // 'patient' users
-    }
-
     /**
      * Creates a new OB/GYN HCP User
      */
@@ -130,6 +114,25 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         // hcp',
         // 'admin', and
         // 'patient' users
+    }
+
+    /**
+     * Creates current obstetrics record for the patient
+     */
+    @And ( "^The obstetrics patient has a current obstetrics record in the iTrust2 system$" )
+    public void currentObstetricsRecordExists () {
+        final ObstetricsRecord record = new ObstetricsRecord();
+        final LocalDate lmp = LocalDate.parse( "2019-03-02" );
+
+        record.setLmp( lmp );
+        record.setConception( 2019 );
+        record.setWeeksPreg( 1 );
+        record.setHoursInLabor( 25 );
+        record.setDeliveryMethod( DeliveryMethod.Cesarean );
+        record.setCurrentRecord( true );
+        record.setTwins( false );
+        record.setPatient( patientString );
+        record.save();
     }
 
     // Add code for creating a labor and delivery report here:
@@ -176,7 +179,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
      * Logs in HCP and navigates them to the document Labor and Deliver Report
      * page
      */
-    @Then ( "^The OB/GYN HCP logs in and navigates to the Document Labor and Delivery Reports page$" )
+    @Then ( "^The OB/GYN HCP logs in and navigates to the Document Patient Labor and Delivery Reports page$" )
     public void loginObgynDocumentsLaborDeliveryReport () {
         waitForAngular();
         attemptLogout();
@@ -194,35 +197,40 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         assertEquals( "iTrust2: HCP Home", driver.getTitle() );
 
         ( (JavascriptExecutor) driver )
-                .executeScript( "document.getElementById('documentLaborAndDeliveryReports').click();" );
+                .executeScript( "document.getElementById('OBGYNHCPDocumentLaborAndDeliveryReports').click();" );
 
-        assertEquals( "iTrust2: Document Labor and Delivery Report", driver.getTitle() );
+        assertEquals( "iTrust2: Document Labor And Delivery Reports", driver.getTitle() );
     }
 
-    /**
-     * Method to navigate to the edit labor and delivery report page
-     *
-     * @throws Throwable
-     */
-    @Then ( "^The OB/GYN HCP logs in and navigates to the Edit Labor and Delivery Reports page$" )
-    public void navigateToEditLaborDeliveryReportPage () {
-        attemptLogout();
-        driver.get( baseUrl );
-        final WebElement username = driver.findElement( By.name( "username" ) );
-        username.clear();
-        username.sendKeys( obgynHcpString );
-        final WebElement password = driver.findElement( By.name( "password" ) );
-        password.clear();
-        password.sendKeys( "123456" );
-        final WebElement submit = driver.findElement( By.className( "btn" ) );
-        submit.click();
-
-        assertEquals( "iTrust2: HCP Home", driver.getTitle() );
-
-        ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('editLaborDeliveryReport').click();" );
-
-        assertEquals( "iTrust2: Edit Labor and Delivery Report", driver.getTitle() );
-    }
+    // /**
+    // * Method to navigate to the edit labor and delivery report page
+    // *
+    // * @throws Throwable
+    // */
+    // @Then ( "^The OB/GYN HCP logs in and navigates to the Edit Labor and
+    // Delivery Reports page$" )
+    // public void navigateToEditLaborDeliveryReportPage () {
+    // attemptLogout();
+    // driver.get( baseUrl );
+    // final WebElement username = driver.findElement( By.name( "username" ) );
+    // username.clear();
+    // username.sendKeys( obgynHcpString );
+    // final WebElement password = driver.findElement( By.name( "password" ) );
+    // password.clear();
+    // password.sendKeys( "123456" );
+    // final WebElement submit = driver.findElement( By.className( "btn" ) );
+    // submit.click();
+    //
+    // assertEquals( "iTrust2: HCP Home", driver.getTitle() );
+    //
+    // ( (JavascriptExecutor) driver )
+    // .executeScript(
+    // "document.getElementById('OBGYNHCPDocumentLaborAndDeliveryReports').click();"
+    // );
+    //
+    // assertEquals( "iTrust2: Edit Labor and Delivery Report",
+    // driver.getTitle() );
+    // }
 
     /**
      * Selects the patient and the date of the report
@@ -232,7 +240,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
      * @param dateReport
      *            the date of the report to select
      */
-    @When ( "^The OB/GYN HCP selects the patient <patient> and the date of the report <dateReport>$" )
+    @When ( "^The OB/GYN HCP selects the patient <patient> and enters the date of the report <dateReport>$" )
     public void selectPatientAndDateOfReport ( final String patient, final String dateReport ) {
         waitForAngular();
 
@@ -254,8 +262,8 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
             final String newFirstName ) {
         waitForAngular();
 
-        driver.findElement( By.name( "dateOfLabor" ) ).clear();
-        driver.findElement( By.name( "dateOfLabor" ) ).sendKeys( newDateLabor );
+        driver.findElement( By.name( "selected-dateOfLabor" ) ).clear();
+        driver.findElement( By.name( "selected-dateOfLabor" ) ).sendKeys( newDateLabor );
 
         driver.findElement( By.name( "length" ) ).clear();
         driver.findElement( By.name( "length" ) ).sendKeys( newLength );
@@ -282,7 +290,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
      * @param deliveryType
      *            the delivery method
      */
-    @When ( "^The OB/GYN HCP selects the patient <patient> and enters the date of labor (.+), time of labor (.+), date of delivery (.+), time of delivery (.+), delivery method (.+), weight in pounds (.+) and ounces (.+), length (.+), heart rate (.+), blood pressure (.+), first name (.+), and last name (.+)$" )
+    @When ( "^The OB/GYN HCP selects the patient (.+) and enters the date of labor (.+), time of labor (.+), date of delivery (.+), time of delivery (.+), delivery method (.+), weight in pounds (.+) and ounces (.+), length (.+), heart rate (.+), blood pressure (.+), first name (.+), and last name (.+)$" )
     public void addLaborandDeliveryReportInfo ( final String patient, final String dateLabor, final String timeLabor,
             final String dateDelivery, final String timeDelivery, final String deliveryType, final String lbs,
             final String oz, final String length, final String heartRate, final String bloodPres,
@@ -294,8 +302,8 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        fillInDateTime( "dateLabor", dateLabor, "timeLabor", timeLabor );
-        fillInDateTime( "dateDelivery", dateDelivery, "timeDelivery", timeDelivery );
+        fillInDateTime( "selected-dateOfLabor", dateLabor, "selected-timeOfLabor", timeLabor );
+        fillInDateTime( "selected-dateOfDelivery", dateDelivery, "selected-timeOfDelivery", timeDelivery );
 
         driver.findElement( By.name( "deliveryMethod" ) ).sendKeys( deliveryType );
 
@@ -353,7 +361,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        fillInDateTime( "dateOFLabor", dateLabor, "timeOfLabor", timeLabor );
+        fillInDateTime( "dateOfLabor", dateLabor, "timeOfLabor", timeLabor );
         fillInDateTime( "dateOfDelivery", dateDelivery, "timeOfDelivery", timeDelivery );
 
         driver.findElement( By.name( "deliveryMethod" ) ).sendKeys( deliveryType );
@@ -382,7 +390,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         // The same procedure, but for the second baby patient
         waitForAngular();
 
-        fillInDateTime( "secondDateOfDelivery", dateDelivery, "secondTimeOfDelivery", timeDelivery );
+        fillInDateTime( "selected-secondDateOfDelivery", dateDelivery, "selected-secondTimeOfDelivery", timeDelivery );
 
         driver.findElement( By.name( "secondDeliveryMethod" ) ).sendKeys( deliveryType );
 
