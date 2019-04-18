@@ -2,6 +2,7 @@ package edu.ncsu.csc.itrust2.models.persistent;
 
 import java.text.ParseException;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Vector;
 
@@ -161,7 +162,7 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         setLastName( ov.getLastName() );
         setObstetricsRecord( ov.getObstetricsRecord() );
         setDeliveryMethod( ov.getDeliveryMethod() );
-        obstetricsRecord.setHoursInLabor( datetimeDelivery.getHour() - datetimeLabor.getHour() );
+        obstetricsRecord.setHoursInLabor( (int) ChronoUnit.HOURS.between( datetimeLabor, datetimeDelivery ) );
         obstetricsRecord.setDeliveryMethod( ov.getDeliveryMethod() );
         obstetricsRecord.setCurrentRecord( false );
         if ( obstetricsRecord.isTwins() ) {
@@ -186,6 +187,7 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
             setSecondLastName( "Marley" );
             setSecondDeliveryMethod( DeliveryMethod.Miscarriage );
         }
+        obstetricsRecord.save();
 
     }
 

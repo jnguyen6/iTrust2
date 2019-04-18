@@ -72,7 +72,8 @@
 	                    $scope.patients = response.data.filter(value => value.gender === "Female");
 	                    
 	                    $scope.selectPatient = function (patient) {
-	                        $scope.selectedReport = null; // Reset selected report and date
+	                        $scope.selectedReport = {}; // Reset selected report and date
+	                        $scope.newReport = {};
 	                        $scope.selectedDate = null;
 	                        
 	                     	// Get the obstetrics records for this patient
@@ -381,6 +382,9 @@
                         $scope.submitError = "";
                         $scope.submitSuccess = "Labor and delivery report created successfully";
                         
+                        // Pull in new data and set prego as false just in case it hasn't updated yet.
+                        $scope.updateInfo();
+                        $scope.isPrego = false;
                         
                     }, function (rejection) {
                         $scope.submitSuccess = "";
@@ -633,6 +637,8 @@
                         $scope.editError = "";
                         $scope.editSuccess = "Labor and delivery report edited successfully";
                         
+                     	// Pull in new data
+                        $scope.updateInfo();
                         
                     }, function (rejection) {
                         $scope.editSuccess = "";
