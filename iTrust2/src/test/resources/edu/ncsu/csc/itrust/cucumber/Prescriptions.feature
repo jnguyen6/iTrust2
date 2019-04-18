@@ -11,8 +11,7 @@ Feature: Manage Prescriptions
 	
 Scenario Outline: Add Prescription to an Office Visit
     Given I have logged in with username: <user>
-    When I start documenting an office visit for the patient with name: <first> <last> and date of birth: <dob>
-    And fill in the office visit with date: <date>, hospital: <hospital>, notes: <notes>, weight: <weight>, height: <height>, blood pressure: <pressure>, household smoking status: <hss>, patient smoking status: <pss>, hdl: <hdl>, ldl: <ldl>, and triglycerides: <triglycerides>
+    And fill in the office visit for the patient with name: <first> <last> and date of birth: <dob> with date: <date>, hospital: <hospital>, notes: <notes>, weight: <weight>, height: <height>, blood pressure: <pressure>, household smoking status: <hss>, patient smoking status: <pss>, hdl: <hdl>, ldl: <ldl>, and triglycerides: <triglycerides>
     And add a prescription for <prescription> with a dosage of <dosage> starting on <start> and ending on <end> with <renewals> renewals
     And submit the office visit 
    	Then A message indicates the visit was submitted successfully
