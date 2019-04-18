@@ -45,7 +45,7 @@
                                     $http.get("/iTrust2/api/v1/laborDeliveryReports/" + $scope.selectedPatient).then(
                                         function (response) {
                                             $scope.diaryReports = response.data || {};
-                                            $scope.diaryReports = $scope.groupDates($scope.diaryReports, 'date');
+                                            $scope.diaryReports = $scope.groupDates($scope.diaryReports, 'datetimeOfLabor');
                                             $scope.message = "";
                                             console.log($scope.diaryReports);
                                         },
@@ -79,6 +79,18 @@
 
                         return orderedGroups;
                     };
+                    
+                    $scope.makeIt = function (){
+                    	$scope.theReport = $scope.diaryReports[$scope.selectedDate];
+                    	$scope.theReportDateLabor = new Date($scope.theReport[0].datetimeOfLabor);
+                    	$scope.theReportDateDelivery = new Date($scope.theReport[0].datetimeOfDelivery);
+                    	$scope.theReportWeightlbs = Math.floor($scope.theReport[0].weight);
+                	 	$scope.theReportWeightoz = ($scope.theReport[0].weight % 1) * 16;
+                        $scope.theReportDateDelivery2 = new Date($scope.theReport[0].secondDatetimeOfDelivery);
+                        $scope.theReportWeightlbs2 = Math.floor($scope.theReport[0].secondWeight);
+                    	$scope.theReportWeightoz2 = ($scope.theReport[0].secondWeight % 1) * 16;
+                    }
+                    
                 });
 
                 /*]]>*/
@@ -118,7 +130,7 @@
 
 							<div class="radio" ng-repeat="(date, entry) in diaryReports">
 								<label> <input type="radio"
-									ng-model="$parent.selectedDate" name="date" value="{{date}}"
+									ng-model="$parent.selectedDate" name="date" value="{{date}}" ng-click="makeIt()"
 									required="true" /> {{date | date : 'MM/dd/yyyy'}}
 								</label>
 							</div>
@@ -139,200 +151,247 @@
 						</h3>
 					</div>
 					<div class="panel-body">
-						<div ng-hide="selectedDate">Please select a delivery report</div>
-						<div class="panel panel-primary" ng-show="selectedDate"
-							ng-repeat="(date, Reports) in diaryReports"
+						<div ng-if="!selectedPatient">Please select a patient to view their labor and delivery reports.</div>
+						<div ng-if="selectedPatient && !selectedDate">Please select a delivery report.</div>
+						<div ng-repeat="(date, report) in diaryReports"
 							ng-if="date == selectedDate">
-							<div class="panel-heading">
-								<h3>
-									<b>Labor:</b>
-								</h3>
-								<div class="panel panel-default">
+						
+							<!-- Labor Panel -->
+							<div class="col-md-12">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>
+											<b>Labor:</b>
+										</h4>
+									</div>
 									<div class="panel-body">
-
-
 										<div class="form-group row">
 											<div class="col-xs-6">
+												<label for="selected-dateOfLabor">Date:</label>
+												<div name='date'> {{theReportDateLabor | date : 'MM/dd/yyyy'}}</div>
+											</div>
+											<div class="col-xs-6">
+												<label for="selected-timeOfLabor">Time:</label> 
+												<div name='time'> {{theReportDateLabor | date : 'shortTime'}}</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+	
+	
+							<!-- Delivery Panel -->
+							<div class="col-md-6">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>Delivery:</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-3">
 												<label>Date:</label>
 											</div>
-											<div name='date' class="form-group col-md-2">
-												{{Reports.date | date : 'MM/dd/yyyy'}}</div>
+											<div class="col-xs-6">
+												<div name='date'> {{theReportDateDelivery | date : 'MM/dd/yyyy'}}</div>
+											</div>
 										</div>
 										<div class="form-group row">
 											<div class="col-xs-6">
 												<label>Time:</label>
 											</div>
-											<div name='time' class="form-group col-md-2">
-												{{selectedVisit.date | date : 'shortTime'}}</div>
-										</div>
-
-
-									</div>
-
-
-
-									<!-- Delivery Panel -->
-									<div class="col-md-8">
-										<div class="panel panel-info">
-											<div class="panel-heading">
-												<h4>Delivery:</h4>
+											<div class="col-xs-6">
+												<div name='time'> {{theReportDateDelivery | date : 'shortTime'}}</div>
 											</div>
-											<div class="panel-body">
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Date:</label>
-													</div>
-													<div name='dateDelivery' class="form-group col-md-2">
-														{{selectedVisit.dateDelivery | date : 'MM/dd/yyyy'}}</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Type:</label>
+											</div>
+											<div class="col-xs-6">
+												<div name='type'> {{theReport[0].deliveryMethod}}</div>
+											</div>
+										</div>
+										<div ng-if="theReport[0].deliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Time:</label>
-													</div>
-													<div name='deliveryTime' class="form-group col-md-2">
-														{{selectedVisit.deliveryTime | date : 'shortTime'}}</div>
+												<div name='selected-weightlbs' class="col-xs-4">
+													<div name='lbs'> {{theReportWeightlbs}}</div>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Type:</label>
-													</div>
-													<div class="col-xs-6 ">
-														<div name='deliveryType' class="form-check">
-															{{selectedVisit.deliveryType}}</div>
-													</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Weight:</label>
-													</div>
-													<div name='weightOne' class="col-xs-6">
-														{{selectedVisit.weightOne}}</div>
-													<div name='weightTwo' class="col-xs-6">
-														{{selectedVisit.weightTwo}}</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='selected-weightoz' class="col-xs-4">
+													<div name='oz'> {{theReportWeightoz}}</div>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Length:</label>
-													</div>
-													<div name='length' class="col-xs-6">
-														{{selectedVisit.length}}</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Heart Rate:</label>
-													</div>
-													<div name='heartRate' class="col-xs-6">
-														{{selectedVisit.heartRate}}</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Blood Pressure:</label>
-													</div>
-													<div name='bloodPressure' class="col-xs-6">
-														{{selectedVisit.bloodPressure}}</div>
+												<div name='selected-length' class="col-xs-4">
+													<div name='length'> {{theReport[0].length}}</div>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>First Name:</label>
-													</div>
-													<div name='firstName' class="col-xs-6">
-														{{selectedVisit.firstName}}</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
 												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Last Name:</label>
-													</div>
-													<div name='lastName' class="col-xs-6">
-														{{selectedVisit.lastName}}</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
 												</div>
-
-
+												<div name='selected-heartRate' class="col-xs-4">
+													<div name='heartRate'> {{theReport[0].heartRate}}</div>
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='selected-bloodPressure' class="col-xs-4">
+													<div name='bp'> {{theReport[0].bloodPressure}}</div>
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='selected-firstName' class="col-xs-6">
+													<div name='firstName'> {{theReport[0].firstName}}</div>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='selected-lastName' class="col-xs-6">
+													<div name='lastName'> {{theReport[0].lastName}}</div>
+												</div>
 											</div>
 										</div>
 									</div>
-
-									<!-- Twin Delivery Panel -->
-									<div class="col-md-8" ng-show="isTwins">
-										<div class="panel panel-info">
-											<div class="panel-heading">
-												<h4>Delivery:</h4>
-											</div>
-											<div class="panel-body">
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Date:</label>
-													</div>
-													<div name='date' class="col-xs-6">
-														{{selectedVisit.date}}</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Time:</label>
-													</div>
-													<div name='time' class="col-xs-6">
-														{{selectedVisit.date | date : 'shortTime'}}</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Type:</label>
-													</div>
-													<div class="col-xs-6 ">
-														<div name='deliveryTypeTwin' class="form-check">
-															{{selectedVisit.deliveryTypeTwin}}</div>
-													</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Weight:</label>
-													</div>
-													<div name='weightOneTwin' class="col-xs-6">
-														{{selectedVisit.weightOneTwin}}</div>
-													<div name='weightTwoTwin' class="col-xs-6">
-														{{selectedVisit.weightTwoTwin}}</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Length:</label>
-													</div>
-													<div name='lengthTwin' class="col-xs-6">
-														{{selectedVisit.lengthTwin}}</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Heart Rate:</label>
-													</div>
-													<div name='heartRateTwin' class="col-xs-6">
-														{{selectedVisit.heartRateTwin}}</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Blood Pressure:</label>
-													</div>
-													<div name='bloodPressureTwin' class="col-xs-6">
-														{{selectedVisit.bloodPressureTwin}}</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>First Name:</label>
-													</div>
-													<div name='firstNameTwin' class="col-xs-6">
-														{{selectedVisit.firstNameTwin}}</div>
-												</div>
-												<div class="form-group row">
-													<div class="col-xs-6">
-														<label>Last Name:</label>
-													</div>
-													<div name='lastNameTwin' class="col-xs-6">
-														{{selectedVisit.lastNameTwin}}</div>
-												</div>
-
-
-											</div>
-										</div>
-									</div>
-
 								</div>
 							</div>
+	
+							<!-- Twin Delivery Panel -->
+							<div class="col-md-6" ng-show="theReport[0].obstetricsRecord.twins">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>Delivery:</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Date:</label>
+											</div>
+											<div class="col-xs-9">
+												<div name='dateDel2'> {{theReportDateDelivery2 | date : 'MM/dd/yyyy'}}</div>
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Time:</label>
+											</div>
+											<div class="col-xs-6">
+												<div name='timeDel2'> {{theReportDateDelivery2 | date : 'shortTime'}}</div>
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label>Type:</label>
+											</div>
+											<div class="col-xs-6">
+												<div name='type2'> {{theReport[0].secondDeliveryMethod}}</div>
+											</div>
+										</div>
+										<div ng-if="theReport[0].secondDeliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='selected-secondWeightlbs' class="col-xs-4">
+													<div name='lbs2'> {{theReportWeightlbs2}}</div>
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='selected-secondWeightoz' class="col-xs-4">
+													<div name='oz2'> {{theReportWeightoz2}}</div>
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='selected-secondLength' class="col-xs-4">
+													<div name='length2'> {{theReport[0].secondLength}}</div>
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='selected-secondHeartRate' class="col-xs-4">
+													<div name='heartRate2'> {{theReport[0].secondHeartRate}}</div>
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='selected-secondBloodPressure' class="col-xs-4">
+													<div name='bp2'> {{theReport[0].secondBloodPressure}}</div>
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='selected-secondFirstName' class="col-xs-6">
+													<div name='firstName2'> {{theReport[0].secondFirstName}}</div>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='selected-secondLastName' class="col-xs-6">
+													<div name='lastName2'> {{theReport[0].secondLastName}}</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
