@@ -398,9 +398,9 @@
                             function checkObstetricsMetrics() {
                                 // weeksPregnant
                                 if (/^[0-9]{1,3}?$/.test(String($scope.selectedVisit.weeksPregnant).replace(/^0+/, '')) == false) {
-                                    $scope.errorMsg += "Weeks Pregnant must be an integer value greater than 0\n"
-                                } else if (parseInt($scope.selectedVisit.weeksPregnant) < 1) {
-                                    $scope.errorMsg += "Weeks Pregnant must be an integer value greater than 0\n"
+                                    $scope.errorMsg += "Weeks Pregnant must be an integer value greater than or equal to 0\n"
+                                } else if (parseInt($scope.selectedVisit.weeksPregnant) < 0) {
+                                    $scope.errorMsg += "Weeks Pregnant must be an integer value greater than or equal to 0\n"
                                 }
                                 // fetalHeartRate
                                 if (/^[0-9]{1,3}?$/.test(String($scope.selectedVisit.fetalHeartRate).replace(/^0+/, '')) == false) {
