@@ -25,15 +25,15 @@ public class LaborDeliveryReportFormTest {
     @Test
     public void testLaborDeliveryReportForm () {
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDatetimeOfLabor( ZonedDateTime.now() );
-        form.setDatetimeOfDelivery( ZonedDateTime.now() );
+        form.setDatetimeOfLabor( ZonedDateTime.now().toString() );
+        form.setDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setWeight( 3.4 );
         form.setLength( 12.34 );
         form.setHeartRate( 70 );
         form.setBloodPressure( 70 );
         form.setFirstName( "Sanchit" );
         form.setLastName( "Razdan" );
-        form.setSecondDatetimeOfDelivery( ZonedDateTime.now() );
+        form.setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setSecondWeight( 2.3 );
         form.setSecondLength( 10.4 );
         form.setSecondHeartRate( 75 );

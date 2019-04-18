@@ -103,8 +103,8 @@ public class LaborDeliveryReportTest {
         assertEquals( report.getSecondDeliveryMethod(), test.getSecondDeliveryMethod() );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDatetimeOfLabor( report.getDatetimeOfLabor() );
-        form.setDatetimeOfDelivery( report.getDatetimeOfDelivery() );
+        form.setDatetimeOfLabor( report.getDatetimeOfLabor().toString() );
+        form.setDatetimeOfDelivery( report.getDatetimeOfDelivery().toString() );
         form.setWeight( 3.4 );
         form.setLength( 12.34 );
         form.setHeartRate( 70 );
@@ -125,7 +125,7 @@ public class LaborDeliveryReportTest {
         record2.save();
         form.setObstetricsRecord( record2 );
 
-        form.setSecondDatetimeOfDelivery( report.getSecondDatetimeOfDelivery() );
+        form.setSecondDatetimeOfDelivery( report.getSecondDatetimeOfDelivery().toString() );
         form.setSecondWeight( 2.3 );
         form.setSecondLength( 10.4 );
         form.setSecondHeartRate( 75 );

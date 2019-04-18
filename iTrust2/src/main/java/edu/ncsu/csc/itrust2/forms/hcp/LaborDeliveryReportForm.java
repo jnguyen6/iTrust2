@@ -23,10 +23,10 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 public class LaborDeliveryReportForm {
 
     /** Date representing the date in labor */
-    private ZonedDateTime    datetimeOfLabor;
+    private String           datetimeOfLabor;
 
     /** Date representing the date of delivery of baby */
-    private ZonedDateTime    datetimeOfDelivery;
+    private String           datetimeOfDelivery;
 
     /** Double representing the weight of the baby */
     private Double           weight;
@@ -50,7 +50,7 @@ public class LaborDeliveryReportForm {
      * Date representing the date of the delivery of the second baby, if twins
      * are born
      */
-    private ZonedDateTime    secondDatetimeOfDelivery;
+    private String           secondDatetimeOfDelivery;
 
     /** Double representing the weight of the second baby, if twins are born */
     private Double           secondWeight;
@@ -121,8 +121,8 @@ public class LaborDeliveryReportForm {
      *            labor delivery report to create form from
      */
     public LaborDeliveryReportForm ( final LaborDeliveryReport ov ) {
-        setDatetimeOfLabor( ov.getDatetimeOfLabor() );
-        setDatetimeOfDelivery( ov.getDatetimeOfDelivery() );
+        setDatetimeOfLabor( ov.getDatetimeOfLabor().toString() );
+        setDatetimeOfDelivery( ov.getDatetimeOfDelivery().toString() );
         setWeight( ov.getWeight() );
         setLength( ov.getLength() );
         setHeartRate( ov.getHeartRate() );
@@ -132,7 +132,7 @@ public class LaborDeliveryReportForm {
         setDeliveryMethod( ov.getDeliveryMethod() );
         setObstetricsRecord( ov.getObstetricsRecord() );
         if ( ov.getObstetricsRecord().isTwins() ) {
-            setSecondDatetimeOfDelivery( ov.getSecondDatetimeOfDelivery() );
+            setSecondDatetimeOfDelivery( ov.getSecondDatetimeOfDelivery().toString() );
             setSecondWeight( ov.getSecondWeight() );
             setSecondLength( ov.getSecondLength() );
             setSecondHeartRate( ov.getSecondHeartRate() );
@@ -142,7 +142,7 @@ public class LaborDeliveryReportForm {
             setSecondDeliveryMethod( ov.getSecondDeliveryMethod() );
         }
         else {
-            setSecondDatetimeOfDelivery( ZonedDateTime.now() );
+            setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
             setSecondWeight( 20.9 );
             setSecondLength( 1.3 );
             setSecondHeartRate( 160 );
@@ -158,7 +158,7 @@ public class LaborDeliveryReportForm {
      *
      * @return date time of labor
      */
-    public ZonedDateTime getDatetimeOfLabor () {
+    public String getDatetimeOfLabor () {
         return datetimeOfLabor;
     }
 
@@ -168,7 +168,7 @@ public class LaborDeliveryReportForm {
      * @param datetimeOfLabor
      *            date and time of labor to be set
      */
-    public void setDatetimeOfLabor ( final ZonedDateTime datetimeOfLabor ) {
+    public void setDatetimeOfLabor ( final String datetimeOfLabor ) {
         this.datetimeOfLabor = datetimeOfLabor;
     }
 
@@ -177,7 +177,7 @@ public class LaborDeliveryReportForm {
      *
      * @return date and time of delivery
      */
-    public ZonedDateTime getDatetimeOfDelivery () {
+    public String getDatetimeOfDelivery () {
         return datetimeOfDelivery;
     }
 
@@ -187,7 +187,7 @@ public class LaborDeliveryReportForm {
      * @param datetimeOfDelivery
      *            date and time of delivery to be set
      */
-    public void setDatetimeOfDelivery ( final ZonedDateTime datetimeOfDelivery ) {
+    public void setDatetimeOfDelivery ( final String datetimeOfDelivery ) {
         this.datetimeOfDelivery = datetimeOfDelivery;
     }
 
@@ -196,7 +196,7 @@ public class LaborDeliveryReportForm {
      *
      * @return date and time of second delivery
      */
-    public ZonedDateTime getSecondDatetimeOfDelivery () {
+    public String getSecondDatetimeOfDelivery () {
         return secondDatetimeOfDelivery;
     }
 
@@ -206,7 +206,7 @@ public class LaborDeliveryReportForm {
      * @param secondDatetimeOfDelivery
      *            date and time of the second delivery
      */
-    public void setSecondDatetimeOfDelivery ( final ZonedDateTime secondDatetimeOfDelivery ) {
+    public void setSecondDatetimeOfDelivery ( final String secondDatetimeOfDelivery ) {
         this.secondDatetimeOfDelivery = secondDatetimeOfDelivery;
     }
 

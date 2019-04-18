@@ -5,6 +5,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Vector;
 
+import javax.persistence.Basic;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,10 +14,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.validator.constraints.Length;
 
+import com.google.gson.annotations.JsonAdapter;
+
+import edu.ncsu.csc.itrust2.adapters.ZonedDateTimeAdapter;
+import edu.ncsu.csc.itrust2.adapters.ZonedDateTimeAttributeConverter;
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 
@@ -30,9 +37,19 @@ import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
 
     /** Date representing the date in labor */
+    @NotNull
+    @Basic
+    // Allows the field to show up nicely in the database
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
     private ZonedDateTime    datetimeOfLabor;
 
     /** Date representing the date of delivery of baby */
+    @NotNull
+    @Basic
+    // Allows the field to show up nicely in the database
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
     private ZonedDateTime    datetimeOfDelivery;
 
     /** Double representing the weight of the baby */
@@ -57,6 +74,10 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      * Date representing the date of the delivery of the second baby, if twins
      * are born
      */
+    @Basic
+    // Allows the field to show up nicely in the database
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
     private ZonedDateTime    secondDatetimeOfDelivery;
 
     /** Double representing the weight of the second baby, if twins are born */
@@ -128,8 +149,10 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            labor delivery report to create form from
      */
     public LaborDeliveryReport ( final LaborDeliveryReportForm ov ) throws ParseException {
-        setDatetimeOfLabor( ov.getDatetimeOfLabor() );
-        setDatetimeOfDelivery( ov.getDatetimeOfDelivery() );
+        final ZonedDateTime datetimeLabor = ZonedDateTime.parse( ov.getDatetimeOfLabor() );
+        setDatetimeOfLabor( datetimeLabor );
+        final ZonedDateTime datetimeDelivery = ZonedDateTime.parse( ov.getDatetimeOfDelivery() );
+        setDatetimeOfDelivery( datetimeDelivery );
         setWeight( ov.getWeight() );
         setLength( ov.getLength() );
         setHeartRate( ov.getHeartRate() );
@@ -138,10 +161,12 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         setLastName( ov.getLastName() );
         setObstetricsRecord( ov.getObstetricsRecord() );
         setDeliveryMethod( ov.getDeliveryMethod() );
+        obstetricsRecord.setHoursInLabor( datetimeDelivery.getHour() - datetimeLabor.getHour() );
         obstetricsRecord.setDeliveryMethod( ov.getDeliveryMethod() );
         obstetricsRecord.setCurrentRecord( false );
         if ( obstetricsRecord.isTwins() ) {
-            setSecondDatetimeOfDelivery( ov.getSecondDatetimeOfDelivery() );
+            final ZonedDateTime secondDatetimeDelivery = ZonedDateTime.parse( ov.getSecondDatetimeOfDelivery() );
+            setSecondDatetimeOfDelivery( secondDatetimeDelivery );
             setSecondWeight( ov.getSecondWeight() );
             setSecondLength( ov.getSecondLength() );
             setSecondHeartRate( ov.getSecondHeartRate() );
