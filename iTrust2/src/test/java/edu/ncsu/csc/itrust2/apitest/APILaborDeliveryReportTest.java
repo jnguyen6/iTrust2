@@ -3,6 +3,7 @@ package edu.ncsu.csc.itrust2.apitest;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -252,11 +253,15 @@ public class APILaborDeliveryReportTest {
         test2.setDeliveryMethod( form2.getDeliveryMethod() );
         test2.setSecondDeliveryMethod( form2.getDeliveryMethod() );
 
-        // Attempt to add another new labor delivery reports
-        mvc.perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
-                .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form2 ) ) )
-                .andExpect( status().isOk() );
-        assertEquals( 2, LaborDeliveryReport.getByPatient( "patient" ).size() );
+        // We're going to assume the obstetrics record is false (not current)
+        // // Attempt to add another new labor delivery reports
+        // mvc.perform( post( "/api/v1/laborDeliveryReports/" +
+        // patient.getSelf() )
+        // .contentType( MediaType.APPLICATION_JSON ).content(
+        // TestUtils.asJsonString( form2 ) ) )
+        // .andExpect( status().isBadRequest() );
+        // assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size()
+        // );
     }
 
     /**
@@ -358,14 +363,11 @@ public class APILaborDeliveryReportTest {
         final LaborDeliveryReport newRep = gson.fromJson( newRecString, LaborDeliveryReport.class );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
 
-        // // Then update report
-        // mvc.perform( put( "/api/v1/LaborDeliveryReports/" + newRep.getId()
-        // ).contentType( MediaType.APPLICATION_JSON )
-        // .content( TestUtils.asJsonString( form2 ) ) ).andExpect(
-        // status().isBadRequest() ).andReturn()
-        // .getResponse().getContentAsString();
-        // assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size()
-        // );
+        // Then update report
+        mvc.perform( put( "/api/v1/laborDeliveryReports/" + newRep.getId() ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( form2 ) ) ).andExpect( status().isOk() ).andReturn().getResponse()
+                .getContentAsString();
+        assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
     }
 
     /**

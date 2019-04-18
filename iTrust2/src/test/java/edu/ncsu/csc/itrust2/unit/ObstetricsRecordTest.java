@@ -13,6 +13,7 @@ import edu.ncsu.csc.itrust2.forms.hcp.ObstetricsRecordForm;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.enums.Role;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
+import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
@@ -32,6 +33,7 @@ public class ObstetricsRecordTest {
      */
     @Before
     public void setUp () {
+        DomainObject.deleteAll( LaborDeliveryReport.class );
         DomainObject.deleteAll( ObstetricsRecord.class );
     }
 
