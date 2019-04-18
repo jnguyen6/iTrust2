@@ -412,7 +412,7 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
         wait.until( ExpectedConditions.titleContains( "HCP Home" ) );
         assertEquals( "iTrust2: HCP Home", driver.getTitle() );
         wait.until( ExpectedConditions.elementToBeClickable( By.name( "transactionTypeCell" ) ) );
-        assertTextPresent( "Create OB/GYN Office Visit" );
+        assertTextPresent( "Create general ophthalmology visit for patient" );
 
     }
 

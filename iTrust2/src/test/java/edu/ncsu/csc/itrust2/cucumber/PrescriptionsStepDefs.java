@@ -39,19 +39,25 @@ public class PrescriptionsStepDefs extends CucumberTest {
 
     /**
      * Fills in the date and time fields with the specified date and time.
-     * @param date The date to enter.
-     * @param time The time to enter.
+     *
+     * @param date
+     *            The date to enter.
+     * @param time
+     *            The time to enter.
      */
-    private void fillInDateTime(String dateField, String date, String timeField, String time) {
-        fillInDate(dateField, date);
-        fillInTime(timeField, time);
+    private void fillInDateTime ( final String dateField, final String date, final String timeField,
+            final String time ) {
+        fillInDate( dateField, date );
+        fillInTime( timeField, time );
     }
 
     /**
      * Fills in the date field with the specified date.
-     * @param date The date to enter.
+     *
+     * @param date
+     *            The date to enter.
      */
-    private void fillInDate(String dateField, String date) {
+    private void fillInDate ( final String dateField, final String date ) {
         driver.findElement( By.name( dateField ) ).clear();
         final WebElement dateElement = driver.findElement( By.name( dateField ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
@@ -59,9 +65,11 @@ public class PrescriptionsStepDefs extends CucumberTest {
 
     /**
      * Fills in the time field with the specified time.
-     * @param time The time to enter.
+     *
+     * @param time
+     *            The time to enter.
      */
-    private void fillInTime(String timeField, String time) {
+    private void fillInTime ( final String timeField, String time ) {
         // Zero-pad the time for entry
         if ( time.length() == 7 ) {
             time = "0" + time;
@@ -131,10 +139,12 @@ public class PrescriptionsStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        fillInDateTime("date", date, "time", "10:10 AM");
+        fillInDateTime( "date", date, "time", "10:10 AM" );
 
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementsByName('hospital')[0].click();" );
         waitForAngular();
+        // driver.findElement( By.id( "patient" ) ).click();
+
         driver.findElement( By.name( "GENERAL_CHECKUP" ) ).click();
         waitForAngular();
         enterValue( "notes", notes );

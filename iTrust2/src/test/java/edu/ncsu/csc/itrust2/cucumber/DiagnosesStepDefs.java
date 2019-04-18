@@ -40,19 +40,25 @@ public class DiagnosesStepDefs extends CucumberTest {
 
     /**
      * Fills in the date and time fields with the specified date and time.
-     * @param date The date to enter.
-     * @param time The time to enter.
+     * 
+     * @param date
+     *            The date to enter.
+     * @param time
+     *            The time to enter.
      */
-    private void fillInDateTime(String dateField, String date, String timeField, String time) {
-        fillInDate(dateField, date);
-        fillInTime(timeField, time);
+    private void fillInDateTime ( final String dateField, final String date, final String timeField,
+            final String time ) {
+        fillInDate( dateField, date );
+        fillInTime( timeField, time );
     }
 
     /**
      * Fills in the date field with the specified date.
-     * @param date The date to enter.
+     * 
+     * @param date
+     *            The date to enter.
      */
-    private void fillInDate(String dateField, String date) {
+    private void fillInDate ( final String dateField, final String date ) {
         driver.findElement( By.name( dateField ) ).clear();
         final WebElement dateElement = driver.findElement( By.name( dateField ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
@@ -60,9 +66,11 @@ public class DiagnosesStepDefs extends CucumberTest {
 
     /**
      * Fills in the time field with the specified time.
-     * @param time The time to enter.
+     * 
+     * @param time
+     *            The time to enter.
      */
-    private void fillInTime(String timeField, String time) {
+    private void fillInTime ( final String timeField, String time ) {
         // Zero-pad the time for entry
         if ( time.length() == 7 ) {
             time = "0" + time;
@@ -109,7 +117,7 @@ public class DiagnosesStepDefs extends CucumberTest {
         patient.setState( State.CA );
         patient.setZip( "91505" );
         patient.setPhone( "123-456-7890" );
-        patient.setDateOfBirth( LocalDate.parse( birthday, DateTimeFormatter.ofPattern("MM/dd/yyyy") ) );
+        patient.setDateOfBirth( LocalDate.parse( birthday, DateTimeFormatter.ofPattern( "MM/dd/yyyy" ) ) );
 
         patient.save();
 
@@ -146,12 +154,12 @@ public class DiagnosesStepDefs extends CucumberTest {
 
         waitForAngular();
 
+        fillInDateTime( "date", date, "time", "9:30 AM" );
+
         setTextField( By.name( "notes" ), note );
         driver.findElement( By.cssSelector( "input[type=radio][value=patient]" ) ).click();
         driver.findElement( By.name( "GENERAL_CHECKUP" ) ).click();
         driver.findElement( By.name( "hospital" ) ).click();
-        
-        fillInDateTime( "date", date, "time", "9:30 AM" );
 
         waitForAngular();
         setTextField( By.name( "height" ), height );

@@ -90,7 +90,9 @@ public class PatientViewOfficeVisitStepDefs extends CucumberTest {
         }
 
         final GeneralOphthalmology genOph = getOphOfficeVisit();
-        genOph.save();
+        if ( genOph != null ) {
+            genOph.save();
+        }
 
         final OphthalmologySurgery ophSurgery = getOphSurgery();
         if ( ophSurgery != null ) {
