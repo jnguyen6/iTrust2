@@ -70,7 +70,7 @@ public class APILaborDeliveryReportController extends APIController {
             form1.setState( mother.getState().toString() );
             form1.setZip( mother.getZip() );
             form1.setPhone( mother.getPhone() );
-            form1.setDateOfBirth( report.getDateOfDelivery().toString() ); // YYYY-MM-dd
+            form1.setDateOfBirth( report.getDatetimeOfDelivery().toLocalDate().toString() ); // YYYY-MM-dd
             form1.setEthnicity( mother.getEthnicity().toString() );
             form1.setSelf( child1.getUsername() );
             final Patient child = new Patient( form1 );
@@ -92,7 +92,7 @@ public class APILaborDeliveryReportController extends APIController {
                 form2.setState( mother.getState().toString() );
                 form2.setZip( mother.getZip() );
                 form2.setPhone( mother.getPhone() );
-                form2.setDateOfBirth( report.getDateOfDelivery().toString() ); // YYYY-MM-dd
+                form2.setDateOfBirth( report.getDatetimeOfDelivery().toLocalDate().toString() ); // YYYY-MM-dd
                 form2.setEthnicity( mother.getEthnicity().toString() );
                 form2.setSelf( child2.getUsername() );
 

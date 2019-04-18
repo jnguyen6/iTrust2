@@ -1,10 +1,12 @@
 package edu.ncsu.csc.itrust2.models.persistent;
 
 import java.text.ParseException;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Vector;
 
+import javax.persistence.Basic;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,10 +14,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.validator.constraints.Length;
 
+import com.google.gson.annotations.JsonAdapter;
+
+import edu.ncsu.csc.itrust2.adapters.ZonedDateTimeAdapter;
+import edu.ncsu.csc.itrust2.adapters.ZonedDateTimeAttributeConverter;
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 
@@ -30,16 +37,20 @@ import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
 
     /** Date representing the date in labor */
-    private LocalDate        dateOfLabor;
-
-    /** String representing the time in labor */
-    private String           timeOfLabor;
+    @NotNull
+    @Basic
+    // Allows the field to show up nicely in the database
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
+    private ZonedDateTime    datetimeOfLabor;
 
     /** Date representing the date of delivery of baby */
-    private LocalDate        dateOfDelivery;
-
-    /** String representing the time of delivery of baby */
-    private String           timeOfDelivery;
+    @NotNull
+    @Basic
+    // Allows the field to show up nicely in the database
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
+    private ZonedDateTime    datetimeOfDelivery;
 
     /** Double representing the weight of the baby */
     private Double           weight;
@@ -63,13 +74,11 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      * Date representing the date of the delivery of the second baby, if twins
      * are born
      */
-    private LocalDate        secondDateOfDelivery;
-
-    /**
-     * String representing the time of the delivery of the second baby, if twins
-     * are born
-     */
-    private String           secondTimeOfDelivery;
+    @Basic
+    // Allows the field to show up nicely in the database
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
+    private ZonedDateTime    secondDatetimeOfDelivery;
 
     /** Double representing the weight of the second baby, if twins are born */
     private Double           secondWeight;
@@ -122,6 +131,12 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
     private DeliveryMethod   deliveryMethod;
 
     /**
+     * The delivery method of the labor delivery report of the second baby, if
+     * twins are born
+     */
+    private DeliveryMethod   secondDeliveryMethod;
+
+    /**
      * Default Constructor for LaborDeliveryReport
      */
     public LaborDeliveryReport () {
@@ -134,10 +149,10 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      *            labor delivery report to create form from
      */
     public LaborDeliveryReport ( final LaborDeliveryReportForm ov ) throws ParseException {
-        setDateOfLabor( ov.getDateOfLabor() );
-        setTimeOfLabor( ov.getTimeOfLabor() );
-        setDateOfDelivery( ov.getDateOfDelivery() );
-        setTimeOfDelivery( ov.getTimeOfDelivery() );
+        final ZonedDateTime datetimeLabor = ZonedDateTime.parse( ov.getDatetimeOfLabor() );
+        setDatetimeOfLabor( datetimeLabor );
+        final ZonedDateTime datetimeDelivery = ZonedDateTime.parse( ov.getDatetimeOfDelivery() );
+        setDatetimeOfDelivery( datetimeDelivery );
         setWeight( ov.getWeight() );
         setLength( ov.getLength() );
         setHeartRate( ov.getHeartRate() );
@@ -146,27 +161,30 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         setLastName( ov.getLastName() );
         setObstetricsRecord( ov.getObstetricsRecord() );
         setDeliveryMethod( ov.getDeliveryMethod() );
+        obstetricsRecord.setHoursInLabor( datetimeDelivery.getHour() - datetimeLabor.getHour() );
         obstetricsRecord.setDeliveryMethod( ov.getDeliveryMethod() );
         obstetricsRecord.setCurrentRecord( false );
         if ( obstetricsRecord.isTwins() ) {
-            setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
-            setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
+            final ZonedDateTime secondDatetimeDelivery = ZonedDateTime.parse( ov.getSecondDatetimeOfDelivery() );
+            setSecondDatetimeOfDelivery( secondDatetimeDelivery );
             setSecondWeight( ov.getSecondWeight() );
             setSecondLength( ov.getSecondLength() );
             setSecondHeartRate( ov.getSecondHeartRate() );
             setSecondBloodPressure( ov.getSecondBloodPressure() );
             setSecondFirstName( ov.getSecondFirstName() );
             setSecondLastName( ov.getSecondLastName() );
+            setSecondDeliveryMethod( ov.getSecondDeliveryMethod() );
+            obstetricsRecord.setDeliveryMethod( ov.getSecondDeliveryMethod() );
         }
         else {
-            setSecondDateOfDelivery( LocalDate.MIN );
-            setSecondTimeOfDelivery( "12:00" );
+            setSecondDatetimeOfDelivery( ZonedDateTime.now() );
             setSecondWeight( 20.9 );
             setSecondLength( 1.3 );
             setSecondHeartRate( 160 );
             setSecondBloodPressure( 70 );
             setSecondFirstName( "Bob" );
             setSecondLastName( "Marley" );
+            setSecondDeliveryMethod( DeliveryMethod.Miscarriage );
         }
 
     }
@@ -204,91 +222,60 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
     }
 
     /**
-     * returns the date of labor
+     * returns the date time of labor
      *
-     * @return dateOfLabor
+     * @return date time of labor
      */
-    public LocalDate getDateOfLabor () {
-        return dateOfLabor;
+    public ZonedDateTime getDatetimeOfLabor () {
+        return datetimeOfLabor;
     }
 
     /**
-     * sets the date of labor
+     * sets the date and time of labor
      *
-     * @param dateOfLabor
-     *            date of labor to be set for the labor delivery report
+     * @param datetimeOfLabor
+     *            date and time of labor to be set
      */
-    public void setDateOfLabor ( final LocalDate dateOfLabor ) {
-        if ( dateOfLabor.isAfter( LocalDate.now() ) ) {
-            throw new IllegalArgumentException( "The date of labor must be before the current date" );
-        }
-        this.dateOfLabor = dateOfLabor;
+    public void setDatetimeOfLabor ( final ZonedDateTime datetimeOfLabor ) {
+        this.datetimeOfLabor = datetimeOfLabor;
     }
 
     /**
-     * returns the time of labor
+     * returns the date and time of delivery
      *
-     * @return timeOfLabor
+     * @return date and time of delivery
      */
-    public String getTimeOfLabor () {
-        return timeOfLabor;
+    public ZonedDateTime getDatetimeOfDelivery () {
+        return datetimeOfDelivery;
     }
 
     /**
-     * sets the time of the labor
+     * sets the date and time of delivery
      *
-     * @param timeOfLabor
-     *            time of labor to be set for the labor delivery report
+     * @param datetimeOfDelivery
+     *            date and time of delivery to be set
      */
-    public void setTimeOfLabor ( final String timeOfLabor ) {
-        if ( timeOfLabor == null ) {
-            throw new IllegalArgumentException( "The time of labor cannot be null" );
-        }
-        this.timeOfLabor = timeOfLabor;
+    public void setDatetimeOfDelivery ( final ZonedDateTime datetimeOfDelivery ) {
+        this.datetimeOfDelivery = datetimeOfDelivery;
     }
 
     /**
-     * returns the date of delivery of baby
+     * returns the date and time of the second delivery
      *
-     * @return dateOfDelivery
+     * @return date and time of second delivery
      */
-    public LocalDate getDateOfDelivery () {
-        return dateOfDelivery;
+    public ZonedDateTime getSecondDatetimeOfDelivery () {
+        return secondDatetimeOfDelivery;
     }
 
     /**
-     * sets the date of the delivery for the baby
+     * sets the date and time of the second delivery
      *
-     * @param dateOfDelivery
-     *            date of delivery to be set for the baby.
+     * @param secondDatetimeOfDelivery
+     *            date and time of the second delivery
      */
-    public void setDateOfDelivery ( final LocalDate dateOfDelivery ) {
-        if ( dateOfDelivery.isAfter( LocalDate.now() ) ) {
-            throw new IllegalArgumentException( "The date of delivery must be before the current date" );
-        }
-        this.dateOfDelivery = dateOfDelivery;
-    }
-
-    /**
-     * returns the time of delivery of baby
-     *
-     * @return timeOfDelivery
-     */
-    public String getTimeOfDelivery () {
-        return timeOfDelivery;
-    }
-
-    /**
-     * sets the time of delivery for the baby
-     *
-     * @param timeOfDelivery
-     *            time of delivery to be set for the baby
-     */
-    public void setTimeOfDelivery ( final String timeOfDelivery ) {
-        if ( timeOfDelivery == null ) {
-            throw new IllegalArgumentException( "The time of delivery cannot be null" );
-        }
-        this.timeOfDelivery = timeOfDelivery;
+    public void setSecondDatetimeOfDelivery ( final ZonedDateTime secondDatetimeOfDelivery ) {
+        this.secondDatetimeOfDelivery = secondDatetimeOfDelivery;
     }
 
     /**
@@ -424,52 +411,6 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
         else {
             this.lastName = lastName;
         }
-    }
-
-    /**
-     * returns the date of delivery of the second baby, if twins are born
-     *
-     * @return secondDateOfDelivery
-     */
-    public LocalDate getSecondDateOfDelivery () {
-        return secondDateOfDelivery;
-    }
-
-    /**
-     * sets the date of delivery for the second baby, if twins are born
-     *
-     * @param secondDateOfDelivery
-     *            date of delivery for the second baby to be set, if twins are
-     *            born
-     */
-    public void setSecondDateOfDelivery ( final LocalDate secondDateOfDelivery ) {
-        if ( secondDateOfDelivery.isAfter( LocalDate.now() ) ) {
-            throw new IllegalArgumentException( "The date of delivery must be before the current date" );
-        }
-        this.secondDateOfDelivery = secondDateOfDelivery;
-    }
-
-    /**
-     * returns the time of delivery of the second baby, if twins are born
-     *
-     * @return secondTimeOfDelivery
-     */
-    public String getSecondTimeOfDelivery () {
-        return secondTimeOfDelivery;
-    }
-
-    /**
-     * sets the time of delivery for the second baby, if twins are born
-     *
-     * @param secondTimeOfDelivery
-     *            time of delivery for the second baby to be set, if twins are
-     *            born
-     */
-    public void setSecondTimeOfDelivery ( final String secondTimeOfDelivery ) {
-        if ( secondTimeOfDelivery == null ) {
-            throw new IllegalArgumentException( "The time of delivery cannot be null" );
-        }
-        this.secondTimeOfDelivery = secondTimeOfDelivery;
     }
 
     /**
@@ -688,5 +629,24 @@ public class LaborDeliveryReport extends DomainObject<LaborDeliveryReport> {
      */
     public void setDeliveryMethod ( final DeliveryMethod deliveryMethod ) {
         this.deliveryMethod = deliveryMethod;
+    }
+
+    /**
+     * Returns the delivery method for this labor delivery report
+     *
+     * @return the patient for this labor delivery report
+     */
+    public DeliveryMethod getSecondDeliveryMethod () {
+        return deliveryMethod;
+    }
+
+    /**
+     * Sets the delivery method for the labor delivery report
+     *
+     * @param secondDeliveryMethod
+     *            the deliveryMethod to set for this labor delivery report
+     */
+    public void setSecondDeliveryMethod ( final DeliveryMethod secondDeliveryMethod ) {
+        this.secondDeliveryMethod = secondDeliveryMethod;
     }
 }

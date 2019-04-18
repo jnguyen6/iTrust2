@@ -1,6 +1,14 @@
 package edu.ncsu.csc.itrust2.forms.hcp;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+
+import org.hibernate.validator.constraints.Length;
 
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
 import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
@@ -15,16 +23,10 @@ import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
 public class LaborDeliveryReportForm {
 
     /** Date representing the date in labor */
-    private LocalDate        dateOfLabor;
-
-    /** String representing the time in labor */
-    private String           timeOfLabor;
+    private String           datetimeOfLabor;
 
     /** Date representing the date of delivery of baby */
-    private LocalDate        dateOfDelivery;
-
-    /** String representing the time of delivery of baby */
-    private String           timeOfDelivery;
+    private String           datetimeOfDelivery;
 
     /** Double representing the weight of the baby */
     private Double           weight;
@@ -48,13 +50,7 @@ public class LaborDeliveryReportForm {
      * Date representing the date of the delivery of the second baby, if twins
      * are born
      */
-    private LocalDate        secondDateOfDelivery;
-
-    /**
-     * String representing the time of the delivery of the second baby, if twins
-     * are born
-     */
-    private String           secondTimeOfDelivery;
+    private String           secondDatetimeOfDelivery;
 
     /** Double representing the weight of the second baby, if twins are born */
     private Double           secondWeight;
@@ -86,12 +82,31 @@ public class LaborDeliveryReportForm {
     /**
      * Obstetrics Record representing the Obstetrics Record
      */
+    @OneToOne
+    @JoinColumn ( name = "obstetricsrecord_id" )
     private ObstetricsRecord obstetricsRecord;
+
+    /** The id of this obstetrics record */
+    @Id
+    @GeneratedValue ( strategy = GenerationType.AUTO )
+    private Long             id;
+
+    /**
+     * The username of the patient for this ObstetricsRecord
+     */
+    @Length ( max = 20 )
+    private String           patient;
 
     /**
      * The delivery method of the labor delivery report
      */
     private DeliveryMethod   deliveryMethod;
+
+    /**
+     * The delivery method of the labor delivery report of the second baby, if
+     * twins are born
+     */
+    private DeliveryMethod   secondDeliveryMethod;
 
     /**
      * Default Constructor for the Labor Delivery Report Form
@@ -106,10 +121,8 @@ public class LaborDeliveryReportForm {
      *            labor delivery report to create form from
      */
     public LaborDeliveryReportForm ( final LaborDeliveryReport ov ) {
-        setDateOfLabor( ov.getDateOfLabor() );
-        setTimeOfLabor( ov.getTimeOfLabor() );
-        setDateOfDelivery( ov.getDateOfDelivery() );
-        setTimeOfDelivery( ov.getTimeOfDelivery() );
+        setDatetimeOfLabor( ov.getDatetimeOfLabor().toString() );
+        setDatetimeOfDelivery( ov.getDatetimeOfDelivery().toString() );
         setWeight( ov.getWeight() );
         setLength( ov.getLength() );
         setHeartRate( ov.getHeartRate() );
@@ -119,101 +132,82 @@ public class LaborDeliveryReportForm {
         setDeliveryMethod( ov.getDeliveryMethod() );
         setObstetricsRecord( ov.getObstetricsRecord() );
         if ( ov.getObstetricsRecord().isTwins() ) {
-            setSecondDateOfDelivery( ov.getSecondDateOfDelivery() );
-            setSecondTimeOfDelivery( ov.getSecondTimeOfDelivery() );
+            setSecondDatetimeOfDelivery( ov.getSecondDatetimeOfDelivery().toString() );
             setSecondWeight( ov.getSecondWeight() );
             setSecondLength( ov.getSecondLength() );
             setSecondHeartRate( ov.getSecondHeartRate() );
             setSecondBloodPressure( ov.getSecondBloodPressure() );
             setSecondFirstName( ov.getSecondFirstName() );
             setSecondLastName( ov.getSecondLastName() );
+            setSecondDeliveryMethod( ov.getSecondDeliveryMethod() );
         }
         else {
-            setSecondDateOfDelivery( LocalDate.MIN );
-            setSecondTimeOfDelivery( "12:00" );
+            setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
             setSecondWeight( 20.9 );
             setSecondLength( 1.3 );
             setSecondHeartRate( 160 );
             setSecondBloodPressure( 70 );
             setSecondFirstName( "Bob" );
             setSecondLastName( "Marley" );
+            setSecondDeliveryMethod( DeliveryMethod.Miscarriage );
         }
     }
 
     /**
-     * returns the date of labor
+     * returns the date time of labor
      *
-     * @return dateOfLabor
+     * @return date time of labor
      */
-    public LocalDate getDateOfLabor () {
-        return dateOfLabor;
+    public String getDatetimeOfLabor () {
+        return datetimeOfLabor;
     }
 
     /**
-     * sets the date of labor
+     * sets the date and time of labor
      *
-     * @param dateOfLabor
-     *            date of labor to be set for the labor delivery report
+     * @param datetimeOfLabor
+     *            date and time of labor to be set
      */
-    public void setDateOfLabor ( final LocalDate dateOfLabor ) {
-        this.dateOfLabor = dateOfLabor;
+    public void setDatetimeOfLabor ( final String datetimeOfLabor ) {
+        this.datetimeOfLabor = datetimeOfLabor;
     }
 
     /**
-     * returns the time of labor
+     * returns the date and time of delivery
      *
-     * @return timeOfLabor
+     * @return date and time of delivery
      */
-    public String getTimeOfLabor () {
-        return timeOfLabor;
+    public String getDatetimeOfDelivery () {
+        return datetimeOfDelivery;
     }
 
     /**
-     * sets the time of the labor
+     * sets the date and time of delivery
      *
-     * @param timeOfLabor
-     *            time of labor to be set for the labor delivery report
+     * @param datetimeOfDelivery
+     *            date and time of delivery to be set
      */
-    public void setTimeOfLabor ( final String timeOfLabor ) {
-        this.timeOfLabor = timeOfLabor;
+    public void setDatetimeOfDelivery ( final String datetimeOfDelivery ) {
+        this.datetimeOfDelivery = datetimeOfDelivery;
     }
 
     /**
-     * returns the date of delivery of baby
+     * returns the date and time of the second delivery
      *
-     * @return dateOfDelivery
+     * @return date and time of second delivery
      */
-    public LocalDate getDateOfDelivery () {
-        return dateOfDelivery;
+    public String getSecondDatetimeOfDelivery () {
+        return secondDatetimeOfDelivery;
     }
 
     /**
-     * sets the date of the delivery for the baby
+     * sets the date and time of the second delivery
      *
-     * @param dateOfDelivery
-     *            date of delivery to be set for the baby.
+     * @param secondDatetimeOfDelivery
+     *            date and time of the second delivery
      */
-    public void setDateOfDelivery ( final LocalDate dateOfDelivery ) {
-        this.dateOfDelivery = dateOfDelivery;
-    }
-
-    /**
-     * returns the time of delivery of baby
-     *
-     * @return timeOfDelivery
-     */
-    public String getTimeOfDelivery () {
-        return timeOfDelivery;
-    }
-
-    /**
-     * sets the time of delivery for the baby
-     *
-     * @param timeOfDelivery
-     *            time of delivery to be set for the baby
-     */
-    public void setTimeOfDelivery ( final String timeOfDelivery ) {
-        this.timeOfDelivery = timeOfDelivery;
+    public void setSecondDatetimeOfDelivery ( final String secondDatetimeOfDelivery ) {
+        this.secondDatetimeOfDelivery = secondDatetimeOfDelivery;
     }
 
     /**
@@ -328,46 +322,6 @@ public class LaborDeliveryReportForm {
      */
     public void setLastName ( final String lastName ) {
         this.lastName = lastName;
-    }
-
-    /**
-     * returns the date of delivery of the second baby, if twins are born
-     *
-     * @return secondDateOfDelivery
-     */
-    public LocalDate getSecondDateOfDelivery () {
-        return secondDateOfDelivery;
-    }
-
-    /**
-     * sets the date of delivery for the second baby, if twins are born
-     *
-     * @param secondDateOfDelivery
-     *            date of delivery for the second baby to be set, if twins are
-     *            born
-     */
-    public void setSecondDateOfDelivery ( final LocalDate secondDateOfDelivery ) {
-        this.secondDateOfDelivery = secondDateOfDelivery;
-    }
-
-    /**
-     * returns the time of delivery of the second baby, if twins are born
-     *
-     * @return secondTimeOfDelivery
-     */
-    public String getSecondTimeOfDelivery () {
-        return secondTimeOfDelivery;
-    }
-
-    /**
-     * sets the time of delivery for the second baby, if twins are born
-     *
-     * @param secondTimeOfDelivery
-     *            time of delivery for the second baby to be set, if twins are
-     *            born
-     */
-    public void setSecondTimeOfDelivery ( final String secondTimeOfDelivery ) {
-        this.secondTimeOfDelivery = secondTimeOfDelivery;
     }
 
     /**
@@ -520,6 +474,25 @@ public class LaborDeliveryReportForm {
      */
     public void setDeliveryMethod ( final DeliveryMethod deliveryMethod ) {
         this.deliveryMethod = deliveryMethod;
+    }
+
+    /**
+     * Returns the delivery method for this labor delivery report
+     *
+     * @return the patient for this labor delivery report
+     */
+    public DeliveryMethod getSecondDeliveryMethod () {
+        return deliveryMethod;
+    }
+
+    /**
+     * Sets the delivery method for the labor delivery report
+     *
+     * @param secondDeliveryMethod
+     *            the deliveryMethod to set for this labor delivery report
+     */
+    public void setSecondDeliveryMethod ( final DeliveryMethod secondDeliveryMethod ) {
+        this.secondDeliveryMethod = secondDeliveryMethod;
     }
 
 }
