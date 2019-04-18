@@ -14,6 +14,7 @@ import edu.ncsu.csc.itrust2.forms.admin.ICDCodeForm;
 import edu.ncsu.csc.itrust2.forms.hcp.GeneralCheckupForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.BloodType;
+import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
 import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.HouseholdSmokingStatus;
 import edu.ncsu.csc.itrust2.models.enums.PatientSmokingStatus;
@@ -195,6 +196,12 @@ public class HibernateDataGenerator {
         jill.setLastName( "Bob" );
         jill.setDateOfBirth( LocalDate.now().minusYears( 40 ) ); // 40 years old
         jill.setGender(Gender.Female);
+        jill.setEthnicity(Ethnicity.Caucasian);
+        jill.setAddress1("140 George Rd.");
+        jill.setCity("Raleigh");
+        jill.setState(State.NC);
+        jill.setZip("27606");
+        jill.setPhone("123-456-7891");
         jill.save();
 
         /** Optometrist Bobby Ibajnup. Robort's twin brother. */
@@ -252,6 +259,12 @@ public class HibernateDataGenerator {
         alice.setDateOfBirth( LocalDate.now().minusYears( 13 ) ); // 13 years
                                                                   // old
         alice.setGender(Gender.Female);
+        alice.setEthnicity(Ethnicity.Caucasian);
+        alice.setAddress1("140 George Rd.");
+        alice.setCity("Raleigh");
+        alice.setState(State.NC);
+        alice.setZip("27606");
+        alice.setPhone("123-456-7891");
         alice.save();
 
         final Hospital hosp = new Hospital( "General Hospital", "123 Main St", "12345", "NC" );
