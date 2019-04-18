@@ -60,7 +60,7 @@ Scenario Outline: Patient has both current and previous obstetrics records.
 	
 Examples:
 	| username			| username2			| lmp					| conception_year | weeks_pregnant| hours_in_labor | delivery_method | twins | recordNo	|
-	| AliceThirteen	|	JillBob				| 11/01/2018	| 2015            | 36            | 10             | Vaginal         | true  | 0				|
-	| JillBob				| AliceThirteen	| 04/03/2019	| 2015            | 30            | 15             | Cesarean        | false | 0				|
+	| AliceThirteen	|	JillBob				| 11/01/2018	| 2015            | 36            | 10             | Vaginal         | true  | 1				|
+	| JillBob				| AliceThirteen	| 04/03/2019	| 2015            | 30            | 15             | Cesarean        | false | 1				|
 	
 	

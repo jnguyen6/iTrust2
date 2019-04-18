@@ -39,19 +39,25 @@ public class PrescriptionsStepDefs extends CucumberTest {
 
     /**
      * Fills in the date and time fields with the specified date and time.
-     * @param date The date to enter.
-     * @param time The time to enter.
+     *
+     * @param date
+     *            The date to enter.
+     * @param time
+     *            The time to enter.
      */
-    private void fillInDateTime(String dateField, String date, String timeField, String time) {
-        fillInDate(dateField, date);
-        fillInTime(timeField, time);
+    private void fillInDateTime ( final String dateField, final String date, final String timeField,
+            final String time ) {
+        fillInDate( dateField, date );
+        fillInTime( timeField, time );
     }
 
     /**
      * Fills in the date field with the specified date.
-     * @param date The date to enter.
+     *
+     * @param date
+     *            The date to enter.
      */
-    private void fillInDate(String dateField, String date) {
+    private void fillInDate ( final String dateField, final String date ) {
         driver.findElement( By.name( dateField ) ).clear();
         final WebElement dateElement = driver.findElement( By.name( dateField ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
@@ -59,9 +65,11 @@ public class PrescriptionsStepDefs extends CucumberTest {
 
     /**
      * Fills in the time field with the specified time.
-     * @param time The time to enter.
+     *
+     * @param time
+     *            The time to enter.
      */
-    private void fillInTime(String timeField, String time) {
+    private void fillInTime ( final String timeField, String time ) {
         // Zero-pad the time for entry
         if ( time.length() == 7 ) {
             time = "0" + time;
@@ -95,8 +103,43 @@ public class PrescriptionsStepDefs extends CucumberTest {
         driver.findElement( By.className( "btn" ) ).click();
     }
 
-    @When ( "I start documenting an office visit for the patient with name: (.+) (.+) and date of birth: (.+)" )
-    public void startOfficeVisit ( final String firstName, final String lastName, final String dob ) {
+    // @When ( "I start documenting an office visit for the patient with name:
+    // (.+) (.+) and date of birth: (.+)" )
+    // public void startOfficeVisit ( final String firstName, final String
+    // lastName, final String dob ) {
+    //
+    // driver.get( VISIT_URL );
+    // final String patient = getUserName( firstName, lastName );
+    //
+    // try {
+    // Prescription.getForPatient( patient ).forEach( e -> e.delete() );
+    // }
+    // catch ( final Exception e ) {
+    // /* Ignored */
+    // }
+    // try {
+    // Diagnosis.getForPatient( User.getByName( patient ) ).forEach( e ->
+    // e.delete() );
+    // }
+    // catch ( final Exception e ) {
+    // /* Ignored */
+    // }
+    // try {
+    // OfficeVisit.getForPatient( patient ).forEach( e -> e.delete() );
+    // }
+    // catch ( final Exception e ) {
+    // /* Ignored */
+    // }
+    //
+    // waitForAngular();
+    // selectItem( "name", patient );
+    // }
+
+    @When ( "fill in the office visit for the patient with name: (.+) (.+) and date of birth: (.+) with date: (.+), hospital: (.+), notes: (.*), weight: (.+), height: (.+), blood pressure: (.+), household smoking status: (.+), patient smoking status: (.+), hdl: (.+), ldl: (.+), and triglycerides: (.+)" )
+    public void fillOfficeVisitForm ( final String firstName, final String lastName, final String dob,
+            final String date, final String hospital, final String notes, final String weight, final String height,
+            final String bloodPressure, final String hss, final String pss, final String hdl, final String ldl,
+            final String triglycerides ) {
 
         driver.get( VISIT_URL );
         final String patient = getUserName( firstName, lastName );
@@ -120,21 +163,17 @@ public class PrescriptionsStepDefs extends CucumberTest {
             /* Ignored */
         }
 
+        fillInDateTime( "date", date, "time", "10:10 AM" );
+
         waitForAngular();
         selectItem( "name", patient );
-    }
-
-    @When ( "fill in the office visit with date: (.+), hospital: (.+), notes: (.*), weight: (.+), height: (.+), blood pressure: (.+), household smoking status: (.+), patient smoking status: (.+), hdl: (.+), ldl: (.+), and triglycerides: (.+)" )
-    public void fillOfficeVisitForm ( final String date, final String hospital, final String notes, final String weight,
-            final String height, final String bloodPressure, final String hss, final String pss, final String hdl,
-            final String ldl, final String triglycerides ) {
 
         waitForAngular();
-
-        fillInDateTime("date", date, "time", "10:10 AM");
 
         ( (JavascriptExecutor) driver ).executeScript( "document.getElementsByName('hospital')[0].click();" );
         waitForAngular();
+        // driver.findElement( By.id( "patient" ) ).click();
+
         driver.findElement( By.name( "GENERAL_CHECKUP" ) ).click();
         waitForAngular();
         enterValue( "notes", notes );

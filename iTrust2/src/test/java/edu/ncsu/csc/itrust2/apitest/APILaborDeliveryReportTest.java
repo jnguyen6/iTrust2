@@ -208,7 +208,7 @@ public class APILaborDeliveryReportTest {
         final String newRecString = mvc
                 .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )
-                .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
+                .andExpect( status().isBadRequest() ).andReturn().getResponse().getContentAsString();
         final LaborDeliveryReport newRep = gson.fromJson( newRecString, LaborDeliveryReport.class );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
 
@@ -355,14 +355,14 @@ public class APILaborDeliveryReportTest {
         final String newRecString = mvc
                 .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )
-                .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
+                .andExpect( status().isBadRequest() ).andReturn().getResponse().getContentAsString();
         final LaborDeliveryReport newRep = gson.fromJson( newRecString, LaborDeliveryReport.class );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
 
         // Then update report
         mvc.perform( put( "/api/v1/LaborDeliveryReports/" + newRep.getId() ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( form2 ) ) ).andExpect( status().isOk() ).andReturn().getResponse()
-                .getContentAsString();
+                .content( TestUtils.asJsonString( form2 ) ) ).andExpect( status().isBadRequest() ).andReturn()
+                .getResponse().getContentAsString();
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
     }
 
@@ -521,7 +521,7 @@ public class APILaborDeliveryReportTest {
         final String newRecString = mvc
                 .perform( post( "/api/v1/laborDeliveryReports/" + patient.getSelf() )
                         .contentType( MediaType.APPLICATION_JSON ).content( TestUtils.asJsonString( form ) ) )
-                .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
+                .andExpect( status().isBadRequest() ).andReturn().getResponse().getContentAsString();
         final LaborDeliveryReport newRep = gson.fromJson( newRecString, LaborDeliveryReport.class );
         assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
 

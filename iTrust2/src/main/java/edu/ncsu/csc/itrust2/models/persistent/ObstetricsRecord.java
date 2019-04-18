@@ -95,22 +95,16 @@ public class ObstetricsRecord extends DomainObject<ObstetricsRecord> implements 
     public ObstetricsRecord ( final ObstetricsRecordForm form ) {
         this.setLmp( LocalDate.parse( form.getLmp() ) );
         this.setCurrentRecord( form.isCurrentRecord() );
-        // If the record is a current record, initialize the rest
-        // of the fields to default values
-        if ( isCurrentRecord() ) {
-            this.setConception( 2000 );
-            this.setWeeksPreg( 0 );
-            this.setHoursInLabor( 0 );
+        this.setConception( form.getConception() );
+        this.setWeeksPreg( form.getWeeksPreg() );
+        this.setHoursInLabor( form.getHoursInLabor() );
+        if ( this.isCurrentRecord() ) {
             this.setDeliveryMethod( DeliveryMethod.Miscarriage );
-            this.setTwins( false );
         }
         else {
-            this.setConception( form.getConception() );
-            this.setWeeksPreg( form.getWeeksPreg() );
-            this.setHoursInLabor( form.getHoursInLabor() );
             this.setDeliveryMethod( form.getType() );
-            this.setTwins( form.isTwins() );
         }
+        this.setTwins( form.isTwins() );
     }
 
     /**

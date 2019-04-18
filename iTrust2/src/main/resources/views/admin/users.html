@@ -99,6 +99,8 @@
 	        		  return 'Admin';
 	        	  } else if(user.role === "ROLE_ER") {
 	        		  return 'Emergency Responder';
+	        	  } else if (user.role === "ROLE_OBGYN") {
+	                  return "Obstetrics HCP";
 	        	  } else {
 	        		  return 'Lab Tech';
 	        	  }
@@ -207,6 +209,7 @@ input[type=password] {
 														<option value="ROLE_OPH">Ophthalmologist HCP</option>
 														<option value="ROLE_ADMIN">Admin</option>
 														<option value="ROLE_ER">Emergency Responder</option>
+														<option value="ROLE_OBGYN">Obstetrics HCP</option>
 														<option value="ROLE_LABTECH">Lab Technician</option>
 													</select> <br>
 													<br> <b>Enabled?:</b> <input type="checkbox"

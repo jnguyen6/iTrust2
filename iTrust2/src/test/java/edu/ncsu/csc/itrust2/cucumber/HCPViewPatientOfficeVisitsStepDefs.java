@@ -18,6 +18,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import edu.ncsu.csc.itrust2.forms.admin.ICDCodeForm;
 import edu.ncsu.csc.itrust2.forms.hcp.GeneralCheckupForm;
+import edu.ncsu.csc.itrust2.forms.hcp.GeneralObstetricsForm;
 import edu.ncsu.csc.itrust2.forms.hcp.OphthalmologySurgeryForm;
 import edu.ncsu.csc.itrust2.models.enums.AppointmentType;
 import edu.ncsu.csc.itrust2.models.enums.EyeSurgeryType;
@@ -28,6 +29,7 @@ import edu.ncsu.csc.itrust2.models.persistent.BasicHealthMetrics;
 import edu.ncsu.csc.itrust2.models.persistent.Diagnosis;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.GeneralCheckup;
+import edu.ncsu.csc.itrust2.models.persistent.GeneralObstetrics;
 import edu.ncsu.csc.itrust2.models.persistent.GeneralOphthalmology;
 import edu.ncsu.csc.itrust2.models.persistent.Hospital;
 import edu.ncsu.csc.itrust2.models.persistent.ICDCode;
@@ -36,20 +38,23 @@ import edu.ncsu.csc.itrust2.models.persistent.OphthalmologySurgery;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
- * Step definitions for and HCP to view all of the patients' office visits.
+ * Step definitions for an HCP to view all of the patients' office visits.
  *
  * @author Domenick DiBiase (dndibias)
+ * @author Jimmy Nguyen (jnguyen6)
  */
 public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
 
-    private final String OPH_HCP_TYPE  = "ophthalmologist";
-    private final String OD_HCP_TYPE   = "optometrist";
+    private final String OPH_HCP_TYPE   = "ophthalmologist";
+    private final String OD_HCP_TYPE    = "optometrist";
+    private final String OBGYN_HCP_TYPE = "obstetrics";
 
-    private final String baseUrl       = "http://localhost:8080/iTrust2";
-    private final String hcpString     = "patrickHCP";
-    private final String ophHcpString  = "bobbyOPH";
-    private final String odHcpString   = "masonOD";
-    private final String patientString = "bobby";
+    private final String baseUrl        = "http://localhost:8080/iTrust2";
+    private final String hcpString      = "patrickHCP";
+    private final String ophHcpString   = "bobbyOPH";
+    private final String odHcpString    = "masonOD";
+    private final String obgynHcpString = "tylerOBGYN";
+    private final String patientString  = "AliceThirteen";
 
     /**
      * Asserts that the text is on the page
@@ -74,6 +79,7 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
         GeneralCheckup.deleteAll();
         DomainObject.deleteAll( GeneralOphthalmology.class );
         DomainObject.deleteAll( OphthalmologySurgery.class );
+        DomainObject.deleteAll( GeneralObstetrics.class );
 
         final GeneralCheckup genCheckup = getGenCheckup();
         if ( genCheckup != null ) {
@@ -86,6 +92,11 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
         final OphthalmologySurgery ophSurgery = getOphSurgery();
         if ( ophSurgery != null ) {
             ophSurgery.save();
+        }
+
+        final GeneralObstetrics genObgyn = getGenObstetricsVisit();
+        if ( genObgyn != null ) {
+            genObgyn.save();
         }
     }
 
@@ -110,6 +121,10 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
                 hcp = new User( odHcpString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                         Role.ROLE_OD, 1 );
                 break;
+            case OBGYN_HCP_TYPE:
+                hcp = new User( obgynHcpString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                        Role.ROLE_OBGYN, 1 );
+                break;
             default:
                 hcp = new User( hcpString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
                         Role.ROLE_HCP, 1 );
@@ -126,6 +141,7 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
      */
     @Then ( "^the (.+) HCP logs in and navigates to the view patient office visits page$" )
     public void hcpLoginNavToView ( final String hcpType ) {
+        waitForAngular();
         attemptLogout();
 
         driver.get( baseUrl );
@@ -139,6 +155,9 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
             case OD_HCP_TYPE:
                 username.sendKeys( odHcpString );
                 break;
+            case OBGYN_HCP_TYPE:
+                username.sendKeys( obgynHcpString );
+                break;
             default:
                 username.sendKeys( hcpString );
         }
@@ -151,8 +170,14 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
 
         assertEquals( "iTrust2: HCP Home", driver.getTitle() );
 
-        ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('HCPOfficeVisits').click();" );
+        waitForAngular();
 
+        if ( hcpType.equals( OBGYN_HCP_TYPE ) ) {
+            ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('OBGYNHCPOfficeVisits').click();" );
+        }
+        else {
+            ( (JavascriptExecutor) driver ).executeScript( "document.getElementById('HCPOfficeVisits').click();" );
+        }
         assertEquals( "iTrust2: View Patient Office Visits", driver.getTitle() );
     }
 
@@ -166,6 +191,7 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
         assertTextPresent( "General Checkup" );
         assertTextPresent( "General Ophthalmology" );
         assertTextPresent( "Ophthalmology Surgery" );
+        assertTextPresent( "General Obstetrics" );
     }
 
     /**
@@ -184,6 +210,9 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
         }
         else if ( visitType.equals( "Ophthalmology Surgery" ) ) {
             value = 3;
+        }
+        else if ( visitType.equals( "General Obstetrics" ) ) {
+            value = 4;
         }
 
         final List<OfficeVisit> visits = OfficeVisit.getOfficeVisits();
@@ -210,6 +239,8 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
             case 3:
                 validateOphSurgery();
                 break;
+            case 4:
+                validateGenObstetricsVisit();
             default:
                 break;
         }
@@ -221,10 +252,11 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
     private GeneralCheckup getGenCheckup () {
         // Set First Diagnosis Code for APIEmergencyRecordFormTest
         ICDCodeForm codeForm = new ICDCodeForm();
-        codeForm.setCode( "T49" );
-        codeForm.setDescription( "Poisoned by topical agents.  Probably in Blighttown" );
-        final ICDCode poisoned = new ICDCode( codeForm );
-        poisoned.save();
+        // codeForm.setCode( "T49" );
+        // codeForm.setDescription( "Poisoned by topical agents. Probably in
+        // Blighttown" );
+        // final ICDCode poisoned = new ICDCode( codeForm );
+        // poisoned.save();
 
         // Create Second Diagnosis Code for APIEmergencyRecordFormTest
         codeForm = new ICDCodeForm();
@@ -255,10 +287,10 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
         estusD.setCode( backPain );
         estusD.setNote( "Maybe try a bandaid" );
         diagnoses.add( estusD );
-        final Diagnosis peach = new Diagnosis();
-        peach.setCode( poisoned );
-        peach.setNote( "This guy is poisoned! Give him a peach" );
-        diagnoses.add( peach );
+        // final Diagnosis peach = new Diagnosis();
+        // peach.setCode( poisoned );
+        // peach.setNote( "This guy is poisoned! Give him a peach" );
+        // diagnoses.add( peach );
         form.setDiagnoses( diagnoses );
 
         try {
@@ -367,6 +399,46 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
     }
 
     /**
+     * Generates an obstetrics office visit with mock data
+     */
+    private GeneralObstetrics getGenObstetricsVisit () {
+        final Hospital hosp = new Hospital( "Some Hospital", "Some Road", "78901", "NC" );
+        hosp.save();
+        final GeneralObstetricsForm visit = new GeneralObstetricsForm();
+        visit.setPreScheduled( null );
+        visit.setDate( "2019-04-08T09:50:00.000-04:00" ); // 4/08/2019 9:50 AM
+                                                          // EDT
+        visit.setHcp( "hcp" );
+        visit.setPatient( "AliceThirteen" );
+        visit.setNotes( "Test office visit" );
+        visit.setType( AppointmentType.GENERAL_OBSTETRICS.toString() );
+        visit.setHospital( "Some Hospital" );
+        visit.setDiastolic( 150 );
+        visit.setHdl( 75 );
+        visit.setLdl( 75 );
+        visit.setHeight( 75f );
+        visit.setWeight( 130f );
+        visit.setTri( 300 );
+        visit.setSystolic( 150 );
+        visit.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
+        visit.setPatientSmokingStatus( PatientSmokingStatus.NEVER );
+
+        visit.setWeeksPregnant( 3 );
+        visit.setFetalHeartRate( 10 );
+        visit.setFundalHeight( 20.0 );
+        visit.setIsTwins( false );
+        visit.setIsLowLyingPlacenta( false );
+
+        try {
+            return new GeneralObstetrics( visit );
+        }
+        catch ( final Exception e ) {
+            // Do nothing
+            return null;
+        }
+    }
+
+    /**
      * Validates the data shown is correct for the general checkup office visit
      */
     private void validateGenCheckup () {
@@ -450,6 +522,36 @@ public class HCPViewPatientOfficeVisitsStepDefs extends CucumberTest {
         assertTrue( time.equals( "Time: 10:50 AM" ) || time.equals( "Time: 9:50 AM" ) );
 
         assertEquals( "Test office visit", driver.findElement( By.name( "notes" ) ).getText() );
-        assertEquals( "CATARACT", driver.findElement( By.name( "surgeryType" ) ).getText() );
+        // assertEquals( "CATARACT", driver.findElement( By.name( "surgeryType"
+        // ) ).getText() );
+    }
+
+    /**
+     * Validates the data shown is correct for the obstetrics office visit
+     */
+    private void validateGenObstetricsVisit () {
+        assertEquals( "Some Hospital", driver.findElement( By.name( "hospitalName" ) ).getText() );
+        assertEquals( "150", driver.findElement( By.name( "diastolic" ) ).getText() );
+        assertEquals( "AliceThirteen", driver.findElement( By.name( "patientName" ) ).getText() );
+        assertEquals( "75", driver.findElement( By.name( "hdl" ) ).getText() );
+        assertEquals( "75", driver.findElement( By.name( "ldl" ) ).getText() );
+        assertEquals( "75", driver.findElement( By.name( "height" ) ).getText() );
+        assertEquals( "130", driver.findElement( By.name( "weight" ) ).getText() );
+        assertEquals( "300", driver.findElement( By.name( "tri" ) ).getText() );
+        assertEquals( "150", driver.findElement( By.name( "systolic" ) ).getText() );
+        assertEquals( "NONSMOKING", driver.findElement( By.name( "houseSmokingStatus" ) ).getText() );
+        assertEquals( "NEVER", driver.findElement( By.name( "patientSmokingStatus" ) ).getText() );
+        assertEquals( "General Obstetrics", driver.findElement( By.name( "visitType" ) ).getText() );
+        assertEquals( "3", driver.findElement( By.name( "weeksPregnant" ) ).getText() );
+        assertEquals( "10", driver.findElement( By.name( "fetalHeartRate" ) ).getText() );
+        assertEquals( "20", driver.findElement( By.name( "fundalHeight" ) ).getText() );
+        assertEquals( "false", driver.findElement( By.name( "isTwins" ) ).getText() );
+        assertEquals( "false", driver.findElement( By.name( "isLowLyingPlacenta" ) ).getText() );
+        assertEquals( "Date: 04/08/2019", driver.findElement( By.name( "date" ) ).getText() );
+
+        final String time = driver.findElement( By.name( "time" ) ).getText();
+        assertTrue( time.equals( "Time: 10:50 AM" ) || time.equals( "Time: 9:50 AM" ) );
+
+        assertEquals( "Test office visit", driver.findElement( By.name( "notes" ) ).getText() );
     }
 }

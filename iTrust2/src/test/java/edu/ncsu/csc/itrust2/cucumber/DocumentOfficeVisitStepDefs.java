@@ -74,19 +74,25 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Fills in the date and time fields with the specified date and time.
-     * @param date The date to enter.
-     * @param time The time to enter.
+     *
+     * @param date
+     *            The date to enter.
+     * @param time
+     *            The time to enter.
      */
-    private void fillInDateTime(String dateField, String date, String timeField, String time) {
-        fillInDate(dateField, date);
-        fillInTime(timeField, time);
+    private void fillInDateTime ( final String dateField, final String date, final String timeField,
+            final String time ) {
+        fillInDate( dateField, date );
+        fillInTime( timeField, time );
     }
 
     /**
      * Fills in the date field with the specified date.
-     * @param date The date to enter.
+     *
+     * @param date
+     *            The date to enter.
      */
-    private void fillInDate(String dateField, String date) {
+    private void fillInDate ( final String dateField, final String date ) {
         driver.findElement( By.name( dateField ) ).clear();
         final WebElement dateElement = driver.findElement( By.name( dateField ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
@@ -94,9 +100,11 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Fills in the time field with the specified time.
-     * @param time The time to enter.
+     *
+     * @param time
+     *            The time to enter.
      */
-    private void fillInTime(String timeField, String time) {
+    private void fillInTime ( final String timeField, String time ) {
         // Zero-pad the time for entry
         if ( time.length() == 7 ) {
             time = "0" + time;
@@ -410,6 +418,8 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
         notes.clear();
         notes.sendKeys( note );
 
+        fillInDateTime( "date", dateString, "time", "9:30 AM" );
+
         waitForAngular();
         final WebElement patient = driver.findElement( By.cssSelector( "input[value=\"patient\"]" ) );
         patient.click();
@@ -421,8 +431,6 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
         waitForAngular();
         final WebElement hospital = driver.findElement( By.name( "hospital" ) );
         hospital.click();
-
-        fillInDateTime( "date", dateString, "time", "9:30 AM" );
 
         expectedBhm = new BasicHealthMetrics();
 
@@ -509,6 +517,7 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
             final String note ) throws InterruptedException {
 
         waitForAngular();
+        fillInDateTime( "date", dateString, "time", "9:30 AM" );
         final WebElement notes = driver.findElement( By.name( "notes" ) );
         notes.clear();
         notes.sendKeys( note );
@@ -524,8 +533,6 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
         waitForAngular();
         final WebElement hospital = driver.findElement( By.name( "hospital" ) );
         hospital.click();
-
-        fillInDateTime( "date", dateString, "time", "9:30 AM");
 
         expectedBhm = new BasicHealthMetrics();
 
@@ -634,6 +641,8 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
             final String patientSmoke, final String hdl, final String ldl, final String tri, final String note )
             throws InterruptedException {
         waitForAngular();
+
+        fillInDateTime( "date", dateString, "time", "9:30 AM" );
         final WebElement notes = driver.findElement( By.name( "notes" ) );
         notes.clear();
         notes.sendKeys( note );
@@ -649,8 +658,6 @@ public class DocumentOfficeVisitStepDefs extends CucumberTest {
         waitForAngular();
         final WebElement hospital = driver.findElement( By.name( "hospital" ) );
         hospital.click();
-        
-        fillInDateTime( "date", dateString, "time", "9:30 AM");
 
         expectedBhm = new BasicHealthMetrics();
 

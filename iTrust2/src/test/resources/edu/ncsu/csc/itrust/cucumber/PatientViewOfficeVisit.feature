@@ -5,7 +5,7 @@ Feature: Patient View Office Visits
 
 
 Scenario Outline: View Patients Office Visits
-  Given there exists a patient in the iTrust system
+    Given there exists a patient in the iTrust system
 	Given there are office visits of all types for the patient
 	Then the patient logs in and navigates to the view patient office visits page
 	And all of the office visit types are options to select
@@ -16,3 +16,4 @@ Examples:
 	| General Checkup       | 
 	| General Ophthalmology |
 	| Ophthalmology Surgery | 
+	| General Obstetrics    |
