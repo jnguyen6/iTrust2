@@ -184,12 +184,18 @@
 	                $scope.newReport.datetimeOfDelivery = date.toISOString();
 	            }
 	         	
+	         	// Check if labor is (incorrectly) after delivery
+	         	var laborDatetime = new Date($scope.newReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.submitError += "Delivery datetime must be after labor datetime\n";
+	         	}
+	         	
 	         	// Check delivery method
 	            if ($scope.newReport.deliveryMethod == undefined) {
                     $scope.submitError += "Please select a delivery method\n";
                 }
 	         	
-	         	if ($scope.newReport.deliveryMethod === 'Miscarraige') {
+	         	if ($scope.newReport.deliveryMethod !== 'Miscarriage') {
 
 		            // Check and set weight
 		            // lbs
@@ -232,6 +238,14 @@
 		         	if (!$scope.newReport.lastName || $scope.newReport.lastName >=50) {
 	                    $scope.submitError += "Baby last name cannot be empty and must be less than 50 characters.\n"
 		         	}
+	         	} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.newReport.weight = 1.0;
+	         	    $scope.newReport.length = 1.0;
+	         	    $scope.newReport.heartRate = 1;
+	         	    $scope.newReport.bloodPressure = 1;
+	         	    $scope.newReport.firstName = 'foo';
+	         	    $scope.newReport.lastName = 'bar';
 	         	}
            	}
            	
@@ -257,12 +271,18 @@
 	                $scope.newReport.secondDatetimeOfDelivery = date.toISOString();
 	            }
 	         	
+	         	// Check if labor is (incorrectly) after delivery
+	         	var laborDatetime = new Date($scope.newReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.submitError += "Second delivery datetime must be after labor datetime\n";
+	         	}
+	         	
 	         	// Check delivery method
 	            if ($scope.newReport.secondDeliveryMethod == undefined) {
                     $scope.submitError += "Please select a delivery method for the twin\n";
                 }
 	            
-	         	if ($scope.newReport.secondDeliveryMethod === 'Miscarraige') {
+	         	if ($scope.newReport.secondDeliveryMethod !== 'Miscarriage') {
 
 		            // Check and set weight
 		            // lbs
@@ -305,7 +325,15 @@
 		         	if (!$scope.newReport.secondLastName || $scope.newReport.secondLastName >=50) {
 	                    $scope.submitError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
 		         	}
-           		}
+           		} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.newReport.secondWeight = 1.0;
+	         	    $scope.newReport.secondLength = 1.0;
+	         	    $scope.newReport.secondHeartRate = 1;
+	         	    $scope.newReport.secondBloodPressure = 1;
+	         	    $scope.newReport.secondFirstName = 'foo';
+	         	    $scope.newReport.secondLastName = 'bar';
+	         	}
            	}
 
             
@@ -410,12 +438,18 @@
 	                $scope.selectedReport.datetimeOfDelivery = date.toISOString();
 	            }
 	         	
+	         	// Check if labor is (incorrectly) after delivery
+	         	var laborDatetime = new Date($scope.selectedReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.editError += "Delivery datetime must be after labor datetime\n";
+	         	}
+	         	
 	         	// Check delivery method
 	            if ($scope.selectedReport.deliveryMethod == undefined) {
                     $scope.editError += "Please select a delivery method\n";
                 }
 	            
-	         	if ($scope.selectedReport.deliveryMethod === 'Miscarraige') {
+	         	if ($scope.selectedReport.deliveryMethod !== 'Miscarriage') {
 
 		            // Check and set weight
 		            // lbs
@@ -458,6 +492,14 @@
 		         	if (!$scope.selectedReport.lastName || $scope.selectedReport.lastName >=50) {
 	                    $scope.editError += "Baby last name cannot be empty and must be less than 50 characters.\n"
 		         	}
+	         	} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.selectedReport.weight = 1.0;
+	         	    $scope.selectedReport.length = 1.0;
+	         	    $scope.selectedReport.heartRate = 1;
+	         	    $scope.selectedReport.bloodPressure = 1;
+	         	    $scope.selectedReport.firstName = 'foo';
+	         	    $scope.selectedReport.lastName = 'bar';
 	         	}
            	}
            	
@@ -483,12 +525,18 @@
 	                $scope.selectedReport.secondDatetimeOfDelivery = date.toISOString();
 	            }
 	         	
+	         	// Check if labor is (incorrectly) after delivery
+	         	var laborDatetime = new Date($scope.selectedReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.editError += "Delivery datetime must be after labor datetime\n";
+	         	}
+	         	
 	         	// Check delivery method
 	            if ($scope.selectedReport.secondDeliveryMethod == undefined) {
                     $scope.editError += "Please select a delivery method for the twin\n";
                 }
 	         	
-	         	if ($scope.selectedReport.secondDeliveryMethod === 'Miscarraige') {
+	         	if ($scope.selectedReport.secondDeliveryMethod !== 'Miscarriage') {
 	            
 		            // Check and set weight
 		            // lbs
@@ -531,6 +579,14 @@
 		         	if (!$scope.selectedReport.secondLastName || $scope.selectedReport.secondLastName >=50) {
 	                    $scope.editError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
 		         	}
+	         	} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.selectedReport.secondWeight = 1.0;
+	         	    $scope.selectedReport.secondLength = 1.0;
+	         	    $scope.selectedReport.secondHeartRate = 1;
+	         	    $scope.selectedReport.secondBloodPressure = 1;
+	         	    $scope.selectedReport.secondFirstName = 'foo';
+	         	    $scope.selectedReport.secondLastName = 'bar';
 	         	}
            	}
            	
