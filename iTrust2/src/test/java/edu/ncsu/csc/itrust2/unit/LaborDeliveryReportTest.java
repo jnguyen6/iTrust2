@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,10 +47,8 @@ public class LaborDeliveryReportTest {
     @Test
     public void testLaborDeliveryReportValid () throws ParseException {
         final LaborDeliveryReport report = new LaborDeliveryReport();
-        report.setDateOfLabor( LocalDate.now() );
-        report.setTimeOfLabor( "12:00" );
-        report.setDateOfDelivery( LocalDate.now() );
-        report.setTimeOfDelivery( "15:00" );
+        report.setDatetimeOfLabor( ZonedDateTime.now() );
+        report.setDatetimeOfDelivery( ZonedDateTime.now() );
         report.setWeight( 3.4 );
         report.setLength( 12.34 );
         report.setHeartRate( 70 );
@@ -70,8 +69,7 @@ public class LaborDeliveryReportTest {
         record.save();
         report.setObstetricsRecord( record );
 
-        report.setSecondDateOfDelivery( LocalDate.now() );
-        report.setSecondTimeOfDelivery( "15:03" );
+        report.setSecondDatetimeOfDelivery( ZonedDateTime.now() );
         report.setSecondWeight( 2.3 );
         report.setSecondLength( 10.4 );
         report.setSecondHeartRate( 75 );
@@ -84,18 +82,15 @@ public class LaborDeliveryReportTest {
         report.save();
 
         final LaborDeliveryReport test = LaborDeliveryReport.getById( report.getId() );
-        assertEquals( report.getDateOfLabor(), test.getDateOfLabor() );
-        assertEquals( report.getTimeOfLabor(), test.getTimeOfLabor() );
-        assertEquals( report.getDateOfDelivery(), test.getDateOfDelivery() );
-        assertEquals( report.getTimeOfDelivery(), test.getTimeOfDelivery() );
+        assertEquals( report.getDatetimeOfLabor(), test.getDatetimeOfLabor() );
+        assertEquals( report.getDatetimeOfDelivery(), test.getDatetimeOfDelivery() );
         assertEquals( report.getWeight(), test.getWeight() );
         assertEquals( report.getLength(), test.getLength() );
         assertEquals( report.getHeartRate(), test.getHeartRate() );
         assertEquals( report.getBloodPressure(), test.getBloodPressure() );
         assertEquals( report.getFirstName(), test.getFirstName() );
         assertEquals( report.getLastName(), test.getLastName() );
-        assertEquals( report.getSecondDateOfDelivery(), test.getSecondDateOfDelivery() );
-        assertEquals( report.getSecondTimeOfDelivery(), test.getSecondTimeOfDelivery() );
+        assertEquals( report.getSecondDatetimeOfDelivery(), test.getSecondDatetimeOfDelivery() );
         assertEquals( report.getSecondWeight(), test.getSecondWeight() );
         assertEquals( report.getSecondLength(), test.getSecondLength() );
         assertEquals( report.getSecondHeartRate(), test.getSecondHeartRate() );
@@ -108,10 +103,8 @@ public class LaborDeliveryReportTest {
         assertEquals( report.getSecondDeliveryMethod(), test.getSecondDeliveryMethod() );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDateOfLabor( LocalDate.now() );
-        form.setTimeOfLabor( "12:00" );
-        form.setDateOfDelivery( LocalDate.now() );
-        form.setTimeOfDelivery( "15:00" );
+        form.setDatetimeOfLabor( report.getDatetimeOfLabor().toString() );
+        form.setDatetimeOfDelivery( report.getDatetimeOfDelivery().toString() );
         form.setWeight( 3.4 );
         form.setLength( 12.34 );
         form.setHeartRate( 70 );
@@ -132,8 +125,7 @@ public class LaborDeliveryReportTest {
         record2.save();
         form.setObstetricsRecord( record2 );
 
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondDatetimeOfDelivery( report.getSecondDatetimeOfDelivery().toString() );
         form.setSecondWeight( 2.3 );
         form.setSecondLength( 10.4 );
         form.setSecondHeartRate( 75 );
@@ -146,18 +138,15 @@ public class LaborDeliveryReportTest {
         final LaborDeliveryReport ldr = new LaborDeliveryReport( form );
         ldr.setPatient( "patient" );
 
-        assertEquals( report.getDateOfLabor(), ldr.getDateOfLabor() );
-        assertEquals( report.getTimeOfLabor(), ldr.getTimeOfLabor() );
-        assertEquals( report.getDateOfDelivery(), ldr.getDateOfDelivery() );
-        assertEquals( report.getTimeOfDelivery(), ldr.getTimeOfDelivery() );
+        assertEquals( report.getDatetimeOfLabor(), ldr.getDatetimeOfLabor() );
+        assertEquals( report.getDatetimeOfDelivery(), ldr.getDatetimeOfDelivery() );
         assertEquals( report.getWeight(), ldr.getWeight() );
         assertEquals( report.getLength(), ldr.getLength() );
         assertEquals( report.getHeartRate(), ldr.getHeartRate() );
         assertEquals( report.getBloodPressure(), ldr.getBloodPressure() );
         assertEquals( report.getFirstName(), ldr.getFirstName() );
         assertEquals( report.getLastName(), ldr.getLastName() );
-        assertEquals( report.getSecondDateOfDelivery(), ldr.getSecondDateOfDelivery() );
-        assertEquals( report.getSecondTimeOfDelivery(), ldr.getSecondTimeOfDelivery() );
+        assertEquals( report.getSecondDatetimeOfDelivery(), ldr.getSecondDatetimeOfDelivery() );
         assertEquals( report.getSecondWeight(), ldr.getSecondWeight() );
         assertEquals( report.getSecondLength(), ldr.getSecondLength() );
         assertEquals( report.getSecondHeartRate(), ldr.getSecondHeartRate() );
@@ -177,18 +166,15 @@ public class LaborDeliveryReportTest {
     public void testGetByPatient () {
 
         final LaborDeliveryReport report = new LaborDeliveryReport();
-        report.setDateOfLabor( LocalDate.now() );
-        report.setTimeOfLabor( "12:00" );
-        report.setDateOfDelivery( LocalDate.now() );
-        report.setTimeOfDelivery( "15:00" );
+        report.setDatetimeOfLabor( ZonedDateTime.now() );
+        report.setDatetimeOfDelivery( ZonedDateTime.now() );
         report.setWeight( 3.4 );
         report.setLength( 12.34 );
         report.setHeartRate( 70 );
         report.setBloodPressure( 70 );
         report.setFirstName( "Sanchit" );
         report.setLastName( "Razdan" );
-        report.setSecondDateOfDelivery( LocalDate.now() );
-        report.setSecondTimeOfDelivery( "15:03" );
+        report.setSecondDatetimeOfDelivery( ZonedDateTime.now() );
         report.setSecondWeight( 2.3 );
         report.setSecondLength( 10.4 );
         report.setSecondHeartRate( 75 );

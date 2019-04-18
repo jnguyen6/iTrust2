@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -125,10 +126,8 @@ public class APILaborDeliveryReportTest {
                 .content( TestUtils.asJsonString( userForm ) ) );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDateOfLabor( LocalDate.now() );
-        form.setTimeOfLabor( "12:00" );
-        form.setDateOfDelivery( LocalDate.now() );
-        form.setTimeOfDelivery( "15:00" );
+        form.setDatetimeOfLabor( ZonedDateTime.now().toString() );
+        form.setDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setWeight( 3.4 );
         form.setLength( 12.34 );
         form.setHeartRate( 70 );
@@ -149,8 +148,7 @@ public class APILaborDeliveryReportTest {
         record.save();
         form.setObstetricsRecord( record );
 
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setSecondWeight( 2.3 );
         form.setSecondLength( 10.4 );
         form.setSecondHeartRate( 75 );
@@ -161,18 +159,15 @@ public class APILaborDeliveryReportTest {
         form.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm test = new LaborDeliveryReportForm();
-        test.setDateOfLabor( form.getDateOfLabor() );
-        test.setTimeOfLabor( form.getTimeOfLabor() );
-        test.setDateOfDelivery( form.getDateOfDelivery() );
-        test.setTimeOfDelivery( form.getTimeOfDelivery() );
+        test.setDatetimeOfLabor( form.getDatetimeOfLabor() );
+        test.setDatetimeOfDelivery( form.getDatetimeOfDelivery() );
         test.setWeight( form.getWeight() );
         test.setLength( form.getLength() );
         test.setHeartRate( form.getHeartRate() );
         test.setBloodPressure( form.getBloodPressure() );
         test.setFirstName( form.getFirstName() );
         test.setLastName( form.getLastName() );
-        test.setSecondDateOfDelivery( form.getSecondDateOfDelivery() );
-        test.setSecondTimeOfDelivery( form.getSecondTimeOfDelivery() );
+        test.setSecondDatetimeOfDelivery( form.getSecondDatetimeOfDelivery() );
         test.setSecondWeight( form.getSecondWeight() );
         test.setSecondLength( form.getSecondLength() );
         test.setSecondHeartRate( form.getSecondHeartRate() );
@@ -219,10 +214,8 @@ public class APILaborDeliveryReportTest {
 
         record.setCurrentRecord( false );
         final LaborDeliveryReportForm form2 = new LaborDeliveryReportForm();
-        form2.setDateOfLabor( LocalDate.now() );
-        form2.setTimeOfLabor( "12:00" );
-        form2.setDateOfDelivery( LocalDate.now() );
-        form2.setTimeOfDelivery( "15:00" );
+        form2.setDatetimeOfLabor( ZonedDateTime.now().toString() );
+        form2.setDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form2.setWeight( 3.4 );
         form2.setLength( 12.34 );
         form2.setHeartRate( 70 );
@@ -230,8 +223,7 @@ public class APILaborDeliveryReportTest {
         form2.setFirstName( "Gabe" );
         form2.setLastName( "Walker" );
         form2.setObstetricsRecord( record );
-        form2.setSecondDateOfDelivery( LocalDate.now() );
-        form2.setSecondTimeOfDelivery( "15:03" );
+        form2.setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form2.setSecondWeight( 2.3 );
         form2.setSecondLength( 10.4 );
         form2.setSecondHeartRate( 75 );
@@ -242,18 +234,15 @@ public class APILaborDeliveryReportTest {
         form2.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm test2 = new LaborDeliveryReportForm();
-        test2.setDateOfLabor( form2.getDateOfLabor() );
-        test2.setTimeOfLabor( form2.getTimeOfLabor() );
-        test2.setDateOfDelivery( form2.getDateOfDelivery() );
-        test2.setTimeOfDelivery( form2.getTimeOfDelivery() );
+        test2.setDatetimeOfLabor( form2.getDatetimeOfLabor() );
+        test2.setDatetimeOfDelivery( form2.getDatetimeOfDelivery() );
         test2.setWeight( form2.getWeight() );
         test2.setLength( form2.getLength() );
         test2.setHeartRate( form2.getHeartRate() );
         test2.setBloodPressure( form2.getBloodPressure() );
         test2.setFirstName( form2.getFirstName() );
         test2.setLastName( form2.getLastName() );
-        test2.setSecondDateOfDelivery( form2.getSecondDateOfDelivery() );
-        test2.setSecondTimeOfDelivery( form2.getSecondTimeOfDelivery() );
+        test2.setSecondDatetimeOfDelivery( form2.getSecondDatetimeOfDelivery() );
         test2.setSecondWeight( form2.getSecondWeight() );
         test2.setSecondLength( form2.getSecondLength() );
         test2.setSecondHeartRate( form2.getSecondHeartRate() );
@@ -310,10 +299,8 @@ public class APILaborDeliveryReportTest {
                 .content( TestUtils.asJsonString( userForm ) ) );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDateOfLabor( LocalDate.now() );
-        form.setTimeOfLabor( "12:00" );
-        form.setDateOfDelivery( LocalDate.now() );
-        form.setTimeOfDelivery( "15:00" );
+        form.setDatetimeOfLabor( ZonedDateTime.now().toString() );
+        form.setDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setWeight( 3.4 );
         form.setLength( 12.34 );
         form.setHeartRate( 70 );
@@ -334,8 +321,7 @@ public class APILaborDeliveryReportTest {
         record.save();
         form.setObstetricsRecord( record );
 
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setSecondWeight( 2.3 );
         form.setSecondLength( 10.4 );
         form.setSecondHeartRate( 75 );
@@ -346,10 +332,8 @@ public class APILaborDeliveryReportTest {
         form.setSecondDeliveryMethod( record.getDeliveryMethod() );
 
         final LaborDeliveryReportForm form2 = new LaborDeliveryReportForm();
-        form2.setDateOfLabor( LocalDate.now() );
-        form2.setTimeOfLabor( "12:01" );
-        form2.setDateOfDelivery( LocalDate.now() );
-        form2.setTimeOfDelivery( "15:00" );
+        form2.setDatetimeOfLabor( ZonedDateTime.now().toString() );
+        form2.setDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form2.setWeight( 3.4 );
         form2.setLength( 12.34 );
         form2.setHeartRate( 70 );
@@ -357,8 +341,7 @@ public class APILaborDeliveryReportTest {
         form2.setFirstName( "Madhura" );
         form2.setLastName( "Waghmare" );
         form2.setObstetricsRecord( record );
-        form2.setSecondDateOfDelivery( LocalDate.now() );
-        form2.setSecondTimeOfDelivery( "15:03" );
+        form2.setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form2.setSecondWeight( 2.3 );
         form2.setSecondLength( 10.4 );
         form2.setSecondHeartRate( 75 );
@@ -380,7 +363,7 @@ public class APILaborDeliveryReportTest {
         mvc.perform( put( "/api/v1/LaborDeliveryReports/" + newRep.getId() ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( form2 ) ) ).andExpect( status().isOk() ).andReturn().getResponse()
                 .getContentAsString();
-        assertEquals( "12:01", LaborDeliveryReport.getByPatient( "patient" ).get( 0 ).getTimeOfLabor() );
+        assertEquals( 1, LaborDeliveryReport.getByPatient( "patient" ).size() );
     }
 
     /**
@@ -423,10 +406,8 @@ public class APILaborDeliveryReportTest {
         assertEquals( 0, LaborDeliveryReport.getByPatient( "patient" ).size() );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDateOfLabor( LocalDate.now() );
-        form.setTimeOfLabor( "12:00" );
-        form.setDateOfDelivery( LocalDate.now() );
-        form.setTimeOfDelivery( "15:00" );
+        form.setDatetimeOfLabor( ZonedDateTime.now().toString() );
+        form.setDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setWeight( 3.4 );
         form.setLength( 12.34 );
         form.setHeartRate( 70 );
@@ -447,8 +428,7 @@ public class APILaborDeliveryReportTest {
         record.save();
         form.setObstetricsRecord( record );
 
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setSecondWeight( 2.3 );
         form.setSecondLength( 10.4 );
         form.setSecondHeartRate( 75 );
@@ -505,10 +485,8 @@ public class APILaborDeliveryReportTest {
                 .content( TestUtils.asJsonString( userForm ) ) );
 
         final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDateOfLabor( LocalDate.now() );
-        form.setTimeOfLabor( "12:00" );
-        form.setDateOfDelivery( LocalDate.now() );
-        form.setTimeOfDelivery( "15:00" );
+        form.setDatetimeOfLabor( ZonedDateTime.now().toString() );
+        form.setDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setWeight( 3.4 );
         form.setLength( 12.34 );
         form.setHeartRate( 70 );
@@ -529,8 +507,7 @@ public class APILaborDeliveryReportTest {
         record.save();
         form.setObstetricsRecord( record );
 
-        form.setSecondDateOfDelivery( LocalDate.now() );
-        form.setSecondTimeOfDelivery( "15:03" );
+        form.setSecondDatetimeOfDelivery( ZonedDateTime.now().toString() );
         form.setSecondWeight( 2.3 );
         form.setSecondLength( 10.4 );
         form.setSecondHeartRate( 75 );
