@@ -20,7 +20,6 @@ Examples:
 	
 Scenario Outline: Patient has a labor and delivery report without twins
 	Given there exists an obstetrics patient in the system
-	And The obstetrics patient has a current obstetrics record in the iTrust2 system
 	And The patient does have an existing labor and delivery report without twins
 	And there exists an <hcp_type> HCP in the iTrust2 system
     Then I log in as an <hcp_type> HCP and navigate to the View Patient Labor and Delivery Report page
@@ -35,7 +34,6 @@ Examples:
 	
 Scenario Outline: Patient has a labor and delivery report with twins
 	Given there exists an obstetrics patient in the system
-	And The obstetrics patient has a current obstetrics record in the iTrust2 system
 	And The patient has an existing labor and delivery report with twins
 	And there exists an <hcp_type> HCP in the iTrust2 system
     Then I log in as an <hcp_type> HCP and navigate to the View Patient Labor and Delivery Report page
