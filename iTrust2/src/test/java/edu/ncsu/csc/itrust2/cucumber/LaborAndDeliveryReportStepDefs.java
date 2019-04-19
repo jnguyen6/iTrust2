@@ -5,10 +5,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -33,7 +37,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     /** The base url for iTrust2 */
     private final String baseUrl        = "http://localhost:8080/iTrust2";
     /** The obstetrics patient to use */
-    private final String patientString  = "AliceThirteen";
+    private final String patientString  = "JillBob";
     /** The OB/GYN HCP to use */
     private final String obgynHcpString = "tylerOBGYN";
 
@@ -119,8 +123,8 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     /**
      * Creates current obstetrics record for the patient
      */
-    @And ( "^The obstetrics patient has a current obstetrics record in the iTrust2 system$" )
-    public void currentObstetricsRecordExists () {
+    @And ( "^The obstetrics patient has a current obstetrics record in the iTrust2 system with no twins$" )
+    public void currentObstetricsRecordExistsForNoTwins () {
         final ObstetricsRecord record = new ObstetricsRecord();
         final LocalDate lmp = LocalDate.parse( "2019-03-02" );
 
@@ -131,6 +135,25 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         record.setDeliveryMethod( DeliveryMethod.Cesarean );
         record.setCurrentRecord( true );
         record.setTwins( false );
+        record.setPatient( patientString );
+        record.save();
+    }
+
+    /**
+     * Creates current obstetrics record for the patient
+     */
+    @And ( "^The obstetrics patient has a current obstetrics record in the iTrust2 system with twins$" )
+    public void currentObstetricsRecordExistsForTwins () {
+        final ObstetricsRecord record = new ObstetricsRecord();
+        final LocalDate lmp = LocalDate.parse( "2019-03-02" );
+
+        record.setLmp( lmp );
+        record.setConception( 2019 );
+        record.setWeeksPreg( 1 );
+        record.setHoursInLabor( 25 );
+        record.setDeliveryMethod( DeliveryMethod.Cesarean );
+        record.setCurrentRecord( true );
+        record.setTwins( true );
         record.setPatient( patientString );
         record.save();
     }
@@ -240,16 +263,40 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
      * @param dateReport
      *            the date of the report to select
      */
-    @When ( "^The OB/GYN HCP selects the patient <patient> and enters the date of the report <dateReport>$" )
+    @When ( "^The OB/GYN HCP selects the patient (.+) and the date of the report (.+)$" )
     public void selectPatientAndDateOfReport ( final String patient, final String dateReport ) {
         waitForAngular();
 
         final WebElement patientElement = driver.findElement( By.cssSelector( "input[value=\"" + patient + "\"]" ) );
         patientElement.click();
 
-        final WebElement dateOfReportElement = driver
-                .findElement( By.cssSelector( "input[value=\"" + dateReport + "\"]" ) );
-        dateOfReportElement.click();
+        waitForAngular();
+        clickAndCheckDateButton( dateReport );
+    }
+
+    /**
+     * Checks to see if the date is selectable.
+     *
+     * @param viewDate
+     *            the date to check
+     */
+    private void clickAndCheckDateButton ( final String viewDate ) {
+        final List<WebElement> radioList = driver.findElements( By.name( "date" ) );
+
+        // Convert MM/dd/yyyy to yyyy-MM-dd
+        // final String[] dateComponents = viewDate.split( "/" );
+        // final String dateValue = String.format( "%s-%s-%s",
+        // dateComponents[2], dateComponents[0], dateComponents[1] );
+
+        for ( final WebElement element : radioList ) {
+            if ( element.getAttribute( "value" ).equals( viewDate ) ) {
+                element.click();
+                assertTextPresent( "Reports: " + viewDate );
+                return;
+            }
+        }
+
+        fail( "The date isn't in the radio list." );
     }
 
     /**
@@ -302,32 +349,77 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        fillInDateTime( "selected-dateOfLabor", dateLabor, "selected-timeOfLabor", timeLabor );
-        fillInDateTime( "selected-dateOfDelivery", dateDelivery, "selected-timeOfDelivery", timeDelivery );
+        fillInDateTime( "new-dateOfLabor", dateLabor, "new-timeOfLabor", timeLabor );
+        fillInDateTime( "new-dateOfDelivery", dateDelivery, "new-timeOfDelivery", timeDelivery );
 
-        driver.findElement( By.name( "deliveryMethod" ) ).sendKeys( deliveryType );
+        driver.findElement( By.name( "new-deliveryMethod" ) ).sendKeys( deliveryType );
 
-        driver.findElement( By.name( "weightlbs" ) ).clear();
-        driver.findElement( By.name( "weightlbs" ) ).sendKeys( lbs );
+        if ( !deliveryType.equals( "Miscarriage" ) ) {
 
-        driver.findElement( By.name( "weightoz" ) ).clear();
-        driver.findElement( By.name( "weightoz" ) ).sendKeys( oz );
+            // driver.findElement( By.name( "new-weightlbs" ) ).clear();
+            // driver.findElement( By.name( "new-weightlbs" ) ).click();
+            waitForAngular();
+            final Actions actions = new Actions( driver );
+            actions.moveToElement( driver.findElement( By.name( "new-weightlbs" ) ) );
+            actions.click();
+            actions.sendKeys( lbs );
+            actions.build().perform();
+            // driver.findElement( By.name( "new-weightlbs" ) ).sendKeys( lbs );
 
-        driver.findElement( By.name( "length" ) ).clear();
-        driver.findElement( By.name( "length" ) ).sendKeys( length );
+            // driver.findElement( By.name( "new-weightoz" ) ).clear();
+            // driver.findElement( By.name( "new-weightoz" ) ).click();
+            actions.moveToElement( driver.findElement( By.name( "new-weightoz" ) ) );
+            actions.click();
+            actions.sendKeys( oz );
+            actions.build().perform();
+            // driver.findElement( By.name( "new-weightoz" ) ).sendKeys( oz );
 
-        driver.findElement( By.name( "heartRate" ) ).clear();
-        driver.findElement( By.name( "heartRate" ) ).sendKeys( heartRate );
+            // driver.findElement( By.name( "new-length" ) ).clear();
+            // driver.findElement( By.name( "new-length" ) ).click();
+            actions.moveToElement( driver.findElement( By.name( "new-length" ) ) );
+            actions.click();
+            actions.sendKeys( length );
+            actions.build().perform();
+            // driver.findElement( By.name( "new-length" ) ).sendKeys( length );
 
-        driver.findElement( By.name( "bloodPressure" ) ).clear();
-        driver.findElement( By.name( "bloodPressure" ) ).sendKeys( bloodPres );
+            // driver.findElement( By.name( "new-heartRate" ) ).clear();
+            // driver.findElement( By.name( "new-heartRate" ) ).click();
+            actions.moveToElement( driver.findElement( By.name( "new-heartRate" ) ) );
+            actions.click();
+            actions.sendKeys( heartRate );
+            actions.build().perform();
+            // driver.findElement( By.name( "new-heartRate" ) ).sendKeys(
+            // heartRate
+            // );
 
-        driver.findElement( By.name( "firstName" ) ).clear();
-        driver.findElement( By.name( "firstName" ) ).sendKeys( firstName );
+            // driver.findElement( By.name( "new-bloodPressure" ) ).clear();
+            // driver.findElement( By.name( "new-bloodPressure" ) ).click();
+            actions.moveToElement( driver.findElement( By.name( "new-bloodPressure" ) ) );
+            actions.click();
+            actions.sendKeys( bloodPres );
+            actions.build().perform();
+            // driver.findElement( By.name( "new-bloodPressure" ) ).sendKeys(
+            // bloodPres );
 
-        driver.findElement( By.name( "lastName" ) ).clear();
-        driver.findElement( By.name( "lastName" ) ).sendKeys( lastName );
+            // driver.findElement( By.name( "new-firstName" ) ).clear();
+            // driver.findElement( By.name( "new-firstName" ) ).click();
+            actions.moveToElement( driver.findElement( By.name( "new-firstName" ) ) );
+            actions.click();
+            actions.sendKeys( firstName );
+            actions.build().perform();
+            // driver.findElement( By.name( "new-firstName" ) ).sendKeys(
+            // firstName
+            // );
 
+            // driver.findElement( By.name( "new-lastName" ) ).click();
+            actions.moveToElement( driver.findElement( By.name( "new-lastName" ) ) );
+            actions.click();
+            actions.sendKeys( lastName );
+            actions.build().perform();
+            // driver.findElement( By.name( "new-lastName" ) ).clear();
+            // driver.findElement( By.name( "new-lastName" ) ).sendKeys(
+            // lastName );
+        }
     }
 
     /**
@@ -349,7 +441,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
      * @param deliveryType
      *            the delivery method
      */
-    @When ( "^The OB/GYN HCP selects the patient <patient> and enters the date of labor <dateLabor>, time of labor <timeLabor>, date of delivery <dateDelivery>, time of delivery <timeDelivery>, delivery method <deliveryType>, weight in pounds <lbs> and ounces <oz>, length <length>, heart rate <heartRate>, blood pressure <bloodPres>, first name <firstName>, and last name <lastName> for twins$" )
+    @When ( "^The OB/GYN HCP selects the patient (.+) and enters for twins the date of labor (.+), time of labor (.+), date of delivery (.+), time of delivery (.+), delivery method (.+), weight in pounds (.+) and ounces (.+), length (.+), heart rate (.+), blood pressure (.+), first name (.+), and last name (.+)$" )
     public void addLaborandDeliveryReportInfoForTwins ( final String patient, final String dateLabor,
             final String timeLabor, final String dateDelivery, final String timeDelivery, final String deliveryType,
             final String lbs, final String oz, final String length, final String heartRate, final String bloodPres,
@@ -361,59 +453,94 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
 
         waitForAngular();
 
-        fillInDateTime( "dateOfLabor", dateLabor, "timeOfLabor", timeLabor );
-        fillInDateTime( "dateOfDelivery", dateDelivery, "timeOfDelivery", timeDelivery );
+        fillInDateTime( "new-dateOfLabor", dateLabor, "new-timeOfLabor", timeLabor );
+        fillInDateTime( "new-dateOfDelivery", dateDelivery, "new-timeOfDelivery", timeDelivery );
 
-        driver.findElement( By.name( "deliveryMethod" ) ).sendKeys( deliveryType );
+        driver.findElement( By.name( "new-deliveryMethod" ) ).sendKeys( deliveryType );
+        if ( !deliveryType.equals( "Miscarriage" ) ) {
 
-        driver.findElement( By.name( "weightlbs" ) ).clear();
-        driver.findElement( By.name( "weightlbs" ) ).sendKeys( lbs );
+            waitForAngular();
+            final Actions actions = new Actions( driver );
+            actions.moveToElement( driver.findElement( By.name( "new-weightlbs" ) ) );
+            actions.click();
+            actions.sendKeys( lbs );
+            actions.build().perform();
 
-        driver.findElement( By.name( "weightoz" ) ).clear();
-        driver.findElement( By.name( "weightoz" ) ).sendKeys( oz );
+            actions.moveToElement( driver.findElement( By.name( "new-weightoz" ) ) );
+            actions.click();
+            actions.sendKeys( oz );
+            actions.build().perform();
 
-        driver.findElement( By.name( "length" ) ).clear();
-        driver.findElement( By.name( "length" ) ).sendKeys( length );
+            actions.moveToElement( driver.findElement( By.name( "new-length" ) ) );
+            actions.click();
+            actions.sendKeys( length );
+            actions.build().perform();
 
-        driver.findElement( By.name( "heartRate" ) ).clear();
-        driver.findElement( By.name( "heartRate" ) ).sendKeys( heartRate );
+            actions.moveToElement( driver.findElement( By.name( "new-heartRate" ) ) );
+            actions.click();
+            actions.sendKeys( heartRate );
+            actions.build().perform();
 
-        driver.findElement( By.name( "bloodPressure" ) ).clear();
-        driver.findElement( By.name( "bloodPressure" ) ).sendKeys( bloodPres );
+            actions.moveToElement( driver.findElement( By.name( "new-bloodPressure" ) ) );
+            actions.click();
+            actions.sendKeys( bloodPres );
+            actions.build().perform();
 
-        driver.findElement( By.name( "firstName" ) ).clear();
-        driver.findElement( By.name( "firstName" ) ).sendKeys( firstName );
+            actions.moveToElement( driver.findElement( By.name( "new-firstName" ) ) );
+            actions.click();
+            actions.sendKeys( firstName );
+            actions.build().perform();
 
-        driver.findElement( By.name( "lastName" ) ).clear();
-        driver.findElement( By.name( "lastName" ) ).sendKeys( lastName );
+            actions.moveToElement( driver.findElement( By.name( "new-lastName" ) ) );
+            actions.click();
+            actions.sendKeys( lastName );
+            actions.build().perform();
 
-        // The same procedure, but for the second baby patient
-        waitForAngular();
+            // The same procedure, but for the second baby patient
+            waitForAngular();
 
-        fillInDateTime( "selected-secondDateOfDelivery", dateDelivery, "selected-secondTimeOfDelivery", timeDelivery );
+            fillInDateTime( "new-secondDateOfDelivery", dateDelivery, "new-secondTimeOfDelivery", timeDelivery );
 
-        driver.findElement( By.name( "secondDeliveryMethod" ) ).sendKeys( deliveryType );
+            driver.findElement( By.name( "new-secondDeliveryMethod" ) ).sendKeys( deliveryType );
+            if ( deliveryType.equals( "Miscarriage" ) ) {
 
-        driver.findElement( By.name( "secondWeightlbs" ) ).clear();
-        driver.findElement( By.name( "secondWeightlbs" ) ).sendKeys( lbs );
+                waitForAngular();
+                actions.moveToElement( driver.findElement( By.name( "new-secondWeightlbs" ) ) );
+                actions.click();
+                actions.sendKeys( lbs );
+                actions.build().perform();
 
-        driver.findElement( By.name( "secondWeightoz" ) ).clear();
-        driver.findElement( By.name( "secondWeightoz" ) ).sendKeys( oz );
+                actions.moveToElement( driver.findElement( By.name( "new-secondWeightoz" ) ) );
+                actions.click();
+                actions.sendKeys( oz );
+                actions.build().perform();
 
-        driver.findElement( By.name( "secondLength" ) ).clear();
-        driver.findElement( By.name( "secondLength" ) ).sendKeys( length );
+                actions.moveToElement( driver.findElement( By.name( "new-secondLength" ) ) );
+                actions.click();
+                actions.sendKeys( length );
+                actions.build().perform();
 
-        driver.findElement( By.name( "secondHeartRate" ) ).clear();
-        driver.findElement( By.name( "secondHeartRate" ) ).sendKeys( heartRate );
+                actions.moveToElement( driver.findElement( By.name( "new-secondHeartRate" ) ) );
+                actions.click();
+                actions.sendKeys( heartRate );
+                actions.build().perform();
 
-        driver.findElement( By.name( "secondBloodPressure" ) ).clear();
-        driver.findElement( By.name( "secondBloodPressure" ) ).sendKeys( bloodPres );
+                actions.moveToElement( driver.findElement( By.name( "new-secondBloodPressure" ) ) );
+                actions.click();
+                actions.sendKeys( bloodPres );
+                actions.build().perform();
 
-        driver.findElement( By.name( "secondFirstName" ) ).clear();
-        driver.findElement( By.name( "secondFirstName" ) ).sendKeys( firstName );
+                actions.moveToElement( driver.findElement( By.name( "new-secondFirstName" ) ) );
+                actions.click();
+                actions.sendKeys( firstName );
+                actions.build().perform();
 
-        driver.findElement( By.name( "secondLastName" ) ).clear();
-        driver.findElement( By.name( "secondLastName" ) ).sendKeys( lastName );
+                actions.moveToElement( driver.findElement( By.name( "new-secondLastName" ) ) );
+                actions.click();
+                actions.sendKeys( lastName );
+                actions.build().perform();
+            }
+        }
 
     }
 
@@ -432,14 +559,12 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     @Then ( "^The labor and delivery report is documented successfully$" )
     public void documentedSuccessfully () {
         waitForAngular();
-
-        // confirm that the message is displayed
-        try {
-            driver.findElement( By.name( "success" ) ).getText().contains( "Office visit created successfully" );
-        }
-        catch ( final Exception e ) {
-            fail();
-        }
+        driver.get( baseUrl );
+        final WebDriverWait wait = new WebDriverWait( driver, 20 );
+        wait.until( ExpectedConditions.titleContains( "HCP Home" ) );
+        assertEquals( "iTrust2: HCP Home", driver.getTitle() );
+        wait.until( ExpectedConditions.elementToBeClickable( By.name( "transactionTypeCell" ) ) );
+        assertTextPresent( "HCP views an OB/GYN Labor and Delivery Report" );
     }
 
     /**
