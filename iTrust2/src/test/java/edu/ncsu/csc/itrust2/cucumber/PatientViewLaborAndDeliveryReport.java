@@ -265,7 +265,7 @@ public class PatientViewLaborAndDeliveryReport extends CucumberTest {
         assertEquals( driver.findElement( By.name( "time1" ) ).getText(), "11:02 AM" );
         assertEquals( driver.findElement( By.name( "type" ) ).getText(), "Cesarean" );
         assertEquals( driver.findElement( By.name( "lbs" ) ).getText(), "3" );
-        // assertEquals( driver.findElement( By.name( "oz" ) ).getText(), "6" );
+        assertEquals( driver.findElement( By.name( "oz" ) ).getText(), "6" );
         assertEquals( driver.findElement( By.name( "length" ) ).getText(), "12.34" );
         assertEquals( driver.findElement( By.name( "heartRate" ) ).getText(), "70" );
         assertEquals( driver.findElement( By.name( "bp" ) ).getText(), "70" );
@@ -287,7 +287,7 @@ public class PatientViewLaborAndDeliveryReport extends CucumberTest {
         assertEquals( driver.findElement( By.name( "time1" ) ).getText(), "11:02 AM" );
         assertEquals( driver.findElement( By.name( "type" ) ).getText(), "Cesarean" );
         assertEquals( driver.findElement( By.name( "lbs" ) ).getText(), "3" );
-        //assertEquals( driver.findElement( By.name( "oz" ) ).getText(), "6" );
+        assertEquals( driver.findElement( By.name( "oz" ) ).getText(), "6" );
         assertEquals( driver.findElement( By.name( "length" ) ).getText(), "12.34" );
         assertEquals( driver.findElement( By.name( "heartRate" ) ).getText(), "70" );
         assertEquals( driver.findElement( By.name( "bp" ) ).getText(), "70" );
@@ -298,7 +298,7 @@ public class PatientViewLaborAndDeliveryReport extends CucumberTest {
         assertEquals( driver.findElement( By.name( "timeDel2" ) ).getText(), "11:32 AM" );
         assertEquals( driver.findElement( By.name( "type2" ) ).getText(), "Cesarean" );
         assertEquals( driver.findElement( By.name( "lbs2" ) ).getText(), "2" );
-        //assertEquals( driver.findElement( By.name( "oz2" ) ).getText(), "4" );
+        assertEquals( driver.findElement( By.name( "oz2" ) ).getText(), "4" );
         assertEquals( driver.findElement( By.name( "length2" ) ).getText(), "10.4" );
         assertEquals( driver.findElement( By.name( "heartRate2" ) ).getText(), "75" );
         assertEquals( driver.findElement( By.name( "bp2" ) ).getText(), "75" );

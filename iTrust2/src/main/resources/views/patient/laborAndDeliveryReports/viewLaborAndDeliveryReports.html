@@ -44,13 +44,13 @@
           	console.log($scope.theReportDateDelivery);
           	$scope.theReportWeightlbs = Math.floor($scope.theReport[0].weight);
           	console.log($scope.theReportWeightlbs);
-      	 	$scope.theReportWeightoz = ($scope.theReport[0].weight % 1) * 16;
+      	 	$scope.theReportWeightoz = Math.floor(($scope.theReport[0].weight % 1) * 16);
       	 	console.log($scope.theReportWeightoz);
             $scope.theReportDateDelivery2 = new Date($scope.theReport[0].secondDatetimeOfDelivery);
             console.log($scope.theReportDateDelivery2);
             $scope.theReportWeightlbs2 = Math.floor($scope.theReport[0].secondWeight);
             console.log($scope.theReportWeightlbs2);
-          	$scope.theReportWeightoz2 = ($scope.theReport[0].secondWeight % 1) * 16;
+          	$scope.theReportWeightoz2 = Math.floor(($scope.theReport[0].secondWeight % 1) * 16);
           	console.log($scope.theReportWeightoz2);
           }
 
