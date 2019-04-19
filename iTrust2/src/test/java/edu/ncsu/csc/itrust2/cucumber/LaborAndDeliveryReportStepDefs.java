@@ -4,11 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -20,10 +24,14 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import edu.ncsu.csc.itrust2.forms.hcp.LaborDeliveryReportForm;
 import edu.ncsu.csc.itrust2.models.enums.DeliveryMethod;
+import edu.ncsu.csc.itrust2.models.enums.Ethnicity;
+import edu.ncsu.csc.itrust2.models.enums.Gender;
 import edu.ncsu.csc.itrust2.models.enums.Role;
+import edu.ncsu.csc.itrust2.models.enums.State;
 import edu.ncsu.csc.itrust2.models.persistent.DomainObject;
 import edu.ncsu.csc.itrust2.models.persistent.LaborDeliveryReport;
 import edu.ncsu.csc.itrust2.models.persistent.ObstetricsRecord;
+import edu.ncsu.csc.itrust2.models.persistent.Patient;
 import edu.ncsu.csc.itrust2.models.persistent.User;
 
 /**
@@ -121,6 +129,33 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     }
 
     /**
+     * Creates a new obstetrics patient
+     */
+    @Given ( "^There exists an obstetrics patient in the iTrust2 system$" )
+    public void patientExistsInSystem () {
+        attemptLogout();
+        DomainObject.deleteAll( LaborDeliveryReport.class );
+        DomainObject.deleteAll( ObstetricsRecord.class );
+
+        // Create the test User
+        final User user = new User( patientString, "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_PATIENT, 1 );
+        user.save();
+
+        // The User must also be created as a Patient
+        // to show up in the list of Patients
+        final Patient patient = new Patient( user.getUsername() );
+        patient.setGender( Gender.Female );
+        patient.setEthnicity( Ethnicity.Caucasian );
+        patient.setAddress1( "140 George Rd." );
+        patient.setCity( "Raleigh" );
+        patient.setState( State.NC );
+        patient.setZip( "27606" );
+        patient.setPhone( "123-456-7891" );
+        patient.save();
+    }
+
+    /**
      * Creates current obstetrics record for the patient
      */
     @And ( "^The obstetrics patient has a current obstetrics record in the iTrust2 system with no twins$" )
@@ -156,46 +191,6 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
         record.setTwins( true );
         record.setPatient( patientString );
         record.save();
-    }
-
-    // Add code for creating a labor and delivery report here:
-    @And ( "^The obstetrics patient has a documented labor and delivery report$" )
-    public void createLaborDeliveryReport () {
-        DomainObject.deleteAll( LaborDeliveryReport.class );
-        final LaborDeliveryReport report = getLaborDeliveryReport();
-        if ( report != null ) {
-            report.save();
-        }
-    }
-
-    /**
-     * Generates a labor and delivery report with mock data
-     */
-    private LaborDeliveryReport getLaborDeliveryReport () {
-        final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
-        form.setDatetimeOfLabor( "2019-03-11T10:00:00.000-04:00" );
-        form.setDatetimeOfDelivery( "2019-03-22T10:00:00.000-04:00" );
-        form.setWeight( 3.4 );
-        form.setLength( 12.34 );
-        form.setHeartRate( 70 );
-        form.setBloodPressure( 70 );
-        form.setFirstName( "Sanchit" );
-        form.setLastName( "Razdan" );
-        form.setSecondDatetimeOfDelivery( "2019-03-22T10:00:00.000-04:00" );
-        form.setSecondWeight( 2.3 );
-        form.setSecondLength( 10.4 );
-        form.setSecondHeartRate( 75 );
-        form.setSecondBloodPressure( 75 );
-        form.setSecondFirstName( "Swarnim" );
-        form.setSecondLastName( "Razdan" );
-
-        try {
-            return new LaborDeliveryReport( form );
-        }
-        catch ( final Exception e ) {
-            // Do nothing
-            return null;
-        }
     }
 
     /**
@@ -275,23 +270,36 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     }
 
     /**
-     * Checks to see if the date is selectable.
+     * Helper method to check if the given date appears in the list of dates
+     * shown
      *
      * @param viewDate
-     *            the date to check
+     *            the date to check for
      */
     private void clickAndCheckDateButton ( final String viewDate ) {
         final List<WebElement> radioList = driver.findElements( By.name( "date" ) );
 
-        // Convert MM/dd/yyyy to yyyy-MM-dd
-        // final String[] dateComponents = viewDate.split( "/" );
-        // final String dateValue = String.format( "%s-%s-%s",
-        // dateComponents[2], dateComponents[0], dateComponents[1] );
-
         for ( final WebElement element : radioList ) {
-            if ( element.getAttribute( "value" ).equals( viewDate ) ) {
+            final String v = element.getAttribute( "value" );
+            final ZonedDateTime datetimeLabor = ZonedDateTime.parse( v );
+            String g = "";
+            if ( datetimeLabor.getMonthValue() < 10 ) {
+                g += "0" + datetimeLabor.getMonthValue() + "/";
+            }
+            else {
+                g += datetimeLabor.getMonthValue() + "/";
+            }
+            if ( datetimeLabor.getDayOfMonth() < 10 ) {
+                g += "0" + datetimeLabor.getDayOfMonth() + "/";
+            }
+            else {
+                g += datetimeLabor.getDayOfMonth() + "/";
+            }
+            g += datetimeLabor.getYear();
+            if ( g.equals( viewDate ) ) {
                 element.click();
-                assertTextPresent( "Reports: " + viewDate );
+                // assertTextPresent( "Labor and Delivery Reports for: " +
+                // viewDate );
                 return;
             }
         }
@@ -304,19 +312,23 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
      *
      * @param
      */
-    @And ( "^The OB/GYN HCP modifies the date of labor (.+), length (.+), and the first name (.+) " )
-    public void editLaborAndDeliveryReport ( final String newDateLabor, final String newLength,
-            final String newFirstName ) {
+    @And ( "^The OB/GYN HCP modifies the heart rate (.+) and the first name (.+)$" )
+    public void editLaborAndDeliveryReport ( final String newHeartRate, final String newFirstName ) {
         waitForAngular();
 
-        driver.findElement( By.name( "selected-dateOfLabor" ) ).clear();
-        driver.findElement( By.name( "selected-dateOfLabor" ) ).sendKeys( newDateLabor );
+        final Actions actions = new Actions( driver );
+        actions.moveToElement( driver.findElement( By.name( "selected-heartRate" ) ) );
+        actions.click();
+        actions.sendKeys( Keys.DELETE );
+        actions.sendKeys( newHeartRate );
+        actions.build().perform();
 
-        driver.findElement( By.name( "length" ) ).clear();
-        driver.findElement( By.name( "length" ) ).sendKeys( newLength );
-
-        driver.findElement( By.name( "firstName" ) ).clear();
-        driver.findElement( By.name( "firstName" ) ).sendKeys( newFirstName );
+        waitForAngular();
+        actions.moveToElement( driver.findElement( By.name( "selected-firstName" ) ) );
+        actions.click();
+        actions.sendKeys( Keys.DELETE );
+        actions.sendKeys( newFirstName );
+        actions.build().perform();
     }
 
     /**
@@ -356,69 +368,43 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
 
         if ( !deliveryType.equals( "Miscarriage" ) ) {
 
-            // driver.findElement( By.name( "new-weightlbs" ) ).clear();
-            // driver.findElement( By.name( "new-weightlbs" ) ).click();
             waitForAngular();
             final Actions actions = new Actions( driver );
             actions.moveToElement( driver.findElement( By.name( "new-weightlbs" ) ) );
             actions.click();
             actions.sendKeys( lbs );
             actions.build().perform();
-            // driver.findElement( By.name( "new-weightlbs" ) ).sendKeys( lbs );
 
-            // driver.findElement( By.name( "new-weightoz" ) ).clear();
-            // driver.findElement( By.name( "new-weightoz" ) ).click();
             actions.moveToElement( driver.findElement( By.name( "new-weightoz" ) ) );
             actions.click();
             actions.sendKeys( oz );
             actions.build().perform();
-            // driver.findElement( By.name( "new-weightoz" ) ).sendKeys( oz );
 
-            // driver.findElement( By.name( "new-length" ) ).clear();
-            // driver.findElement( By.name( "new-length" ) ).click();
             actions.moveToElement( driver.findElement( By.name( "new-length" ) ) );
             actions.click();
             actions.sendKeys( length );
             actions.build().perform();
-            // driver.findElement( By.name( "new-length" ) ).sendKeys( length );
 
-            // driver.findElement( By.name( "new-heartRate" ) ).clear();
-            // driver.findElement( By.name( "new-heartRate" ) ).click();
             actions.moveToElement( driver.findElement( By.name( "new-heartRate" ) ) );
             actions.click();
             actions.sendKeys( heartRate );
             actions.build().perform();
-            // driver.findElement( By.name( "new-heartRate" ) ).sendKeys(
-            // heartRate
-            // );
 
-            // driver.findElement( By.name( "new-bloodPressure" ) ).clear();
-            // driver.findElement( By.name( "new-bloodPressure" ) ).click();
             actions.moveToElement( driver.findElement( By.name( "new-bloodPressure" ) ) );
             actions.click();
             actions.sendKeys( bloodPres );
             actions.build().perform();
-            // driver.findElement( By.name( "new-bloodPressure" ) ).sendKeys(
-            // bloodPres );
 
-            // driver.findElement( By.name( "new-firstName" ) ).clear();
-            // driver.findElement( By.name( "new-firstName" ) ).click();
             actions.moveToElement( driver.findElement( By.name( "new-firstName" ) ) );
             actions.click();
             actions.sendKeys( firstName );
             actions.build().perform();
-            // driver.findElement( By.name( "new-firstName" ) ).sendKeys(
-            // firstName
-            // );
 
-            // driver.findElement( By.name( "new-lastName" ) ).click();
             actions.moveToElement( driver.findElement( By.name( "new-lastName" ) ) );
             actions.click();
             actions.sendKeys( lastName );
             actions.build().perform();
-            // driver.findElement( By.name( "new-lastName" ) ).clear();
-            // driver.findElement( By.name( "new-lastName" ) ).sendKeys(
-            // lastName );
+
         }
     }
 
@@ -545,6 +531,48 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     }
 
     /**
+     * Method to create a labor and delivery report for the patient used for
+     * testing
+     */
+    @And ( "^The obstetrics patient has a documented labor and delivery report$" )
+    public void existingReportNoTwins () {
+        waitForAngular();
+
+        final LaborDeliveryReportForm form = new LaborDeliveryReportForm();
+        form.setDatetimeOfLabor( ZonedDateTime.of( 2019, 3, 22, 5, 2, 20, 2, ZoneId.of( "-05:00" ) ).toString() );
+        form.setDatetimeOfDelivery( ZonedDateTime.of( 2019, 3, 22, 10, 2, 20, 2, ZoneId.of( "-05:00" ) ).toString() );
+        form.setWeight( 1.1 );
+        form.setLength( 12.34 );
+        form.setHeartRate( 7 );
+        form.setBloodPressure( 70 );
+        form.setFirstName( "Madhura" );
+        form.setLastName( "Waghmare" );
+
+        final ObstetricsRecord record = new ObstetricsRecord();
+        final LocalDate lmp = LocalDate.parse( "2019-03-02" );
+        record.setLmp( lmp );
+        record.setConception( 2019 );
+        record.setWeeksPreg( 1 );
+        record.setHoursInLabor( 25 );
+        record.setDeliveryMethod( DeliveryMethod.Cesarean );
+        record.setCurrentRecord( true );
+        record.setTwins( false );
+        record.setPatient( "JillBob" );
+        record.save();
+        form.setObstetricsRecord( record );
+        form.setDeliveryMethod( record.getDeliveryMethod() );
+        LaborDeliveryReport ldRecord;
+        try {
+            ldRecord = new LaborDeliveryReport( form );
+            ldRecord.setPatient( "JillBob" );
+            ldRecord.save();
+        }
+        catch ( final ParseException e ) {
+            fail();
+        }
+    }
+
+    /**
      * Method to submit the labor and delivery report
      */
     @And ( "^The OB/GYN HCP adds the labor and delivery report$" )
@@ -559,6 +587,7 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     @Then ( "^The labor and delivery report is documented successfully$" )
     public void documentedSuccessfully () {
         waitForAngular();
+        // confirm that the error message is displayed
         driver.get( baseUrl );
         final WebDriverWait wait = new WebDriverWait( driver, 20 );
         wait.until( ExpectedConditions.titleContains( "HCP Home" ) );
@@ -573,7 +602,6 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     @Then ( "^The labor and delivery report is not documented successfully$" )
     public void documentedUnsuccessfully () {
         waitForAngular();
-
         // confirm that the error message is displayed
         try {
             if ( driver.findElement( By.name( "success" ) ).getText()
@@ -598,26 +626,67 @@ public class LaborAndDeliveryReportStepDefs extends CucumberTest {
     }
 
     /**
-     * Method to check if update is successful
+     * Method to save the edited labor and delivery report
      *
      * @throws Throwable
      */
-    @Then ( "^The labor and delivery report is updated successfully$" )
-    public void successfulEdit () {
+    @And ( "^The OB/GYN HCP saves the edited labor and delivery report$" )
+    public void saveEditedLaborDeliveryReport () {
         waitForAngular();
-        try {
-            driver.findElement( By.name( "success" ) ).getText()
-                    .contains( "Labor and Delivery Report edited successfully" );
-        }
-        catch ( final Exception e ) {
-            fail();
-        }
+        driver.findElement( By.name( "edit" ) ).click();
+    }
+
+    /**
+     * Method to check if update is successful
+     */
+    @Then ( "^The labor and delivery report is updated successfully with new heart rate (.+) and new first name (.+)$" )
+    public void successfulEdit ( final String newHeartRate, final String newFirstName ) {
+        driver.get( baseUrl );
+        final WebDriverWait wait = new WebDriverWait( driver, 20 );
+        wait.until( ExpectedConditions.titleContains( "HCP Home" ) );
+        assertEquals( "iTrust2: HCP Home", driver.getTitle() );
+        attemptLogout();
+
+        final User user = new User( "hcp", "$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.",
+                Role.ROLE_HCP, 1 );
+
+        user.save();
+
+        driver.get( baseUrl );
+        final WebElement username = driver.findElement( By.name( "username" ) );
+        username.clear();
+        username.sendKeys( "hcp" );
+
+        final WebElement password = driver.findElement( By.name( "password" ) );
+        password.clear();
+        password.sendKeys( "123456" );
+        final WebElement submit = driver.findElement( By.className( "btn" ) );
+        submit.click();
+
+        waitForAngular();
+        ( (JavascriptExecutor) driver )
+                .executeScript( "document.getElementById('HCPViewLaborAndDeliveryReports').click();" );
+        assertEquals( "iTrust2: View Patient Labor and Delivery Reports", driver.getTitle() );
+
+        selectPatientAndDateOfReport( patientString, "03/22/2019" );
+
+        assertEquals( driver.findElement( By.name( "datel" ) ).getText(), "03/22/2019" );
+        assertEquals( driver.findElement( By.name( "timel" ) ).getText(), "6:02 AM" );
+
+        assertEquals( driver.findElement( By.name( "date1" ) ).getText(), "03/22/2019" );
+        assertEquals( driver.findElement( By.name( "time1" ) ).getText(), "11:02 AM" );
+        assertEquals( driver.findElement( By.name( "type" ) ).getText(), "Cesarean" );
+        assertEquals( driver.findElement( By.name( "lbs" ) ).getText(), "1" );
+        assertEquals( driver.findElement( By.name( "oz" ) ).getText(), "1" );
+        assertEquals( driver.findElement( By.name( "length" ) ).getText(), "12.34" );
+        assertEquals( driver.findElement( By.name( "heartRate" ) ).getText(), "77" );
+        assertEquals( driver.findElement( By.name( "bp" ) ).getText(), "70" );
+        assertEquals( driver.findElement( By.name( "firstName" ) ).getText(), "MadhuDoea" );
+        assertEquals( driver.findElement( By.name( "lastName" ) ).getText(), "Waghmare" );
     }
 
     /**
      * Method to check if attempt to update failed
-     *
-     * @throws Throwable
      */
     @Then ( "^The labor and delivery report is not updated successfully$" )
     public void unsuccessfulEdit () {

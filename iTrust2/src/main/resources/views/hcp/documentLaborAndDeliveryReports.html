@@ -132,14 +132,14 @@
         	 	$scope.selectedTimeOfDelivery = new Date($scope.selectedReport.datetimeOfDelivery);
         	 	
         	 	$scope.selectedWeightlbs = Math.floor($scope.selectedReport.weight);
-        	 	$scope.selectedWeightoz = ($scope.selectedReport.weight % 1) * 16;
+        	 	$scope.selectedWeightoz = Math.floor(($scope.selectedReport.weight % 1) * 16);
         	 	
         	 	if ($scope.selectedReport.obstetricsRecord.twins) {
 	        	 	$scope.selectedSecondDateofDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
 	        	 	$scope.selectedSecondTimeOfDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
 	        	 	
 	        	 	$scope.selectedSecondWeightlbs = Math.floor(report.secondWeight);
-	        	 	$scope.selectedSecondWeightoz = (report.secondWeight % 1) * 16;
+	        	 	$scope.selectedSecondWeightoz = Math.floor((report.secondWeight % 1) * 16);
         	 	}
            	}
 
