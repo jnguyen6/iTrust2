@@ -148,7 +148,7 @@ public class HCPViewPatientLaborAndDeliveryReport extends CucumberTest {
 
         waitForAngular();
         ( (JavascriptExecutor) driver )
-                .executeScript( "document.getElementById('HCPViewLaborAndDeliveryReport').click();" );
+                .executeScript( "document.getElementById('HCPViewLaborAndDeliveryReports').click();" );
         assertEquals( "iTrust2: View Patient Labor and Delivery Reports", driver.getTitle() );
     }
 
