@@ -137,7 +137,7 @@ public class APIObstetricsRecordController extends APIController {
      * @param patient
      *            the username of the patient for which to get records
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP','ROLE_OBGYN' )" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     @GetMapping ( BASE_PATH + "obstetricsRecord/{patient}" )
     public ResponseEntity getRecordsHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {

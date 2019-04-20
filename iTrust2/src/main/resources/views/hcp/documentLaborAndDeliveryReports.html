@@ -1,0 +1,1319 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{::script})">
+<title>Document Labor And Delivery Reports </title>
+<script th:src="@{/resources/js/dateTimeService.js}"
+	src="../resources/js/dateTimeService.js"></script>
+</head>
+
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<script th:inline="javascript">
+		/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes. */
+        /*<![CDATA[*/
+        var app = angular.module('myApp', ['dateTimeServices']);
+
+        /**
+         * A filter to humanize the text to be more user friendly.
+         */
+        app.filter('humanize', function() {
+            return function (input) {
+                return input.toLowerCase().split('_')
+                    .map((word) => word.charAt(0).toUpperCase() + word.substring(1))
+                    .join(' ');
+            }
+        });
+
+        app.controller('documentLaborAndDeliveryReportsCtrl', function ($scope, $http, dateTimeService) {
+            $scope.Object = Object; // Allows for use of Object.keys()
+            $scope.reports = {};
+            $scope.newReport = {};
+            
+            $scope.yesOrNo = ['true', 'false'];
+            $scope.deliveryTypes = ['Vaginal', 'Cesarean', 'Miscarriage'];
+            
+         	// documentation on Angular filters: https://docs.angularjs.org/api/ng/filter/filter
+            $scope.searchFilter = "";
+            $scope.filterPatients = function (patient) {
+                return ($scope.displayName(patient)).toLowerCase().match($scope.searchFilter.toLowerCase());
+            }
+            
+            $scope.displayName = function (p) {
+                return p.firstName + " " + p.lastName + " (" + p.self.username + ")";
+            }
+            
+            $scope.isPrego = false;
+
+            
+         	// Arrange reports by date
+            $scope.orderDates = function (arr, key) {
+                var groups = {};
+
+                for (var i = 0; l = arr.length, i < l; i++) {
+                    groups[arr[i][key]] = groups[arr[i][key]] || [];
+                    groups[arr[i][key]].push(arr[i]);
+                }
+
+                // Sort the groups by date in reverse chronological order
+                const orderedGroups = {};
+                Object.keys(groups).sort( function( a, b ) { return b.localeCompare(a) } ).forEach(function(key) {
+                    orderedGroups[key] = groups[key];
+                });
+
+                return orderedGroups;
+
+            };
+            
+            $scope.updateInfo = function() {
+
+	            $http.get("/iTrust2/api/v1/patients").then(
+	                function (response) {
+	                    $scope.patients = response.data.filter(value => value.gender === "Female");
+	                    
+	                    $scope.selectPatient = function (patient) {
+	                        $scope.selectedReport = {}; // Reset selected report and date
+	                        $scope.newReport = {};
+	                        $scope.selectedDate = null;
+	                        
+	                     	// Get the obstetrics records for this patient
+	                        $scope.getObstetricsRecords = function() {
+	                     	    $http.get("/iTrust2/api/v1/obstetricsRecord/" + patient.self.username).then(
+		                            function (response) {
+		                                var obstetricsRecords = response.data || {};
+		                                var currentRecords = obstetricsRecords.filter(value => value.currentRecord);
+		                                $scope.isPrego = (currentRecords.length > 0) ? true : false;
+		                                if ($scope.isPrego) {
+		                                    $scope.newReport.obstetricsRecord = angular.copy(currentRecords[0]);
+		                                } else {
+		                                    $scope.newReport.obstetricsRecord = {};
+		                                }
+		                            });
+	                     	};
+	
+	                        $scope.loadReports = function () {
+	                            // Get Reports for selected patient
+	                            $http.get("/iTrust2/api/v1/laborDeliveryReports/" + $scope.selectedPatient).then(
+	                                function (response) {
+	                                    $scope.reports = response.data || {};
+	                                  	$scope.reports = $scope.orderDates($scope.reports, 'datetimeOfLabor');
+	                                    $scope.editError = "";
+	                                    console.log($scope.reports);
+	                                },
+	                                function (rejection) {
+	                                    $scope.reports = [];
+	                                    $scope.editError = "Could not get labor and delivery reports for this patient.";
+	                                });
+	                        };
+	
+	                        $scope.getObstetricsRecords();
+	                        $scope.loadReports();
+	                        
+	                        $scope.newReport.lastName = patient.lastName;
+	                        $scope.newReport.secondLastName = patient.lastName;
+	                        
+	                    };
+	                },
+	                function (rejection) {
+	                    $scope.patient = null;
+	                });
+            }
+            
+            $scope.updateInfo();
+            
+           	$scope.selectReport = function() {
+           	    $scope.selectedReport = $scope.reports[$scope.selectedDate][0];
+           	    console.log($scope.selectedReport);
+				
+           	    $scope.selectedDateOfLabor = new Date($scope.selectedReport.datetimeOfLabor);
+           	 	$scope.selectedTimeOfLabor = new Date($scope.selectedReport.datetimeOfLabor);
+           	 	
+           	 	$scope.selectedDateOfDelivery = new Date($scope.selectedReport.datetimeOfDelivery);
+        	 	$scope.selectedTimeOfDelivery = new Date($scope.selectedReport.datetimeOfDelivery);
+        	 	
+        	 	$scope.selectedWeightlbs = Math.floor($scope.selectedReport.weight);
+        	 	$scope.selectedWeightoz = Math.floor(($scope.selectedReport.weight % 1) * 16);
+        	 	
+        	 	if ($scope.selectedReport.obstetricsRecord.twins) {
+	        	 	$scope.selectedSecondDateofDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
+	        	 	$scope.selectedSecondTimeOfDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
+	        	 	
+	        	 	$scope.selectedSecondWeightlbs = Math.floor(report.secondWeight);
+	        	 	$scope.selectedSecondWeightoz = Math.floor((report.secondWeight % 1) * 16);
+        	 	}
+           	}
+
+           	
+           	$scope.submitCheckLabor = function() {
+	          	var date = new Date($scope.newReport.dateOfLabor);
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.submitError += "Please input a valid date of labor\n";
+	            }
+	
+	            const time = new Date($scope.newReport.timeOfLabor);
+	            if (!dateTimeService.isValidDate(time)) {
+	                $scope.submitError += "Please input a valid time of labor\n";
+	            }
+	            
+	            const now = new Date();
+	            	            
+	            date.setHours(time.getHours());
+	            date.setMinutes(time.getMinutes());
+	            
+	         	// Check valid date and time combination
+	            if (!dateTimeService.isValidDate(date) || date > now) {
+	                $scope.submitError += "Please input a valid date and time of labor\n";
+	            } else {
+	                $scope.newReport.datetimeOfLabor = date.toISOString();
+	            }
+           	}
+           	
+           	
+           	$scope.submitCheckDelivery = function() {
+	          	var date = new Date($scope.newReport.dateOfDelivery);
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.submitError += "Please input a valid date of delivery\n";
+	            }
+	
+	            const time = new Date($scope.newReport.timeOfDelivery);
+	            if (!dateTimeService.isValidDate(time)) {
+	                $scope.submitError += "Please input a valid time of delivery\n";
+	            }
+	            
+	            date.setHours(time.getHours());
+	            date.setMinutes(time.getMinutes());
+	            
+	         	// Check valid date and time combination
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.submitError += "Please input a valid date and time of delivery\n";
+	            } else {
+	                $scope.newReport.datetimeOfDelivery = date.toISOString();
+	            }
+	         	
+	         	// Check if labor is (incorrectly) after delivery
+	         	var laborDatetime = new Date($scope.newReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.submitError += "Delivery datetime must be after labor datetime\n";
+	         	}
+	         	
+	         	// Check delivery method
+	            if ($scope.newReport.deliveryMethod == undefined) {
+                    $scope.submitError += "Please select a delivery method\n";
+                }
+	         	
+	         	if ($scope.newReport.deliveryMethod !== 'Miscarriage') {
+
+		            // Check and set weight
+		            // lbs
+		            var weightlbs = parseInt($scope.newReport.weightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.newReport.weightlbs)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
+	                }
+		            //oz
+		            var weightoz = parseInt($scope.newReport.weightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.newReport.weightoz)) {
+	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                }
+		            var lbs = parseFloat($scope.newReport.weightlbs);
+		            var oz = parseFloat($scope.newReport.weightoz);
+		            $scope.newReport.weight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.newReport.length)) == false) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0\n"
+	                } else if (parseFloat($scope.newReport.length) <= 0) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.heartRate).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.newReport.heartRate) < 0) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.bloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.newReport.bloodPressure) < 0) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.newReport.firstName || $scope.newReport.firstName >=50) {
+	                    $scope.submitError += "Baby first name cannot be empty and must be less than 50 characters.\n"
+		         	}
+		         	if (!$scope.newReport.lastName || $scope.newReport.lastName >=50) {
+	                    $scope.submitError += "Baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
+	         	} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.newReport.weight = 1.0;
+	         	    $scope.newReport.length = 1.0;
+	         	    $scope.newReport.heartRate = 1;
+	         	    $scope.newReport.bloodPressure = 1;
+	         	    $scope.newReport.firstName = 'foo';
+	         	    $scope.newReport.lastName = 'bar';
+	         	}
+           	}
+           	
+           	
+           	$scope.submitCheckSecondDelivery = function() {
+	          	var date = new Date($scope.newReport.secondDateOfDelivery);
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.submitError += "Please input a valid date of delivery for the twin\n";
+	            }
+	
+	            const time = new Date($scope.newReport.secondTimeOfDelivery);
+	            if (!dateTimeService.isValidDate(time)) {
+	                $scope.submitError += "Please input a valid time of delivery for the twin\n";
+	            }
+	            
+	            date.setHours(time.getHours());
+	            date.setMinutes(time.getMinutes());
+	            
+	         	// Check valid date and time combination
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.submitError += "Please input a valid date and time of delivery for the twin\n";
+	            } else {
+	                $scope.newReport.secondDatetimeOfDelivery = date.toISOString();
+	            }
+	         	
+	         	// Check if labor is (incorrectly) after delivery or is after today
+	         	var laborDatetime = new Date($scope.newReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.submitError += "Second delivery datetime must be after labor datetime\n";
+	         	}
+
+	         	
+	         	// Check delivery method
+	            if ($scope.newReport.secondDeliveryMethod == undefined) {
+                    $scope.submitError += "Please select a delivery method for the twin\n";
+                }
+	            
+	         	if ($scope.newReport.secondDeliveryMethod !== 'Miscarriage') {
+
+		            // Check and set weight
+		            // lbs
+		            var weightlbs = parseInt($scope.newReport.secondWeightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.newReport.secondWeightlbs)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            //oz
+		            var weightoz = parseInt($scope.newReport.secondWeightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.newReport.secondWeightoz)) {
+	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            var lbs = parseFloat($scope.newReport.secondWeightlbs);
+		            var oz = parseFloat($scope.newReport.secondWeightoz);
+		            $scope.newReport.secondWeight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.newReport.secondLength)) == false) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                } else if (parseFloat($scope.newReport.secondLength) <= 0) {
+	                    $scope.submitError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.secondHeartRate).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.newReport.secondHeartRate) < 0) {
+	                    $scope.submitError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.newReport.secondBloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.newReport.secondBloodPressure) < 0) {
+	                    $scope.submitError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.newReport.secondFirstName || $scope.newReport.secondFirstName >=50) {
+	                    $scope.submitError += "Second baby first name cannot be empty and must be less than 50 characters\n"
+		         	}
+		         	if (!$scope.newReport.secondLastName || $scope.newReport.secondLastName >=50) {
+	                    $scope.submitError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
+           		} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.newReport.secondWeight = 1.0;
+	         	    $scope.newReport.secondLength = 1.0;
+	         	    $scope.newReport.secondHeartRate = 1;
+	         	    $scope.newReport.secondBloodPressure = 1;
+	         	    $scope.newReport.secondFirstName = 'foo';
+	         	    $scope.newReport.secondLastName = 'bar';
+	         	}
+           	}
+
+            
+            /*Submit function*/
+            $scope.submit = function () {
+                $scope.submitSuccess = "";
+                $scope.submitError = "";
+
+                // Error checking
+                
+                // LABOR
+                $scope.submitCheckLabor();
+                
+                
+                // DELIVERY
+                $scope.submitCheckDelivery();
+                
+                
+                // SECOND DELIVERY
+                if ($scope.newReport.obstetricsRecord.twins) {
+                    $scope.submitCheckSecondDelivery();
+                }
+                
+                console.log($scope.newReport);
+                
+                var reportToSubmit = angular.copy($scope.newReport);
+                
+                console.log(reportToSubmit);
+                
+                // Get rid of extra pieces that the form won't want
+                var itemsToDel = ['dateOfLabor', 'timeOfLabor', 'dateOfDelivery', 'timeOfDelivery', 'weightlbs', 'weightoz',
+                    			  'secondDateOfDelivery', 'secondTimeOfDelivery', 'secondWeightlbs', 'secondWeightoz'];
+				for (i in itemsToDel) {
+				    delete reportToSubmit[itemsToDel[i]];
+				}
+                
+                console.log(reportToSubmit);
+                    
+                if (!$scope.submitError.length) {
+                    $http({
+                        method: 'POST',
+                        url: '/iTrust2/api/v1/laborDeliveryReports/' + $scope.selectedPatient,
+                        data: reportToSubmit
+                    }).then(function (response) {
+                        $scope.submitError = "";
+                        $scope.submitSuccess = "Labor and delivery report created successfully";
+                        
+                        // Pull in new data and set prego as false just in case it hasn't updated yet.
+                        $scope.updateInfo();
+                        $scope.isPrego = false;
+                        $scope.selectedPatient = null;
+                        $scope.selectedDate = null;
+                        
+                    }, function (rejection) {
+                        $scope.submitSuccess = "";
+                        $scope.submitError = "Error occurred while creating labor and delivery report";
+                    });
+                }
+
+            } //end submit function
+            
+            
+            
+           	$scope.editCheckLabor = function() {
+	          	var date = new Date($scope.selectedDateOfLabor);
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.editError += "Please input a valid date of labor\n";
+	            }
+	
+	            const time = new Date($scope.selectedTimeOfLabor);
+	            if (!dateTimeService.isValidDate(time)) {
+	                $scope.editError += "Please input a valid time of labor\n";
+	            }
+	            
+	            date.setHours(time.getHours());
+	            date.setMinutes(time.getMinutes());
+	            
+	         	// Check valid date and time combination
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.editError += "Please input a valid date and time of labor\n";
+	            } else {
+	                $scope.selectedReport.datetimeOfLabor = date.toISOString();
+	            }
+           	}
+           	
+           	
+           	$scope.editCheckDelivery = function() {
+	          	var date = new Date($scope.selectedDateOfDelivery);
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.editError += "Please input a valid date of delivery\n";
+	            }
+	
+	            const time = new Date($scope.selectedTimeOfDelivery);
+	            if (!dateTimeService.isValidDate(time)) {
+	                $scope.editError += "Please input a valid time of delivery\n";
+	            }
+	            
+	            date.setHours(time.getHours());
+	            date.setMinutes(time.getMinutes());
+	            
+	         	// Check valid date and time combination
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.editError += "Please input a valid date and time of delivery\n";
+	            } else {
+	                $scope.selectedReport.datetimeOfDelivery = date.toISOString();
+	            }
+	         	
+	         	// Check if labor is (incorrectly) after delivery
+	         	var laborDatetime = new Date($scope.selectedReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.editError += "Delivery datetime must be after labor datetime\n";
+	         	}
+	         	
+	         	// Check delivery method
+	            if ($scope.selectedReport.deliveryMethod == undefined) {
+                    $scope.editError += "Please select a delivery method\n";
+                }
+	            
+	         	if ($scope.selectedReport.deliveryMethod !== 'Miscarriage') {
+
+		            // Check and set weight
+		            // lbs
+		            var weightlbs = parseInt($scope.selectedWeightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.selectedWeightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                }
+		          	//oz
+		            var weightoz = parseInt($scope.selectedWeightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.selectedWeightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                }
+		            var lbs = parseFloat($scope.selectedWeightlbs);
+		            var oz = parseFloat($scope.selectedWeightoz);
+		            $scope.selectedReport.weight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.selectedReport.length)) == false) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0\n"
+	                } else if (parseFloat($scope.selectedReport.length) <= 0) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.heartRate).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.selectedReport.heartRate) < 0) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.bloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                } else if (parseInt($scope.selectedReport.bloodPressure) < 0) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.selectedReport.firstName || $scope.selectedReport.firstName >=50) {
+	                    $scope.editError += "Baby first name cannot be empty and must be less than 50 characters.\n"
+		         	}
+		         	if (!$scope.selectedReport.lastName || $scope.selectedReport.lastName >=50) {
+	                    $scope.editError += "Baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
+	         	} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.selectedReport.weight = 1.0;
+	         	    $scope.selectedReport.length = 1.0;
+	         	    $scope.selectedReport.heartRate = 1;
+	         	    $scope.selectedReport.bloodPressure = 1;
+	         	    $scope.selectedReport.firstName = 'foo';
+	         	    $scope.selectedReport.lastName = 'bar';
+	         	}
+           	}
+           	
+           	
+           	$scope.editCheckSecondDelivery = function() {
+	          	var date = new Date($scope.selectedSecondDateOfDelivery);
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.editError += "Please input a valid date of delivery for the twin\n";
+	            }
+	
+	            const time = new Date($scope.selectedSecondTimeOfDelivery);
+	            if (!dateTimeService.isValidDate(time)) {
+	                $scope.editError += "Please input a valid time of delivery for the twin\n";
+	            }
+	            
+	            date.setHours(time.getHours());
+	            date.setMinutes(time.getMinutes());
+	            
+	         	// Check valid date and time combination
+	            if (!dateTimeService.isValidDate(date)) {
+	                $scope.editError += "Please input a valid date and time of delivery for the twin\n";
+	            } else {
+	                $scope.selectedReport.secondDatetimeOfDelivery = date.toISOString();
+	            }
+	         	
+	         	// Check if labor is (incorrectly) after delivery
+	         	var laborDatetime = new Date($scope.selectedReport.datetimeOfLabor);
+	         	if (laborDatetime > date) {
+	         	    $scope.editError += "Delivery datetime must be after labor datetime\n";
+	         	}
+	         	
+	         	// Check delivery method
+	            if ($scope.selectedSecondDeliveryMethod == undefined) {
+                    $scope.editError += "Please select a delivery method for the twin\n";
+                }
+	         	
+	         	if ($scope.selectedReport.secondDeliveryMethod !== 'Miscarriage') {
+	            
+		            // Check and set weight
+		            // lbs
+		            var weightlbs = parseInt($scope.selectedSecondWeightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.selectedWeightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		          	//oz
+		            var weightoz = parseInt($scope.selectedSecondWeightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.selectedWeightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            var lbs = parseFloat($scope.selectedSecondWeightlbs);
+		            var oz = parseFloat($scope.selectedSecondWeightoz);
+		            $scope.selectedReport.secondWeight = lbs + (oz / 16);
+		            
+		            // Check length
+		            if (/^(?=.*\d)\d*(?:\.\d\d?)?$/.test(String($scope.selectedReport.secondLength)) == false) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                } else if (parseFloat($scope.selectedReport.secondLength) <= 0) {
+	                    $scope.editError += "Length must be a floating point number up to two digits greater than 0 for the twin\n"
+	                }
+		            
+		         	// Check Heart rate
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.secondHeartRate).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.selectedReport.secondHeartRate) < 0) {
+	                    $scope.editError += "Heart rate must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check blood pressure
+		            if (/^[0-9]{1,3}?$/.test(String($scope.selectedReport.secondBloodPressure).replace(/^0+/, '')) == false) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (parseInt($scope.selectedReport.secondBloodPressure) < 0) {
+	                    $scope.editError += "Blood pressure must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		         	
+		         	// Check names
+		         	if (!$scope.selectedReport.secondFirstName || $scope.selectedReport.secondFirstName >=50) {
+	                    $scope.editError += "Second baby first name cannot be empty and must be less than 50 characters\n"
+		         	}
+		         	if (!$scope.selectedReport.secondLastName || $scope.selectedReport.secondLastName >=50) {
+	                    $scope.editError += "Second baby last name cannot be empty and must be less than 50 characters.\n"
+		         	}
+	         	} else {
+	         	    // Miscarriage so give dummy data
+	         	    $scope.selectedReport.secondWeight = 1.0;
+	         	    $scope.selectedReport.secondLength = 1.0;
+	         	    $scope.selectedReport.secondHeartRate = 1;
+	         	    $scope.selectedReport.secondBloodPressure = 1;
+	         	    $scope.selectedReport.secondFirstName = 'foo';
+	         	    $scope.selectedReport.secondLastName = 'bar';
+	         	}
+           	}
+           	
+           	/*Edit function*/
+            $scope.edit = function () {
+                $scope.editSuccess = "";
+                $scope.editError = "";
+
+                // Error checking
+                
+                // LABOR
+                $scope.editCheckLabor();
+                
+                
+                // DELIVERY
+                $scope.editCheckDelivery();
+                
+                
+                // SECOND DELIVERY
+                if ($scope.selectedReport.obstetricsRecord.twins) {
+                    $scope.editCheckSecondDelivery();
+                }
+                
+				var reportToSubmit = angular.copy($scope.selectedReport);
+                
+                console.log(reportToSubmit);
+
+                    
+                if (!$scope.editError.length) {
+                    $http({
+                        method: 'PUT',
+                        url: '/iTrust2/api/v1/laborDeliveryReports/' + reportToSubmit.id,
+                        data: reportToSubmit
+                    }).then(function (response) {
+                        $scope.editError = "";
+                        $scope.editSuccess = "Labor and delivery report edited successfully";
+                        
+                     	// Pull in new data
+                        $scope.updateInfo();
+                        $scope.selectedPatient = null;
+                        $scope.selectedDate = null;
+                        
+                    }, function (rejection) {
+                        $scope.editSuccess = "";
+                        $scope.editError = "Error occurred while editing labor and delivery report";
+                    });
+                }
+
+            } //end edit function
+
+        });
+                /*]]>*/
+            </script>
+
+		<div ng-app="myApp" ng-controller="documentLaborAndDeliveryReportsCtrl" class="row">
+			<div class="col-md-3">
+				<h2>Patients:</h2>
+				<!-- info on filtering taken from here: https://www.w3schools.com/angular/angular_filters.asp
+                    and https://docs.angularjs.org/api/ng/filter/filter -->
+				<h4>
+					Search: <input type="text" name="search" ng-model="searchFilter" />
+				</h4>
+				<!-- Info on scrolling taken from here: https://www.w3schools.com/cssref/pr_pos_overflow.asp -->
+				<!-- and here: https://stackoverflow.com/questions/9560330/how-to-hide-a-vertical-scroll-bar-when-not-needed -->
+				<div>
+					<div class="radio"
+						ng-repeat="patient in patients | filter:filterPatients">
+						<label> <input type="radio" id="{{patient.self.username}}"
+							ng-model="$parent.selectedPatient" name="patient"
+							value="{{patient.self.username}}"
+							ng-click="$parent.selectPatient(patient)" /> {{$parent.displayName(patient)}}
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-2">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3>Reports:</h3>
+					</div>
+					<div class="panel-body">
+						<div style="margin-left: 10px;">
+							<div ng-show="selectedPatient && Object.keys(reports).length > 0">
+
+								<div class="radio" ng-repeat="(date, report) in reports">
+									<label> <input type="radio"
+										ng-click="$parent.selectReport(report)"
+										ng-model="$parent.selectedDate" name="date" value="{{date}}"
+										required="true" /> {{date | date : 'MM/dd/yyyy'}}
+									</label>
+								</div>
+							</div>
+
+							<div ng-if="!selectedPatient">Please select a patient to view their labor and delivery reports.</div>
+							<div ng-if="selectedPatient && (!reports || Object.keys(reports).length == 0)"
+								>There are no labor and delivery reports for this patient.</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-7">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3>
+							<b>View Labor and Delivery Reports</b>
+						</h3>
+					</div>
+					<div class="panel-body">							
+						<div ng-if="!selectedPatient">Please select a patient to view their labor and delivery reports.</div>
+						<div ng-if="selectedPatient && !selectedDate">Please select a delivery report.</div>
+						<div ng-repeat="(date, report) in reports"
+							ng-if="date == selectedDate">
+						
+							<!-- Labor Panel -->
+							<div class="col-md-12">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>
+											<b>Labor:</b>
+										</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label for="selected-dateOfLabor">Date:</label> <input id="selected-dateOfLabor" type="date"
+													class="form-control" ng-model="selectedDateOfLabor" name="selected-dateOfLabor"
+													required="true" />
+											</div>
+											<div class="col-xs-6">
+												<label for="selected-timeOfLabor">Time:</label> <input id="selected-timeOfLabor" type="time"
+													name="selected-timeOfLabor" class="form-control" ng-model="selectedTimeOfLabor"
+													required="true" />
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+	
+	
+							<!-- Delivery Panel -->
+							<div class="col-md-6">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>Delivery:</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Date:</label>
+											</div>
+											<div class="col-xs-9">
+												<input type="date" class="form-control" name="selected-dateOfDelivery"
+													ng-model="selectedDateOfDelivery" required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Time:</label>
+											</div>
+											<div class="col-xs-9">
+												<input id="selected-timeOfDelivery" type="time"
+													name="selected-timeOfDelivery" class="form-control" ng-model="selectedTimeOfDelivery"
+													required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Type:</label>
+											</div>
+											<div class="col-xs-9">
+												<select
+													class="form-control" ng-model="selectedReport.deliveryMethod" id="selected-deliveryMethod"
+													name="selected-deliveryMethod">
+													<option ng-repeat="deliveryType in deliveryTypes">{{deliveryType}}</option>
+												</select>
+											</div>
+										</div>
+										<div ng-if="selectedReport.deliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='selected-weightlbs' class="col-xs-4">
+													<input class="form-control" name="selected-weightlbs"
+														ng-model="selectedWeightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='selected-weightoz' class="col-xs-4">
+													<input class="form-control" name="selected-weightoz"
+														ng-model="selectedWeightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='selected-length' class="col-xs-4">
+													<input class="form-control" name="selected-length"
+														ng-model="selectedReport.length" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='selected-heartRate' class="col-xs-4">
+													<input class="form-control" name="selected-heartRate"
+														ng-model="selectedReport.heartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='selected-bloodPressure' class="col-xs-4">
+													<input class="form-control" name="selected-bloodPressure"
+														ng-model="selectedReport.bloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='selected-firstName' class="col-xs-6">
+													<input class="form-control" name="selected-firstName"
+														ng-model="selectedReport.firstName" required="true" type="text">
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='selected-lastName' class="col-xs-6">
+													<input class="form-control" name="selected-lastName"
+														ng-model="selectedReport.lastName" required="true" type="text">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+	
+							<!-- Twin Delivery Panel -->
+							<div class="col-md-6" ng-show="selectedReport.obstetricsRecord.twins">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>Delivery:</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Date:</label>
+											</div>
+											<div class="col-xs-9">
+												<input type="date" class="form-control" name="selected-secondDateOfDelivery"
+													ng-model="selectedSecondDateOfDelivery" required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Time:</label>
+											</div>
+											<div class="col-xs-9">
+												<input id="selected-secondTimeOfDelivery" type="time"
+													name="selected-secondTimeOfDelivery" class="form-control" ng-model="selectedSecondTimeOfDelivery"
+													required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Type:</label>
+											</div>
+											<div class="col-xs-9">
+												<select
+													class="form-control" ng-model="selectedReport.secondDeliveryMethod" id="selected-secondDeliveryMethod"
+													name="selected-secondDeliveryMethod">
+													<option ng-repeat="deliveryType in deliveryTypes">{{deliveryType}}</option>
+												</select>
+											</div>
+										</div>
+										<div ng-if="selectedReport.secondDeliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='selected-secondWeightlbs' class="col-xs-4">
+													<input class="form-control" name="selected-secondWeightlbs"
+														ng-model="selectedSecondWeightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='selected-secondWeightoz' class="col-xs-4">
+													<input class="form-control" name="selected-secondWeightoz"
+														ng-model="selectedSecondWeightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='selected-secondLength' class="col-xs-4">
+													<input class="form-control" name="selected-secondLength"
+														ng-model="selectedReport.secondLength" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='selected-secondHeartRate' class="col-xs-4">
+													<input class="form-control" name="selected-secondHeartRate"
+														ng-model="selectedReport.secondHeartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='selected-secondBloodPressure' class="col-xs-4">
+													<input class="form-control" name="selected-secondBloodPressure"
+														ng-model="selectedReport.secondBloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='selected-secondFirstName' class="col-xs-6">
+													<input class="form-control" name="selected-secondFirstName"
+														ng-model="selectedReport.secondFirstName" required="true" type="text">
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='selected-secondLastName' class="col-xs-6">
+													<input class="form-control" name="selected-secondLastName"
+														ng-model="selectedReport.secondLastName" required="true" type="text">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- Error Messages -->
+							<div class="row">
+								<div class="col-md-12 text-right">
+									<div style="white-space: pre-line;">
+										<div name="editSuccess" class="text-success">{{editSuccess}}</div>
+										<div name="editError" class="text-danger">{{editError}}</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<button class="btn btn-primary btn-lg" ng-click="edit()"
+									name="edit">Edit Report</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+			<div class="col-md-7">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3>
+							<b>Document Report</b>
+						</h3>
+					</div>
+					<div class="panel-body">
+						<div ng-if="selectedPatient && !isPrego">The patient is not currently pregnant.</div>
+						<div ng-if="!selectedPatient">Please select a patient to document a labor and delivery reports.</div>
+						
+						<div ng-if="isPrego">
+							<!-- Labor Panel -->
+							<div class="col-md-12">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>
+											<b>Labor:</b>
+										</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-6">
+												<label for="new-dateOfLabor">Date:</label> <input id="new-dateOfLabor" type="date"
+													class="form-control" ng-model="newReport.dateOfLabor" name="new-dateOfLabor"
+													required="true" />
+											</div>
+											<div class="col-xs-6">
+												<label for="new-timeOfLabor">Time:</label> <input id="new-timeOfLabor" type="time"
+													name="new-timeOfLabor" class="form-control" ng-model="newReport.timeOfLabor"
+													required="true" />
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+	
+	
+							<!-- Delivery Panel -->
+							<div class="col-md-6">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>Delivery:</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Date:</label>
+											</div>
+											<div class="col-xs-9">
+												<input type="date" class="form-control" name="new-dateOfDelivery"
+													ng-model="newReport.dateOfDelivery" required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Time:</label>
+											</div>
+											<div class="col-xs-9">
+												<input id="new-timeOfDelivery" type="time"
+													name="new-timeOfDelivery" class="form-control" ng-model="newReport.timeOfDelivery"
+													required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Type:</label>
+											</div>
+											<div class="col-xs-9">
+												<select
+													class="form-control" ng-model="newReport.deliveryMethod" id="new-deliveryMethod"
+													name="new-deliveryMethod">
+													<option ng-repeat="deliveryType in deliveryTypes">{{deliveryType}}</option>
+												</select>
+											</div>
+										</div>
+										<div ng-if="newReport.deliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='new-weightlbs' class="col-xs-4">
+													<input class="form-control" name="new-weightlbs"
+														ng-model="newReport.weightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='new-weightoz' class="col-xs-4">
+													<input class="form-control" name="new-weightoz"
+														ng-model="newReport.weightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='new-length' class="col-xs-4">
+													<input class="form-control" name="new-length"
+														ng-model="newReport.length" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='new-heartRate' class="col-xs-4">
+													<input class="form-control" name="new-heartRate"
+														ng-model="newReport.heartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='new-bloodPressure' class="col-xs-4">
+													<input class="form-control" name="new-bloodPressure"
+														ng-model="newReport.bloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='new-firstName' class="col-xs-6">
+													<input class="form-control" name="new-firstName"
+														ng-model="newReport.firstName" required="true" type="text">
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='new-lastName' class="col-xs-6">
+													<input class="form-control" name="new-lastName"
+														ng-model="newReport.lastName" required="true" type="text">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+	
+							<!-- Twin Delivery Panel -->
+							<div class="col-md-6" ng-show="newReport.obstetricsRecord.twins">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										<h4>Delivery:</h4>
+									</div>
+									<div class="panel-body">
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Date:</label>
+											</div>
+											<div class="col-xs-9">
+												<input type="date" class="form-control" name="new-secondDateOfDelivery"
+													ng-model="newReport.secondDateOfDelivery" required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Time:</label>
+											</div>
+											<div class="col-xs-9">
+												<input id="new-secondTimeOfDelivery" type="time"
+													name="new-secondTimeOfDelivery" class="form-control" ng-model="newReport.secondTimeOfDelivery"
+													required="true" />
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-xs-3">
+												<label>Type:</label>
+											</div>
+											<div class="col-xs-9">
+												<select
+													class="form-control" ng-model="newReport.secondDeliveryMethod" id="new-secondDeliveryMethod"
+													name="new-secondDeliveryMethod">
+													<option ng-repeat="deliveryType in deliveryTypes">{{deliveryType}}</option>
+												</select>
+											</div>
+										</div>
+										<div ng-if="newReport.secondDeliveryMethod !== 'Miscarriage'">
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Weight:</label>
+												</div>
+												<div name='new-secondWeightlbs' class="col-xs-4">
+													<input class="form-control" name="new-secondWeightlbs"
+														ng-model="newReport.secondWeightlbs" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">lbs</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5"></div>
+												<div name='new-secondWeightoz' class="col-xs-4">
+													<input class="form-control" name="new-secondWeightoz"
+														ng-model="newReport.secondWeightoz" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">oz</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Length:</label>
+												</div>
+												<div name='new-secondLength' class="col-xs-4">
+													<input class="form-control" name="new-secondLength"
+														ng-model="newReport.secondLength" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">in</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Heart Rate:</label>
+												</div>
+												<div name='new-secondHeartRate' class="col-xs-4">
+													<input class="form-control" name="new-secondHeartRate"
+														ng-model="newReport.secondHeartRate" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">BPM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-5">
+													<label>Blood Pressure:</label>
+												</div>
+												<div name='new-secondBloodPressure' class="col-xs-4">
+													<input class="form-control" name="new-secondBloodPressure"
+														ng-model="newReport.secondBloodPressure" required="true" type="text">
+												</div>
+												<div class="col-xs-3">
+													<span id="helpBlock" class="help-block">MoM</span>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>First Name:</label>
+												</div>
+												<div name='new-secondFirstName' class="col-xs-6">
+													<input class="form-control" name="new-secondFirstName"
+														ng-model="newReport.secondFirstName" required="true" type="text">
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Last Name:</label>
+												</div>
+												<div name='new-secondLastName' class="col-xs-6">
+													<input class="form-control" name="new-secondLastName"
+														ng-model="newReport.secondLastName" required="true" type="text">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<button class="btn btn-primary btn-lg" ng-click="submit()"
+									name="submit">Submit Report</button>
+							</div>
+							<!-- Error Messages -->
+							<div class="row">
+								<div class="col-md-12 text-right">
+									<div style="white-space: pre-line;">
+										<div name="submitSuccess" class="text-success">{{submitSuccess}}</div>
+										<div name="submitError" class="text-danger">{{submitError}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

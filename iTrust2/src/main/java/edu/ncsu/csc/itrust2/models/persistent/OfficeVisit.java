@@ -20,9 +20,9 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
-import com.google.gson.annotations.JsonAdapter;
-
 import org.hibernate.criterion.Criterion;
+
+import com.google.gson.annotations.JsonAdapter;
 
 import edu.ncsu.csc.itrust2.adapters.ZonedDateTimeAdapter;
 import edu.ncsu.csc.itrust2.adapters.ZonedDateTimeAttributeConverter;
@@ -77,10 +77,12 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
     public static List<OfficeVisit> getForHCP ( final String hcpName ) {
         return getWhere( eqList( "hcp", User.getByName( hcpName ) ) );
     }
-    
+
     /**
      * Gets all of the office visits of the specified type.
-     * @param type The AppointmentType
+     *
+     * @param type
+     *            The AppointmentType
      * @return all of the office visits of the specified type.
      */
     public static List<OfficeVisit> getForType ( final AppointmentType type ) {
@@ -115,6 +117,7 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
         // append new appointment types
         visits.addAll( (List<OfficeVisit>) getAll( GeneralOphthalmology.class ) );
         visits.addAll( (List<OfficeVisit>) getAll( OphthalmologySurgery.class ) );
+        visits.addAll( (List<OfficeVisit>) getAll( GeneralObstetrics.class ) );
         visits.sort( ( x1, x2 ) -> x1.getDate().compareTo( x2.getDate() ) );
         return visits;
     }
@@ -136,6 +139,7 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
         final List<OfficeVisit> visits = (List<OfficeVisit>) getWhere( GeneralCheckup.class, where );
         visits.addAll( (List<OfficeVisit>) getWhere( GeneralOphthalmology.class, where ) );
         visits.addAll( (List<OfficeVisit>) getWhere( OphthalmologySurgery.class, where ) );
+        visits.addAll( (List<OfficeVisit>) getWhere( GeneralObstetrics.class, where ) );
         return visits;
     }
 
@@ -164,9 +168,9 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
             setId( Long.parseLong( ovf.getId() ) );
         }
 
-        ZonedDateTime visitDate = ZonedDateTime.parse( ovf.getDate() );
+        final ZonedDateTime visitDate = ZonedDateTime.parse( ovf.getDate() );
         setDate( visitDate );
-        
+
         AppointmentType at = null;
         try {
             at = AppointmentType.valueOf( ovf.getType() );
@@ -210,7 +214,8 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
         // Remove the -1 when changing the dob to OffsetDateTime
         if ( date.getMonthValue() < dob.getMonthValue() ) {
             age -= 1;
-        } else if ( date.getMonthValue() == dob.getMonthValue() ) {
+        }
+        else if ( date.getMonthValue() == dob.getMonthValue() ) {
             if ( date.getDayOfMonth() < dob.getDayOfMonth() ) {
                 age -= 1;
             }
@@ -218,9 +223,11 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
 
         if ( age < 3 ) {
             validateUnder3();
-        } else if ( age < 12 ) {
+        }
+        else if ( age < 12 ) {
             validateUnder12();
-        } else {
+        }
+        else {
             validate12AndOver();
         }
     }
@@ -469,8 +476,8 @@ public abstract class OfficeVisit extends DomainObject<OfficeVisit> {
     @NotNull
     @Basic
     // Allows the field to show up nicely in the database
-    @Convert( converter = ZonedDateTimeAttributeConverter.class )
-    @JsonAdapter( ZonedDateTimeAdapter.class )
+    @Convert ( converter = ZonedDateTimeAttributeConverter.class )
+    @JsonAdapter ( ZonedDateTimeAdapter.class )
     private ZonedDateTime      date;
 
     /**

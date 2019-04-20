@@ -44,19 +44,25 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Fills in the date and time fields with the specified date and time.
-     * @param date The date to enter.
-     * @param time The time to enter.
+     *
+     * @param date
+     *            The date to enter.
+     * @param time
+     *            The time to enter.
      */
-    private void fillInDateTime(String dateField, String date, String timeField, String time) {
-        fillInDate(dateField, date);
-        fillInTime(timeField, time);
+    private void fillInDateTime ( final String dateField, final String date, final String timeField,
+            final String time ) {
+        fillInDate( dateField, date );
+        fillInTime( timeField, time );
     }
 
     /**
      * Fills in the date field with the specified date.
-     * @param date The date to enter.
+     *
+     * @param date
+     *            The date to enter.
      */
-    private void fillInDate(String dateField, String date) {
+    private void fillInDate ( final String dateField, final String date ) {
         driver.findElement( By.name( dateField ) ).clear();
         final WebElement dateElement = driver.findElement( By.name( dateField ) );
         dateElement.sendKeys( date.replace( "/", "" ) );
@@ -64,9 +70,11 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Fills in the time field with the specified time.
-     * @param time The time to enter.
+     *
+     * @param time
+     *            The time to enter.
      */
-    private void fillInTime(String timeField, String time) {
+    private void fillInTime ( final String timeField, String time ) {
         // Zero-pad the time for entry
         if ( time.length() == 7 ) {
             time = "0" + time;
@@ -120,7 +128,7 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Adds basic information about the office visit into the page
-     * 
+     *
      * @param date
      *            the date of the office visit
      * @param time
@@ -138,7 +146,7 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
         waitForAngular();
 
         fillInDateTime( "date", date, "time", time );
-        
+
         final WebElement patientElement = driver.findElement( By.cssSelector( "input[value=\"" + patient + "\"]" ) );
         patientElement.click();
 
@@ -151,7 +159,7 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Enter the basic health metrics into the page
-     * 
+     *
      * @param height
      *            the patient's height
      * @param weight
@@ -209,7 +217,7 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Enters the visual acuity fields into the page
-     * 
+     *
      * @param leftAcuity
      *            the patient's left eye visual acuity
      * @param rightAcuity
@@ -266,7 +274,7 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Enters the visual acuity fields into the page
-     * 
+     *
      * @param leftAcuity
      *            the patient's left eye visual acuity
      * @param rightAcuity
@@ -323,7 +331,7 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
     /**
      * Method to enter the notes into the page
-     * 
+     *
      * @param notes
      *            the notes for the visit
      */
@@ -369,7 +377,8 @@ public class OphthalmologyOfficeVisitStepDefs extends CucumberTest {
 
         // confirm that the error message is displayed
         try {
-            if ( driver.findElement( By.name( "success" ) ).getText().contains( "Office visit created successfully" ) ) {
+            if ( driver.findElement( By.name( "success" ) ).getText()
+                    .contains( "Office visit created successfully" ) ) {
                 fail();
             }
         }

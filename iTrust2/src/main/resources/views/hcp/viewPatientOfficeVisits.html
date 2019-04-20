@@ -74,6 +74,7 @@
               $scope.prescriptions = [];
               $scope.diagnoses = [];
               $scope.procedures = [];
+              $scope.obstetrics = [];
               $scope.showBHM = true;
 
               for (var i = 0; i < $scope.visits.length; i++) {
@@ -98,6 +99,18 @@
                   $scope.selectedVisit.patientSmokingStatus = $scope.visits[i].basicHealthMetrics.patientSmokingStatus;
                   
                   validateBasicHealthMetrics();
+                  
+                  //checking obstetrics office visits value
+                  $scope.selectedVisit.weeksPregnant = $scope.visits[i].weeksPregnant;
+                  $scope.selectedVisit.fetalHeartRate = $scope.visits[i].fetalHeartRate;
+                  $scope.selectedVisit.fundalHeight = $scope.visits[i].fundalHeight;
+                  $scope.selectedVisit.isTwins = $scope.visits[i].isTwins;
+                  $scope.selectedVisit.isLowLyingPlacenta = $scope.visits[i].isLowLyingPlacenta;
+                  //console.log(Object.keys(weeksPregnant));
+                  //console.log(Object.keys(fetalHeartRate));
+                  //console.log(Object.keys(fundalHeight));
+                  //console.log(Object.keys(twins));
+                  //console.log(Object.keys(lowLyingPlacenta));
 
                   // Eye health metrics
                   $scope.selectedVisit.visualAcuityOS = $scope.visits[i].visualAcuityOS;
@@ -125,6 +138,28 @@
                           });
                         }
                       });
+                    
+                    // Obstetric Office Visits
+                    if ($scope.selectedVisit.type == 'GENERAL_OBSTETRICS') {
+                      $http.get("/iTrust2/api/v1/obstetricsOfficeVisit/" + $scope.selectedVisitID).then(
+                        function (response) {
+                          $scope.obstetricsResponse = response.data;
+                          for (var i = 0; i < $scope.obstetricsResponse.length; i++) {
+                            $scope.diagnoses.push({
+                            	weeksPregnant: obstetricsResponse[i].weeksPregnant,
+                                fetalHeartRate: obstetricsResponse[i].fetalHeartRate,
+                                fundalHeight: obstetricsResponse[i].fundalHeight,
+                                isTwins: obstetricsResponse[i].isTwins,
+                                isLowLyingPlacenta: obstetricsResponse[i].isLowLyingPlacenta
+                                //console.log(Object.keys(weeksPregnant));
+                                //console.log(Object.keys(fetalHeartRate));
+                                //console.log(Object.keys(fundalHeight));
+                                //console.log(Object.keys(twins));
+                                //console.log(Object.keys(lowLyingPlacenta));
+                            });
+                          }
+                        });
+                    }
 
                     // Prescriptions
                     let prescriptions = $scope.visits[i].prescriptions;
@@ -342,6 +377,33 @@
 														</div>
 													</div>
 												</div>
+												
+						<!-- Diagnosis Panel  -->
+                        <div class="col-md-4" ng-show="selectedVisit.type === 'GENERAL_CHECKUP' && diagnoses.length">
+                          <div class="panel panel-info">
+                            <div class="panel-heading">
+                              <h4>Diagnoses</h4>
+                            </div>
+                            <div class="panel-body" ng-show="diagnoses.length">
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <b>Description</b>
+                                </div>
+                                <div class="col-md-6">
+                                  <b>Note</b>
+                                </div>
+                              </div>
+                              <div name='diagnose' class="row" ng-repeat="d in diagnoses">
+                                <div name='diagnoseDesc' class="col-md-6">
+                                  {{d.code.description}}
+                                </div>
+                                <div name='diagnoseNote' class="col-md-6">
+                                  {{d.note}}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
 												<!-- Eye Health Panel -->
 												<div class="col-md-4"
@@ -411,33 +473,53 @@
 													</div>
 												</div>
 
-												<!-- Diagnosis Panel  -->
+												<!-- Obstetrics Panel -->
 												<div class="col-md-4"
-													ng-show="selectedVisit.type === 'GENERAL_CHECKUP' && diagnoses.length">
+													ng-show="selectedVisit.type === 'GENERAL_OBSTETRICS'">
 													<div class="panel panel-info">
 														<div class="panel-heading">
-															<h4>Diagnoses</h4>
+															<h4>Obstetrics Health Metrics</h4>
 														</div>
-														<div class="panel-body" ng-show="diagnoses.length">
-															<div class="row">
-																<div class="col-md-6">
-																	<b>Description</b>
+														<div class="panel-body">
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Weeks Pregnant:</label>
 																</div>
-																<div class="col-md-6">
-																	<b>Note</b>
-																</div>
+																<div name='weeksPregnant' class="col-xs-6">
+																	{{selectedVisit.weeksPregnant}}</div>
 															</div>
-															<div name='diagnose' class="row"
-																ng-repeat="d in diagnoses">
-																<div name='diagnoseDesc' class="col-md-6">
-																	{{d.code.description}}</div>
-																<div name='diagnoseNote' class="col-md-6">
-																	{{d.note}}</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Fetal Heart Rate (bpm):</label>
+																</div>
+																<div name='fetalHeartRate' class="col-xs-6">
+																	{{selectedVisit.fetalHeartRate}}</div>
+															</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Fundal Height of Uterus (cm):</label>
+																</div>
+																<div name='fundalHeight' class="col-xs-6">
+																	{{selectedVisit.fundalHeight}}</div>
+															</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Twins:</label>
+																</div>
+																<div name='isTwins' class="col-xs-6">
+																	{{selectedVisit.isTwins}}</div>
+															</div>
+															<div class="form-group row">
+																<div class="col-xs-6">
+																	<label>Low Lying Placenta:</label>
+																</div>
+																<div name='isLowLyingPlacenta' class="col-xs-6">
+																	{{selectedVisit.isLowLyingPlacenta}}</div>
 															</div>
 														</div>
 													</div>
 												</div>
-
+												
 												<!-- Eye Diagnosis Panel  -->
 												<div class="col-md-4"
 													ng-show="selectedVisit.type === 'GENERAL_OPHTHALMOLOGY' && selectedVisit.eyeDiagnoses != undefined">
@@ -452,7 +534,7 @@
 															</ul>
 														</div>
 													</div>
-												</div>
+												
 
 												<!-- Ophthalmology Surgery Panel  -->
 												<div class="col-md-4"
@@ -555,8 +637,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	</div>
 </body>
 
 </html>

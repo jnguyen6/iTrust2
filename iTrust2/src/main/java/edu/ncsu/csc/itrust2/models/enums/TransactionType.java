@@ -466,7 +466,47 @@ public enum TransactionType {
     /**
      * Patient views obstetrics record
      */
-    PATIENT_VIEW_OBSTETRICS_RECORD ( 2404, "Obstetrics Patient views obstetrics record", true );
+    PATIENT_VIEW_OBSTETRICS_RECORD ( 2404, "Obstetrics Patient views obstetrics record", true ),
+
+    /**
+     * Patient views obstetrics office visit
+     */
+    GENERAL_OBSTETRICS_PATIENT_VIEW ( 2501, "Patient Views an OB/GYN Office Visit", true ),
+
+    /**
+     * HCP views obstetrics office visit
+     */
+    GENERAL_OBSTETRICS_HCP_VIEW ( 2502, "HCP views an OB/GYN Office Visit", true ),
+
+    /**
+     * Create new obstetrics office visit
+     */
+    GENERAL_OBSTETRICS_CREATE ( 2503, "Create OB/GYN Office Visit", true ),
+
+    /**
+     * Edit obstetrics office visit
+     */
+    GENERAL_OBSTETRICS_EDIT ( 2504, "Editing OB/GYN Office Visit", true ),
+
+    /**
+     * OB/GYN HCP creates Labor and Delivery Report
+     */
+    LABOR_DELIVERY_REPORT_CREATE ( 2601, "OB/GYN HCP creates Labor and Delivery Report", true ),
+
+    /**
+     * HCP views Labor and Delivery Report
+     */
+    LABOR_DELIVERY_REPORT_HCP_VIEW ( 2602, "HCP views an OB/GYN Labor and Delivery Report", true ),
+
+    /**
+     * Edit Labor and Delviery Report
+     */
+    LABOR_DELIVERY_REPORT_EDIT ( 2603, "Edit OB/GYN Labor and Delivery Report", true ),
+
+    /**
+     * Patient views Labor and Delivery Report
+     */
+    LABOR_DELIVERY_REPORT_PATIENT_VIEW ( 2604, "Patient views an OB/GYN Labor and Delivery Report", true );
 
     /**
      * Creates a TransactionType for logging events

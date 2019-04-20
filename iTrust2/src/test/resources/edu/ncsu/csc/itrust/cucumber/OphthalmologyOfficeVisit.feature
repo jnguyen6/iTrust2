@@ -140,7 +140,7 @@ Examples:
 Scenario Outline: HCP incorrectly edits an ophthalmology surgery office visit 
 	Given There exists a patient in the system
 	And There exists an ophthalmologist HCP in the system
-	And there are office visits of all types
+	And The patient has a documented ophthalmology surgery office visit
 	Then The HCP logs in and navigates to the Edit Office Visit page
 	When The HCP selects the existing office visit
 	And The HCP modifies the date to be <date>, height <height>, and the left eye visual acuity <visualAcuityOS>
