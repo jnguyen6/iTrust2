@@ -172,7 +172,7 @@ public class APILaborDeliveryReportController extends APIController {
      * @param patient
      *            the username of the patient for which to get reports
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP','ROLE_OBGYN' )" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_OD', 'ROLE_OPH', 'ROLE_OBGYN')" )
     @GetMapping ( BASE_PATH + "laborDeliveryReports/{patient}" )
     public ResponseEntity getLaborDeliveryReportsHCP ( @PathVariable final String patient ) {
         if ( null == Patient.getByName( patient ) ) {

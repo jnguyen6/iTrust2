@@ -52,8 +52,6 @@ public class ObstetricsOfficeVisitStepDefs extends CucumberTest {
      */
     public void assertTextPresent ( final String text ) {
         try {
-            assertEquals( "Create OB/GYN Office Visit",
-                    driver.getPageSource().contains( "Create OB/GYN Office Visit" ) );
             assertTrue( driver.getPageSource().contains( text ) );
         }
         catch ( final Exception e ) {

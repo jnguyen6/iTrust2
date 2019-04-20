@@ -15,11 +15,10 @@ Examples:
     
 Scenario Outline: The patient has a labor and delivery report to view without twins
     Given there exists a patient in the iTrust2 system
-	And The obstetrics patient has a current obstetrics record in the iTrust2 system
-	And The patient has an existing labor and delivery report without twins
-	Then I log in as a patient and navigate to the View Patient Labor and Delivery Report page
-    Then I select the date of the report <dateDelivery>
-	Then The patient's labor and delivery report is displayed
+	And the patient has an existing labor and delivery report without twins
+	Then the patient logs in and navigates to the View Patient Labor and Delivery Report page
+	Then the patient select the date of the report <dateDelivery>
+	Then the patient's labor and delivery report is displayed
 	
 Examples:
     | dateDelivery |
@@ -27,11 +26,10 @@ Examples:
     
 Scenario Outline: The patient has a labor and delivery report to view with twins
     Given there exists a patient in the iTrust2 system
-	And The obstetrics patient has a current obstetrics record in the iTrust2 system
-	And The patient has an existing labor and delivery report with twins
-	Then I log in as a patient and navigate to the View Patient Labor and Delivery Report page
-    Then I select the date of the report <dateDelivery>
-	Then The patient's labor and delivery report is displayed
+	And the patient has an existing labor and delivery report with twins
+	Then the patient logs in and navigates to the View Patient Labor and Delivery Report page
+	Then the patient select the date of the report <dateDelivery>
+	Then the patient's labor and delivery report of twins is displayed
 	
 Examples:
     | dateDelivery |

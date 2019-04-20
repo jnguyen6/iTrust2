@@ -121,26 +121,26 @@
             
             $scope.updateInfo();
             
-           	$scope.selectReport = function(report) {
-           	    $scope.selectedReport = report[0];
-
-           	    const datetimeOfLabor = new Date($scope.selectedReport.datetimeOfLabor);
-           	    $scope.selectedReport.dateofLabor = datetimeOfLabor;
-           	 	$scope.selectedReport.timeOfLabor = datetimeOfLabor;
+           	$scope.selectReport = function() {
+           	    $scope.selectedReport = $scope.reports[$scope.selectedDate][0];
+           	    console.log($scope.selectedReport);
+				
+           	    $scope.selectedDateOfLabor = new Date($scope.selectedReport.datetimeOfLabor);
+           	 	$scope.selectedTimeOfLabor = new Date($scope.selectedReport.datetimeOfLabor);
            	 	
-           	 	const datetimeOfDelivery = new Date($scope.selectedReport.datetimeOfDelivery);
-           	 	$scope.selectedReport.dateofDelivery = datetimeOfDelivery;
-        	 	$scope.selectedReport.timeOfDelivery = datetimeOfDelivery;
+           	 	$scope.selectedDateOfDelivery = new Date($scope.selectedReport.datetimeOfDelivery);
+        	 	$scope.selectedTimeOfDelivery = new Date($scope.selectedReport.datetimeOfDelivery);
         	 	
-        	 	const secondDatetimeOfDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
-        	 	$scope.selectedReport.secondDateofDelivery = secondDatetimeOfDelivery;
-        	 	$scope.selectedReport.secondTimeOfDelivery = secondDatetimeOfDelivery;
+        	 	$scope.selectedWeightlbs = Math.floor($scope.selectedReport.weight);
+        	 	$scope.selectedWeightoz = Math.floor(($scope.selectedReport.weight % 1) * 16);
         	 	
-        	 	$scope.selectedReport.weightlbs = Math.floor($scope.selectedReport.weight);
-        	 	$scope.selectedReport.weightoz = ($scope.selectedReport.weight % 1) * 16;
-        	 	
-        	 	$scope.selectedReport.secondWeightlbs = Math.floor($scope.selectedReport.secondWeight);
-        	 	$scope.selectedReport.secondWeightoz = ($scope.selectedReport.secondWeight % 1) * 16;
+        	 	if ($scope.selectedReport.obstetricsRecord.twins) {
+	        	 	$scope.selectedSecondDateofDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
+	        	 	$scope.selectedSecondTimeOfDelivery = new Date($scope.selectedReport.secondDatetimeOfDelivery);
+	        	 	
+	        	 	$scope.selectedSecondWeightlbs = Math.floor(report.secondWeight);
+	        	 	$scope.selectedSecondWeightoz = Math.floor((report.secondWeight % 1) * 16);
+        	 	}
            	}
 
            	
@@ -155,11 +155,13 @@
 	                $scope.submitError += "Please input a valid time of labor\n";
 	            }
 	            
+	            const now = new Date();
+	            	            
 	            date.setHours(time.getHours());
 	            date.setMinutes(time.getMinutes());
 	            
 	         	// Check valid date and time combination
-	            if (!dateTimeService.isValidDate(date)) {
+	            if (!dateTimeService.isValidDate(date) || date > now) {
 	                $scope.submitError += "Please input a valid date and time of labor\n";
 	            } else {
 	                $scope.newReport.datetimeOfLabor = date.toISOString();
@@ -203,11 +205,17 @@
 
 		            // Check and set weight
 		            // lbs
-		            if (parseInt($scope.newReport.weightlbs) < 0) {
+		            var weightlbs = parseInt($scope.newReport.weightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.newReport.weightlbs)) {
 	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
 	                }
 		            //oz
-		            if (parseInt($scope.newReport.weightoz) < 0) {
+		            var weightoz = parseInt($scope.newReport.weightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.newReport.weightoz)) {
 	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0\n"
 	                }
 		            var lbs = parseFloat($scope.newReport.weightlbs);
@@ -275,11 +283,12 @@
 	                $scope.newReport.secondDatetimeOfDelivery = date.toISOString();
 	            }
 	         	
-	         	// Check if labor is (incorrectly) after delivery
+	         	// Check if labor is (incorrectly) after delivery or is after today
 	         	var laborDatetime = new Date($scope.newReport.datetimeOfLabor);
 	         	if (laborDatetime > date) {
 	         	    $scope.submitError += "Second delivery datetime must be after labor datetime\n";
 	         	}
+
 	         	
 	         	// Check delivery method
 	            if ($scope.newReport.secondDeliveryMethod == undefined) {
@@ -290,11 +299,17 @@
 
 		            // Check and set weight
 		            // lbs
-		            if (parseInt($scope.newReport.secondWeightlbs) < 0) {
+		            var weightlbs = parseInt($scope.newReport.secondWeightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.newReport.secondWeightlbs)) {
 	                    $scope.submitError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
 	                }
 		            //oz
-		            if (parseInt($scope.newReport.secondWeightoz) < 0) {
+		            var weightoz = parseInt($scope.newReport.secondWeightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.newReport.secondWeightoz)) {
 	                    $scope.submitError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
 	                }
 		            var lbs = parseFloat($scope.newReport.secondWeightlbs);
@@ -388,26 +403,26 @@
                         // Pull in new data and set prego as false just in case it hasn't updated yet.
                         $scope.updateInfo();
                         $scope.isPrego = false;
+                        $scope.selectedPatient = null;
+                        $scope.selectedDate = null;
                         
                     }, function (rejection) {
                         $scope.submitSuccess = "";
                         $scope.submitError = "Error occurred while creating labor and delivery report";
                     });
                 }
-                
-                $scope.selectedPatient = null;
 
             } //end submit function
             
             
             
            	$scope.editCheckLabor = function() {
-	          	var date = new Date($scope.selectedReport.dateOfLabor);
+	          	var date = new Date($scope.selectedDateOfLabor);
 	            if (!dateTimeService.isValidDate(date)) {
 	                $scope.editError += "Please input a valid date of labor\n";
 	            }
 	
-	            const time = new Date($scope.selectedReport.timeOfLabor);
+	            const time = new Date($scope.selectedTimeOfLabor);
 	            if (!dateTimeService.isValidDate(time)) {
 	                $scope.editError += "Please input a valid time of labor\n";
 	            }
@@ -425,12 +440,12 @@
            	
            	
            	$scope.editCheckDelivery = function() {
-	          	var date = new Date($scope.selectedReport.dateOfDelivery);
+	          	var date = new Date($scope.selectedDateOfDelivery);
 	            if (!dateTimeService.isValidDate(date)) {
 	                $scope.editError += "Please input a valid date of delivery\n";
 	            }
 	
-	            const time = new Date($scope.selectedReport.timeOfDelivery);
+	            const time = new Date($scope.selectedTimeOfDelivery);
 	            if (!dateTimeService.isValidDate(time)) {
 	                $scope.editError += "Please input a valid time of delivery\n";
 	            }
@@ -460,15 +475,21 @@
 
 		            // Check and set weight
 		            // lbs
-		            if (parseInt($scope.selectedReport.weightlbs) < 0) {
-	                    $scope.editError += "Weight in lbs must be an integer value greater than or equal to 0\n"
-	                }
-		            //oz
-		            if (parseInt($scope.selectedReport.weightoz) < 0) {
+		            var weightlbs = parseInt($scope.selectedWeightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.selectedWeightoz)) {
 	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
 	                }
-		            var lbs = parseFloat($scope.selectedReport.weightlbs);
-		            var oz = parseFloat($scope.selectedReport.weightoz);
+		          	//oz
+		            var weightoz = parseInt($scope.selectedWeightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.selectedWeightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0\n"
+	                }
+		            var lbs = parseFloat($scope.selectedWeightlbs);
+		            var oz = parseFloat($scope.selectedWeightoz);
 		            $scope.selectedReport.weight = lbs + (oz / 16);
 		            
 		            // Check length
@@ -512,12 +533,12 @@
            	
            	
            	$scope.editCheckSecondDelivery = function() {
-	          	var date = new Date($scope.selectedReport.secondDateOfDelivery);
+	          	var date = new Date($scope.selectedSecondDateOfDelivery);
 	            if (!dateTimeService.isValidDate(date)) {
 	                $scope.editError += "Please input a valid date of delivery for the twin\n";
 	            }
 	
-	            const time = new Date($scope.selectedReport.secondTimeOfDelivery);
+	            const time = new Date($scope.selectedSecondTimeOfDelivery);
 	            if (!dateTimeService.isValidDate(time)) {
 	                $scope.editError += "Please input a valid time of delivery for the twin\n";
 	            }
@@ -539,7 +560,7 @@
 	         	}
 	         	
 	         	// Check delivery method
-	            if ($scope.selectedReport.secondDeliveryMethod == undefined) {
+	            if ($scope.selectedSecondDeliveryMethod == undefined) {
                     $scope.editError += "Please select a delivery method for the twin\n";
                 }
 	         	
@@ -547,15 +568,21 @@
 	            
 		            // Check and set weight
 		            // lbs
-		            if (parseInt($scope.selectedReport.secondWeightlbs) < 0) {
-	                    $scope.editError += "Weight in lbs must be an integer value greater than or equal to 0 for the twin\n"
-	                }
-		            //oz
-		            if (parseInt($scope.selectedReport.secondWeightoz) < 0) {
+		            var weightlbs = parseInt($scope.selectedSecondWeightlbs);
+		            if (isNaN(weightlbs)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightlbs < 0 || (weightlbs != $scope.selectedWeightoz)) {
 	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
 	                }
-		            var lbs = parseFloat($scope.selectedReport.secondWeightlbs);
-		            var oz = parseFloat($scope.selectedReport.secondWeightoz);
+		          	//oz
+		            var weightoz = parseInt($scope.selectedSecondWeightoz);
+		            if (isNaN(weightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                } else if (weightoz < 0 || (weightoz != $scope.selectedWeightoz)) {
+	                    $scope.editError += "Weight in oz must be an integer value greater than or equal to 0 for the twin\n"
+	                }
+		            var lbs = parseFloat($scope.selectedSecondWeightlbs);
+		            var oz = parseFloat($scope.selectedSecondWeightoz);
 		            $scope.selectedReport.secondWeight = lbs + (oz / 16);
 		            
 		            // Check length
@@ -620,15 +647,6 @@
 				var reportToSubmit = angular.copy($scope.selectedReport);
                 
                 console.log(reportToSubmit);
-                
-                // Get rid of extra pieces that the form won't want
-                var itemsToDel = ['dateOfLabor', 'timeOfLabor', 'dateOfDelivery', 'timeOfDelivery', 'weightlbs', 'weightoz',
-                    			  'secondDateOfDelivery', 'secondTimeOfDelivery', 'secondWeightlbs', 'secondWeightoz'];
-				for (i in itemsToDel) {
-				    delete reportToSubmit[itemsToDel[i]];
-				}
-                
-                console.log(reportToSubmit);
 
                     
                 if (!$scope.editError.length) {
@@ -642,14 +660,14 @@
                         
                      	// Pull in new data
                         $scope.updateInfo();
+                        $scope.selectedPatient = null;
+                        $scope.selectedDate = null;
                         
                     }, function (rejection) {
                         $scope.editSuccess = "";
                         $scope.editError = "Error occurred while editing labor and delivery report";
                     });
                 }
-                
-                $scope.selectedPatient = null;
 
             } //end edit function
 
@@ -686,14 +704,15 @@
 					</div>
 					<div class="panel-body">
 						<div style="margin-left: 10px;">
-							<div ng-if="Object.keys(reports).length > 0"></div>
+							<div ng-show="selectedPatient && Object.keys(reports).length > 0">
 
-							<div class="radio" ng-repeat="(date, report) in reports">
-								<label> <input type="radio"
-									ng-click="$parent.selectReport(report)"
-									ng-model="$parent.selectedDate" name="date" value="{{date}}"
-									required="true" /> {{date | date : 'MM/dd/yyyy'}}
-								</label>
+								<div class="radio" ng-repeat="(date, report) in reports">
+									<label> <input type="radio"
+										ng-click="$parent.selectReport(report)"
+										ng-model="$parent.selectedDate" name="date" value="{{date}}"
+										required="true" /> {{date | date : 'MM/dd/yyyy'}}
+									</label>
+								</div>
 							</div>
 
 							<div ng-if="!selectedPatient">Please select a patient to view their labor and delivery reports.</div>
@@ -728,12 +747,12 @@
 										<div class="form-group row">
 											<div class="col-xs-6">
 												<label for="selected-dateOfLabor">Date:</label> <input id="selected-dateOfLabor" type="date"
-													class="form-control" ng-model="selectedReport.dateOfLabor" name="selected-dateOfLabor"
+													class="form-control" ng-model="selectedDateOfLabor" name="selected-dateOfLabor"
 													required="true" />
 											</div>
 											<div class="col-xs-6">
 												<label for="selected-timeOfLabor">Time:</label> <input id="selected-timeOfLabor" type="time"
-													name="selected-timeOfLabor" class="form-control" ng-model="selectedReport.timeOfLabor"
+													name="selected-timeOfLabor" class="form-control" ng-model="selectedTimeOfLabor"
 													required="true" />
 											</div>
 										</div>
@@ -755,24 +774,24 @@
 											</div>
 											<div class="col-xs-9">
 												<input type="date" class="form-control" name="selected-dateOfDelivery"
-													ng-model="selectedReport.dateOfDelivery" required="true" />
+													ng-model="selectedDateOfDelivery" required="true" />
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Time:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<input id="selected-timeOfDelivery" type="time"
-													name="selected-timeOfDelivery" class="form-control" ng-model="selectedReport.timeOfDelivery"
+													name="selected-timeOfDelivery" class="form-control" ng-model="selectedTimeOfDelivery"
 													required="true" />
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Type:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<select
 													class="form-control" ng-model="selectedReport.deliveryMethod" id="selected-deliveryMethod"
 													name="selected-deliveryMethod">
@@ -787,7 +806,7 @@
 												</div>
 												<div name='selected-weightlbs' class="col-xs-4">
 													<input class="form-control" name="selected-weightlbs"
-														ng-model="selectedReport.weightlbs" required="true" type="text">
+														ng-model="selectedWeightlbs" required="true" type="text">
 												</div>
 												<div class="col-xs-3">
 													<span id="helpBlock" class="help-block">lbs</span>
@@ -797,7 +816,7 @@
 												<div class="col-xs-5"></div>
 												<div name='selected-weightoz' class="col-xs-4">
 													<input class="form-control" name="selected-weightoz"
-														ng-model="selectedReport.weightoz" required="true" type="text">
+														ng-model="selectedWeightoz" required="true" type="text">
 												</div>
 												<div class="col-xs-3">
 													<span id="helpBlock" class="help-block">oz</span>
@@ -875,24 +894,24 @@
 											</div>
 											<div class="col-xs-9">
 												<input type="date" class="form-control" name="selected-secondDateOfDelivery"
-													ng-model="selectedReport.secondDateOfDelivery" required="true" />
+													ng-model="selectedSecondDateOfDelivery" required="true" />
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Time:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<input id="selected-secondTimeOfDelivery" type="time"
-													name="selected-secondTimeOfDelivery" class="form-control" ng-model="selectedReport.secondTimeOfDelivery"
+													name="selected-secondTimeOfDelivery" class="form-control" ng-model="selectedSecondTimeOfDelivery"
 													required="true" />
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Type:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<select
 													class="form-control" ng-model="selectedReport.secondDeliveryMethod" id="selected-secondDeliveryMethod"
 													name="selected-secondDeliveryMethod">
@@ -907,7 +926,7 @@
 												</div>
 												<div name='selected-secondWeightlbs' class="col-xs-4">
 													<input class="form-control" name="selected-secondWeightlbs"
-														ng-model="selectedReport.secondWeightlbs" required="true" type="text">
+														ng-model="selectedSecondWeightlbs" required="true" type="text">
 												</div>
 												<div class="col-xs-3">
 													<span id="helpBlock" class="help-block">lbs</span>
@@ -917,7 +936,7 @@
 												<div class="col-xs-5"></div>
 												<div name='selected-secondWeightoz' class="col-xs-4">
 													<input class="form-control" name="selected-secondWeightoz"
-														ng-model="selectedReport.secondWeightoz" required="true" type="text">
+														ng-model="selectedSecondWeightoz" required="true" type="text">
 												</div>
 												<div class="col-xs-3">
 													<span id="helpBlock" class="help-block">oz</span>
@@ -1054,20 +1073,20 @@
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Time:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<input id="new-timeOfDelivery" type="time"
 													name="new-timeOfDelivery" class="form-control" ng-model="newReport.timeOfDelivery"
 													required="true" />
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Type:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<select
 													class="form-control" ng-model="newReport.deliveryMethod" id="new-deliveryMethod"
 													name="new-deliveryMethod">
@@ -1174,20 +1193,20 @@
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Time:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<input id="new-secondTimeOfDelivery" type="time"
 													name="new-secondTimeOfDelivery" class="form-control" ng-model="newReport.secondTimeOfDelivery"
 													required="true" />
 											</div>
 										</div>
 										<div class="form-group row">
-											<div class="col-xs-6">
+											<div class="col-xs-3">
 												<label>Type:</label>
 											</div>
-											<div class="col-xs-6">
+											<div class="col-xs-9">
 												<select
 													class="form-control" ng-model="newReport.secondDeliveryMethod" id="new-secondDeliveryMethod"
 													name="new-secondDeliveryMethod">

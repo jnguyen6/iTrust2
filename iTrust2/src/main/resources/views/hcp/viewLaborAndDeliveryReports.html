@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:include="layout :: head(title=~{::title},links=~{})">
-<title>View Patient Food Diary</title>
+<title>View Patient Labor and Delivery Reports</title>
 </head>
 
 <body th:include="layout :: body" th:with="content=~{::content}">
@@ -80,15 +80,16 @@
                         return orderedGroups;
                     };
                     
-                    $scope.makeIt = function (){
-                    	$scope.theReport = $scope.diaryReports[$scope.selectedDate];
+                    $scope.makeIt = function (selected){
+                    	//$scope.selected = new Date($scope.selectedDate);
+                    	$scope.theReport = $scope.diaryReports[selected];
                     	$scope.theReportDateLabor = new Date($scope.theReport[0].datetimeOfLabor);
                     	$scope.theReportDateDelivery = new Date($scope.theReport[0].datetimeOfDelivery);
                     	$scope.theReportWeightlbs = Math.floor($scope.theReport[0].weight);
-                	 	$scope.theReportWeightoz = ($scope.theReport[0].weight % 1) * 16;
+                	 	$scope.theReportWeightoz = Math.floor(($scope.theReport[0].weight % 1) * 16);
                         $scope.theReportDateDelivery2 = new Date($scope.theReport[0].secondDatetimeOfDelivery);
                         $scope.theReportWeightlbs2 = Math.floor($scope.theReport[0].secondWeight);
-                    	$scope.theReportWeightoz2 = ($scope.theReport[0].secondWeight % 1) * 16;
+                    	$scope.theReportWeightoz2 = Math.floor(($scope.theReport[0].secondWeight % 1) * 16);
                     }
                     
                 });
@@ -130,7 +131,7 @@
 
 							<div class="radio" ng-repeat="(date, entry) in diaryReports">
 								<label> <input type="radio"
-									ng-model="$parent.selectedDate" name="date" value="{{date}}" ng-click="makeIt()"
+									ng-model="$parent.selectedDate" name="date" value="{{date}}" ng-click="makeIt(date)"
 									required="true" /> {{date | date : 'MM/dd/yyyy'}}
 								</label>
 							</div>
@@ -168,11 +169,11 @@
 										<div class="form-group row">
 											<div class="col-xs-6">
 												<label for="selected-dateOfLabor">Date:</label>
-												<div name='date'> {{theReportDateLabor | date : 'MM/dd/yyyy'}}</div>
+												<div name='datel'> {{theReportDateLabor | date : 'MM/dd/yyyy'}}</div>
 											</div>
 											<div class="col-xs-6">
 												<label for="selected-timeOfLabor">Time:</label> 
-												<div name='time'> {{theReportDateLabor | date : 'shortTime'}}</div>
+												<div name='timel'> {{theReportDateLabor | date : 'shortTime'}}</div>
 											</div>
 										</div>
 									</div>
@@ -192,7 +193,7 @@
 												<label>Date:</label>
 											</div>
 											<div class="col-xs-6">
-												<div name='date'> {{theReportDateDelivery | date : 'MM/dd/yyyy'}}</div>
+												<div name='date1'> {{theReportDateDelivery | date : 'MM/dd/yyyy'}}</div>
 											</div>
 										</div>
 										<div class="form-group row">
@@ -200,7 +201,7 @@
 												<label>Time:</label>
 											</div>
 											<div class="col-xs-6">
-												<div name='time'> {{theReportDateDelivery | date : 'shortTime'}}</div>
+												<div name='time1'> {{theReportDateDelivery | date : 'shortTime'}}</div>
 											</div>
 										</div>
 										<div class="form-group row">
